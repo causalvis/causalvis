@@ -13,12 +13,13 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
 
-export const DownloadDialog = ({open=false, nodelinks={}, treatment="age", outcome="re78", colliders, mediators, handleClose}) => {
+export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], handleClose}) => {
   // console.log(colliders);
   const [checked, setChecked] = React.useState({
     nodelinkCheck: true,
     treatmentCheck: false,
     outcomeCheck: false,
+    confoundsCheck: false,
     mediatorsCheck: false,
     collidersCheck: false,
   });
@@ -41,6 +42,10 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="age", outco
       newDownload.outcome = outcome;
     }
 
+    if (checked.confoundsCheck) {
+      newDownload.confounds = confounds;
+    }
+
     if (checked.mediatorsCheck) {
       newDownload.mediators = mediators;
     }
@@ -51,7 +56,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="age", outco
 
     setJSON(newDownload);
 
-  }, [checked, nodelinks, treatment, outcome, colliders, mediators])
+  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators])
 
 
   function handleChange(val) {
@@ -102,6 +107,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="age", outco
                 <FormControlLabel control={<Checkbox checked={checked.nodelinkCheck} onChange={() => handleChange("nodelinkCheck")} />} label="Node-Link" />
                 <FormControlLabel control={<Checkbox checked={checked.treatmentCheck} onChange={() => handleChange("treatmentCheck")} />} label="Treatment" />
                 <FormControlLabel control={<Checkbox checked={checked.outcomeCheck} onChange={() => handleChange("outcomeCheck")} />} label="Outcome" />
+                <FormControlLabel control={<Checkbox checked={checked.confoundsCheck} onChange={() => handleChange("confoundsCheck")} />} label="Confounds" />
                 <FormControlLabel control={<Checkbox checked={checked.mediatorsCheck} onChange={() => handleChange("mediatorsCheck")} />} label="Mediators" />
                 <FormControlLabel control={<Checkbox checked={checked.collidersCheck} onChange={() => handleChange("collidersCheck")} />} label="Colliders" />
               </FormGroup>

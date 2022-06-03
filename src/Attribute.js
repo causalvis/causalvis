@@ -3,25 +3,66 @@ import React, {useState} from 'react';
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+// import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-export const Attribute = ({value=[], color="inherit", addAttribute}) => {
+export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome}) => {
 
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  // const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+  const [anchorPos, setAnchorPos] = React.useState(null);
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  function handleClose() {
+    setAnchorPos(null);
     setOpen(false);
-  };
+  }
 
   function handleContextMenu(e) {
     e.preventDefault();
-    setOpen(!open);
-    setAnchorEl(e.target);
+    if (isAdded) {
+      setOpen(!open);
+      // setAnchorEl(e.target);
+      setAnchorPos({"left": e.clientX + 2, "top": e.clientY - 6})
+    }
   }
 
-  const buttonStyle = {"width":"100%", "margin-bottom":"5px"};
-  const menuStyle = {"width":"150px"}
+  function handleTreatment() {
+    if (treatment === value) {
+      changeTreatment("");
+      handleClose();
+    } else if (outcome === value) {
+      changeTreatment(value);
+      changeOutcome("");
+      handleClose();
+      // alert("Attribute is already set as outcome");
+    } else {
+      changeTreatment(value);
+      handleClose();
+    }
+  }
+
+  function handleOutcome() {
+    if (outcome === value) {
+      changeOutcome("");
+      handleClose();
+    } else if (treatment === value) {
+      changeOutcome(value);
+      changeTreatment("");
+      handleClose();
+      // alert("Attribute is already set as treatment");
+    } else {
+      changeOutcome(value);
+      handleClose();
+    }
+  }
+
+  function handleDelete() {
+    deleteAttribute(value);
+    handleClose();
+  }
+
+  const buttonStyle = {"width":"100%", "marginBottom":"5px"};
+  const menuStyle = {}
+  // const iconStyle = {"margin-left":"auto"}
 
   return (
     <div>
@@ -29,19 +70,22 @@ export const Attribute = ({value=[], color="inherit", addAttribute}) => {
               onClick={() => addAttribute(value)}
               onContextMenu={(e) => handleContextMenu(e)}
               color={color}
-              variant="outlined">{value}</Button>
+              variant="outlined">{/*<MoreVertIcon style={iconStyle} />*/}{value}</Button>
       <Menu
         id="basic-menu"
-        anchorEl={anchorEl}
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPos}
         style={menuStyle}
+        dense
         open={open}
         onClose={handleClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleClose}>Set Treatment</MenuItem>
-        <MenuItem onClick={handleClose}>Set Outcome</MenuItem>
+        <MenuItem onClick={handleTreatment} selected={value===treatment}>Set Treatment</MenuItem>
+        <MenuItem onClick={handleOutcome} selected={value===outcome}>Set Outcome</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </div>
   )

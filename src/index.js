@@ -20,27 +20,42 @@ import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 // import * as d3 from 'd3';
 
 export const DAG = ({dataset = [], attributes = []}) => {
+
+  // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
+
+  // Tracks current editor mode
   const [mode, setMode] = React.useState('default');
+
+  // Controls whether download dialog is open
   const [open, setOpen] = React.useState(false);
+
+  // Tracks colliders, mediators and confounds in DAG
   const [colliders, setColliders] = React.useState([]);
   const [mediators, setMediators] = React.useState([]);
+  const [confounds, setConfounds] = React.useState([]);
+
+  // Tracks attributes added to DAG
   const [added, setAdded] = React.useState([]);
+
+  // Tracks treatment and outcome attributes
+  const [treatment, setTreatment] = React.useState("");
+  const [outcome, setOutcome] = React.useState("");
   // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
 
   const layout = {"height": 500, "width": 1000, "margin": 60};
 
+  // Add new attribute to the DAG
   function addAttribute(val) {
     // console.log(val);
 
     let index = added.indexOf(val);
 
     if (index < 0) {
-      // Add new attribute
       const id = (new Date()).getTime() + Math.floor(Math.random() * 98);
-      const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": 200,
-                                                          "y": 200,
+      const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": layout.width/2,
+                                                          "y": layout.height/2,
                                                           "id": id,
                                                           "name": val,
                                                           "parents": new Set(),
@@ -49,17 +64,38 @@ export const DAG = ({dataset = [], attributes = []}) => {
       
       setnodelinks(newnodelinks);
       setAdded([...added, val]);
-    } else {
-      // Remove attribute and any connected links
-      added.splice(index, 1);
-      setAdded([...added]);
+    } 
+  }
 
-      let newNodes = nodelinks.nodes.filter(n => n.name !== val);
-      let newLinks = nodelinks.links.filter(l => l.target.name !== val && l.source.name !== val);
+  // Delete an attribute from the DAG
+  function deleteAttribute(val) {
+    let index = added.indexOf(val);
 
-      setnodelinks({"nodes": [...newNodes], "links": [...newLinks]});
+    added.splice(index, 1);
+    setAdded([...added]);
+
+    let newNodes = nodelinks.nodes.filter(n => n.name !== val);
+    let newLinks = nodelinks.links.filter(l => l.target.name !== val && l.source.name !== val);
+
+    setnodelinks({"nodes": [...newNodes], "links": [...newLinks]});
+
+    if (val === treatment) {
+      setTreatment("");
     }
-    
+
+    if (val === outcome) {
+      setOutcome("");
+    }
+  }
+
+  // Set an attribute as the treatment of interest
+  function changeTreatment(attribute) {
+    setTreatment(attribute);
+  }
+
+  // Set an attribute as the outcome of interest
+  function changeOutcome(attribute) {
+    setOutcome(attribute);
   }
 
   // Update node position after dragging
@@ -126,7 +162,7 @@ export const DAG = ({dataset = [], attributes = []}) => {
 
   // Open and close download dialog
   const handleClickOpen = () => {
-    let newColliders = getColliders('age', 're78');
+    let newColliders = getColliders(treatment, outcome);
     let colliderNames = []
 
     for (let c of newColliders) {
@@ -134,7 +170,8 @@ export const DAG = ({dataset = [], attributes = []}) => {
     }
 
     setColliders(colliderNames);
-    setMediators(Array.from(getMediators('age', 're78')).map(m => m.name));
+    setMediators(Array.from(getMediators(treatment, outcome)).map(m => m.name));
+    setConfounds(getConfounds(treatment, outcome).map(m => m.name));
     // console.log(getMediators('age', 're78'))
     setOpen(true);
   };
@@ -218,6 +255,11 @@ export const DAG = ({dataset = [], attributes = []}) => {
       return [];
     }
 
+    // Return if no treatment and outcome variables indicated
+    if (treatment === "" || outcome === "") {
+      return [];
+    }
+
     // console.log("getting colliders...");
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let o = nodelinks.nodes.filter(n => n.name === outcome)[0];
@@ -261,11 +303,23 @@ export const DAG = ({dataset = [], attributes = []}) => {
       return [];
     }
 
+    // Return if no treatment and outcome variables indicated
+    if (treatment === "" || outcome === "") {
+      return [];
+    }
+
     // console.log("getting mediators...");
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let oID = nodelinks.nodes.filter(n => n.name === outcome)[0].id;
 
     let paths = hasOutcome(t, oID);
+
+    // console.log(paths)
+
+    if (paths.length === 0) {
+      alert("There are no causal pathways from treatment to outcome.");
+      return [];
+    }
 
     let mediators = new Set()
 
@@ -279,21 +333,59 @@ export const DAG = ({dataset = [], attributes = []}) => {
     return mediators;
   }
 
+  // Get confounds that affect both treatments and outcomes
+  function getConfounds(treatment, outcome) {
+    // Return if no nodes or links
+    if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
+      return [];
+    }
+
+    // Return if no treatment and outcome variables indicated
+    if (treatment === "" || outcome === "") {
+      return [];
+    }
+
+    let confounds = [];
+
+    for (let n of nodelinks.nodes) {
+      let nDescendents = new Set(getDescendents(n));
+      let nodeDescendents = new Set(nodelinks.nodes.filter(nd => nDescendents.has(nd.id)).map(nd => nd.name));
+
+      if (nodeDescendents.has(treatment) && nodeDescendents.has(outcome)) {
+        confounds.push(n);
+      }
+    }
+
+    return confounds;
+  }
+
   let bodyStyle = {"display": "flex"};
   let connectIcon = {"transform": "rotate(-45deg)"};
-  let buttonStyle = {"margin-bottom": "0px"};
+  let buttonStyle = {"marginBottom": "0px"};
   let menuStyle = {"display": "flex",
                   "width": "100%",
-                  "align-items": "center",
-                  "margin-bottom": "20px"};
-  let downloadStyle = {"margin-left": "auto", "margin-right": "none"}
+                  "alignItems": "center",
+                  "marginBottom": "20px"};
+  let downloadStyle = {"marginLeft": "auto", "marginRight": "none"};
+  let aStyle = {"height":"24px"};
 
   return (
     <div style={bodyStyle}>
-      <AttributesManager attributes={attributes} added={added} addAttribute={addAttribute} />
+      <AttributesManager
+        attributes={attributes}
+        added={added}
+        treatment={treatment}
+        outcome={outcome}
+        addAttribute={addAttribute}
+        deleteAttribute={deleteAttribute}
+        changeTreatment={changeTreatment}
+        changeOutcome={changeOutcome} />
       <DownloadDialog
         open={open}
         nodelinks={nodelinks}
+        treatment={treatment}
+        outcome={outcome}
+        confounds={confounds}
         colliders={colliders}
         mediators={mediators}
         handleClose={handleClose} />
@@ -318,12 +410,12 @@ export const DAG = ({dataset = [], attributes = []}) => {
           </ToggleButtonGroup>
           <div style={downloadStyle}>
             <IconButton id="downloadSVG" onClick={() => downloadSVG()}>
-              <a title="save image">
+              <a style={aStyle} title="save image">
                 <AddPhotoAlternateOutlinedIcon />
               </a>
             </IconButton>
             <IconButton onClick={() => handleClickOpen()}>
-              <a title="download JSON">
+              <a style={aStyle} title="download JSON">
                 <FileDownloadOutlinedIcon />
               </a>
             </IconButton>
@@ -334,7 +426,12 @@ export const DAG = ({dataset = [], attributes = []}) => {
             layout={layout}
             nodelinks={nodelinks}
             mode={mode}
+            treatment={treatment}
+            outcome={outcome}
             updateNodePos={updateNodePos}
+            deleteAttribute={deleteAttribute}
+            changeTreatment={changeTreatment}
+            changeOutcome={changeOutcome}
             updateLinks={updateLinks}
             deleteLinks={deleteLinks}
           />

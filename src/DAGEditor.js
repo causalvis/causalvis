@@ -1,8 +1,65 @@
 import React, {useRef, useState} from 'react'
 import * as d3 from 'd3';
+
 import { saveAs } from 'file-saver';
 
-export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", updateNodePos, updateLinks, deleteLinks}) => {
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+
+export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", treatment="", outcome="", updateNodePos, deleteAttribute, changeTreatment, changeOutcome, updateLinks, deleteLinks}) => {
+
+  // const [anchorEl, setAnchorEl] = React.useState(null);
+  const [open, setOpen] = React.useState(false);
+  const [anchorPos, setAnchorPos] = React.useState(null);
+  const [contextItem, setContextItem] = React.useState(null);
+
+  function handleClose() {
+    setAnchorPos(null);
+    setContextItem(null);
+    setOpen(false);
+  }
+
+  function handleContextMenu(e, d) {
+    e.preventDefault();
+    setOpen(!open);
+    setAnchorPos({"left": e.clientX + 2, "top": e.clientY - 6})
+    setContextItem(d.name);
+  }
+
+  function handleTreatment() {
+    if (treatment === contextItem) {
+      changeTreatment("");
+      handleClose();
+    } else if (outcome === contextItem) {
+      changeTreatment(contextItem);
+      changeOutcome("");
+      handleClose();
+      // alert("Attribute is already set as outcome");
+    } else {
+      changeTreatment(contextItem);
+      handleClose();
+    }
+  }
+
+  function handleOutcome() {
+    if (outcome === contextItem) {
+      changeOutcome("");
+      handleClose();
+    } else if (treatment === contextItem) {
+      changeOutcome(contextItem);
+      changeTreatment("");
+      handleClose();
+      // alert("Attribute is already set as treatment");
+    } else {
+      changeOutcome(contextItem);
+      handleClose();
+    }
+  }
+
+  function handleDelete() {
+    deleteAttribute(contextItem);
+    handleClose();
+  }
 
   const ref = useRef('scatterplot');
 
@@ -208,6 +265,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .text(d => d.name)
     .attr("x", d => d.x)
     .attr("y", d => d.y)
+    .attr("fill", d => d.name === treatment ? "#1976d2" : d.name === outcome ? "#f57c00" : "black")
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "middle")
 
@@ -226,7 +284,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke-width", 1)
       .on("mouseover", function () {
         if (mode === "path") {
-          d3.select(this).attr("stroke", "#1976d2").attr("stroke-width", 3);
+          d3.select(this).attr("stroke-width", 3);
+          // d3.select(this).attr("stroke", "#1976d2").attr("stroke-width", 3);
         }
       })
       .on("mouseout", function () {
@@ -250,8 +309,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("cx", d => d.x)
       .attr("cy", d => d.y)
       .attr("fill", "white")
-      .attr("stroke", "black")
-      .attr("stroke-width", "1px")
+      .attr("stroke", d => d.name === treatment ? "#1976d2" : d.name === outcome ? "#f57c00" : "black")
+      .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .call(d3.drag()
         .on("drag", function (e, d) {
@@ -275,11 +334,15 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
         if (mode === "path") {
 
+          // Remove node if previously selected
           if (currentPath.length === 1 && d.id === currentPath[0].id) {
+            d3.select(this).attr("stroke-width", 1);
+            currentPath = [];
             return;
           }
 
           currentPath.push(d);
+          d3.select(this).attr("stroke-width", 3);
 
           if (currentPath.length === 2) {
             updateLinks(currentPath);
@@ -288,19 +351,38 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         }
         
       })
-      .on("mouseover", function () {
+      .on("mouseover", function (e, d) {
         if (mode === "path") {
-          d3.select(this).attr("stroke", "#1976d2").attr("stroke-width", 3);
+          d3.select(this).attr("stroke-width", 3);
         }
       })
-      .on("mouseout", function () {
-        if (mode === "path") {
-          d3.select(this).attr("stroke", "black").attr("stroke-width", 1);
+      .on("mouseout", function (e, d) {
+        if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0) {
+          d3.select(this).attr("stroke-width", 1);
         }
-      });
+      })
+      .on("contextmenu", (e, d) => handleContextMenu(e, d));
+
+  const menuStyle = {}
 
   return (
     <div>
+      <Menu
+        id="basic-menu"
+        anchorReference="anchorPosition"
+        anchorPosition={anchorPos}
+        style={menuStyle}
+        dense
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={handleTreatment}>Set Treatment</MenuItem>
+        <MenuItem onClick={handleOutcome}>Set Outcome</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+      </Menu>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgDAG">
         <g id="links" />
         <g id="nodes" />
