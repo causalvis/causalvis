@@ -13,6 +13,8 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
 
+import { saveAs } from 'file-saver';
+
 export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], handleClose}) => {
   // console.log(colliders);
   const [checked, setChecked] = React.useState({

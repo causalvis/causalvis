@@ -79,10 +79,12 @@ export const DAG = ({dataset = [], attributes = []}) => {
 
     setnodelinks({"nodes": [...newNodes], "links": [...newLinks]});
 
+    // If deleted attribute is treatment, set treatment to null
     if (val === treatment) {
       setTreatment("");
     }
 
+    // If deleted attribute is outcome, set outcome to null
     if (val === outcome) {
       setOutcome("");
     }

@@ -1,8 +1,6 @@
 import React, {useRef, useState} from 'react'
 import * as d3 from 'd3';
 
-import { saveAs } from 'file-saver';
-
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -72,7 +70,31 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   //   d.target = nodelinks.nodes[linkTarget];
   // });
 
-  let svgElement = d3.select(ref.current)
+  let svgElement = d3.select(ref.current);
+
+  const zoom = d3.zoom()
+      .extent([[0, 0], [layout.width, layout.height]])
+      .scaleExtent([0.1, 8])
+      .on("zoom", zoomed)
+
+  svgElement.call(zoom);
+
+  // Reset zoom on click
+  svgElement.on('click', function(e) {
+    svgElement.transition()
+      .duration(750)
+      .call(zoom.transform, d3.zoomIdentity);
+
+    e.stopPropagation()
+  })
+
+  function zoomed({transform}) {
+    node.attr("transform", transform);
+    text.attr("transform", transform);
+    link.attr("transform", transform);
+    arrowleft.attr("transform", transform);
+    arrowright.attr("transform", transform);
+  }
 
   function getAngle(height, width, theta) {
     let angle;
@@ -304,8 +326,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .data(nodelinks.nodes)
     .join("ellipse")
       .attr("class", "node")
-      .attr("rx", 50)
-      .attr("ry", 20)
+      .attr("rx", zoom.transform(50))
+      .attr("ry", zoom.transform(20))
       .attr("cx", d => d.x)
       .attr("cy", d => d.y)
       .attr("fill", "white")
@@ -372,23 +394,20 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         anchorReference="anchorPosition"
         anchorPosition={anchorPos}
         style={menuStyle}
-        dense
         open={open}
         onClose={handleClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleTreatment}>Set Treatment</MenuItem>
-        <MenuItem onClick={handleOutcome}>Set Outcome</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+        <MenuItem onClick={handleTreatment} selected={contextItem===treatment}>Set as Treatment</MenuItem>
+        <MenuItem onClick={handleOutcome} selected={contextItem===outcome}>Set as Outcome</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgDAG">
         <g id="links" />
         <g id="nodes" />
         <g id="nodeNames" />
-        <g id="x-axis" />
-        <g id="y-axis" />
       </svg>
     </div>
   )

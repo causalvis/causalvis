@@ -70,22 +70,21 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
               onClick={() => addAttribute(value)}
               onContextMenu={(e) => handleContextMenu(e)}
               color={color}
-              variant="outlined">{/*<MoreVertIcon style={iconStyle} />*/}{value}</Button>
+              variant="outlined"><a title="click to add">{value}</a></Button>
       <Menu
         id="basic-menu"
         anchorReference="anchorPosition"
         anchorPosition={anchorPos}
         style={menuStyle}
-        dense
         open={open}
         onClose={handleClose}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={handleTreatment} selected={value===treatment}>Set Treatment</MenuItem>
-        <MenuItem onClick={handleOutcome} selected={value===outcome}>Set Outcome</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+        <MenuItem onClick={handleTreatment} selected={value===treatment}>Set as Treatment</MenuItem>
+        <MenuItem onClick={handleOutcome} selected={value===outcome}>Set as Outcome</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
     </div>
   )
