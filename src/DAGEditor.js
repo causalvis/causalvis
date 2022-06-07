@@ -201,20 +201,22 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   function onDrag(el, e, d) {
 
+    // console.log(d);
+
     // console.log(e.x, e.y, e);
 
     // Change position of node
     d3.select(el).attr("cx", e.x).attr("cy", e.y);
 
     // Change position of text
-    text.filter(l => l === d).attr("x", e.x).attr("y", e.y);
+    text.filter(l => l.id === d.id).attr("x", e.x).attr("y", e.y);
 
     // Update endpoints of links
-    link.filter(l => l.source === d).attr("x1", e.x).attr("y1", e.y);
-    link.filter(l => l.target === d).attr("x2", e.x).attr("y2", e.y);
+    link.filter(l => l.source.id === d.id).attr("x1", e.x).attr("y1", e.y);
+    link.filter(l => l.target.id === d.id).attr("x2", e.x).attr("y2", e.y);
 
     // Update endpoints of direction arrows
-    arrowleft.filter(l => l.target === d)
+    arrowleft.filter(l => l.target.id === d.id)
       .attr("x1", d => (e.x - d.source.x) / 2 + d.source.x)
       .attr("y1", d => (e.y - d.source.y) / 2 + d.source.y)
       .attr("x2", d => {
@@ -235,7 +237,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         return (e.y - d.source.y) / 2 + d.source.y - 10 * Math.sin(angle + Math.PI/5)
       })
 
-    arrowleft.filter(l => l.source === d)
+    arrowleft.filter(l => l.source.id === d.id)
       .attr("x1", d => (d.target.x - e.x) / 2 + e.x)
       .attr("y1", d => (d.target.y - e.y) / 2 + e.y)
       .attr("x2", d => {
@@ -258,7 +260,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke", "black")
       .attr("stroke-width", 1);
 
-    arrowright.filter(l => l.target === d)
+    arrowright.filter(l => l.target.id === d.id)
       .attr("x1", d => (e.x - d.source.x) / 2 + d.source.x)
       .attr("y1", d => (e.y - d.source.y) / 2 + d.source.y)
       .attr("x2", d => {
@@ -279,7 +281,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         return (e.y - d.source.y) / 2 + d.source.y - 10 * Math.sin(angle - Math.PI/5)
       })
 
-      arrowright.filter(l => l.source === d)
+      arrowright.filter(l => l.source.id === d.id)
       .attr("x1", d => (d.target.x - e.x) / 2 + e.x)
       .attr("y1", d => (d.target.y - e.y) / 2 + e.y)
       .attr("x2", d => {
@@ -439,7 +441,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
       <IconButton id="fitScreen">
-        <a style={aStyle} title="fit screen" onClick={() => resetZoom()}>
+        <a style={aStyle} title="reset zoom" onClick={() => resetZoom()}>
           <FullscreenExitOutlinedIcon />
         </a>
       </IconButton>

@@ -103,11 +103,9 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     setAllAttributes(newAttributes);
     setAdded(newAttributes);
 
-    // let newAdded = new Set();
-
     for (let l of links) {
-      let s = l.source;
-      let t = l.target;
+      let s = l.source.name ? l.source.name : l.source;
+      let t = l.target.name ? l.target.name : l.target;
 
       let sourceNode = nodes.filter(n => n.name === s)[0];
       let targetNode = nodes.filter(n => n.name === t)[0];
@@ -115,14 +113,15 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       sourceNode.children.add(targetNode.id);
       targetNode.parents.add(sourceNode.id);
 
-      l.source = nodes.filter(n => n.name === s)[0];
-      l.target = nodes.filter(n => n.name === t)[0];
+      l.source = {...nodes.filter(n => n.name === s)[0]};
+      l.target = {...nodes.filter(n => n.name === t)[0]};
 
-      // newAdded.add(sourceNode.name);
-      // newAdded.add(targetNode.name);
+      delete l.source.children;
+      delete l.source.parents;
+
+      delete l.target.children;
+      delete l.target.parents;
     }
-
-    // setAdded(Array.from(newAdded));
 
     setnodelinks({...graph});
   }
@@ -190,11 +189,23 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // Update node position after dragging
   function updateNodePos(id, newX, newY) {
     let newnodelinks = { ...nodelinks };
-    for (let n of nodelinks.nodes) {
+    for (let n of newnodelinks.nodes) {
       if (n.id === id) {
         n.x = newX;
         n.y = newY;
         break;
+      }
+    }
+
+    for (let l of newnodelinks.links) {
+      if (l.source.id === id) {
+        l.source.x = newX;
+        l.source.y = newY;
+      }
+
+      if (l.target.id === id) {
+        l.target.x = newX;
+        l.target.y = newY;
       }
     }
 
@@ -219,6 +230,12 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         n.parents.add(newLink[0].id)
       }
     }
+
+    delete newLink[0].parents;
+    delete newLink[0].children;
+
+    delete newLink[1].parents;
+    delete newLink[1].children;
 
     const newnodelinks = {"nodes": [...nodelinks.nodes], "links": [...nodelinks.links, {"source": newLink[0], "target": newLink[1]}]};
     // console.log(newnodelinks);

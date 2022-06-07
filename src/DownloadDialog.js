@@ -32,7 +32,13 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
     let newDownload = {};
     
     if (checked.nodelinkCheck) {
-      newDownload.nodes = nodelinks.nodes;
+      newDownload.nodes = [...nodelinks.nodes];
+
+      for (let n of newDownload.nodes) {
+        n.children = Array.from(n.children);
+        n.parents = Array.from(n.parents);
+      }
+
       newDownload.links = nodelinks.links;
     }
 
