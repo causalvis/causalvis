@@ -50,7 +50,7 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
     }
   }
 
-  let attrStyle = {"display": "flex", "flexDirection": "column", "width": "150px", "marginRight": "20px"};
+  let attrStyle = {"display": "flex", "flexDirection": "column", "width": "150px", "marginRight": "20px", "height": "550px", "overflow": "scroll"};
 
   return (
     <div>

@@ -15,6 +15,8 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+// import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
+// import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 // import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
@@ -126,7 +128,9 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   }
 
   useEffect(() => {
-    loadGraph(graph);
+    if (graph) {
+      loadGraph(graph);
+    }
   }, [graph]);
 
   // Add new attribute to the DAG
@@ -453,6 +457,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
                   "marginBottom": "20px"};
   let downloadStyle = {"marginLeft": "auto", "marginRight": "none"};
   let aStyle = {"height":"24px"};
+  let divider = {"borderRight": "1px solid gray"};
 
   return (
     <div style={bodyStyle}>

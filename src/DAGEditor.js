@@ -1,8 +1,11 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
+import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+
+import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
 
 export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", treatment="", outcome="", updateNodePos, deleteAttribute, changeTreatment, changeOutcome, updateLinks, deleteLinks}) => {
 
@@ -95,13 +98,20 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   svg.call(zoom);
 
   // Reset zoom on click
-  svg.on('click', function(e) {
-    svgElement.transition()
+  function resetZoom() {
+    svg.transition()
       .duration(750)
       .call(zoom.transform, d3.zoomIdentity);
 
-    e.stopPropagation()
-  })
+    // e.stopPropagation()
+  }
+  // svg.on('click', function(e) {
+  //   svg.transition()
+  //     .duration(750)
+  //     .call(zoom.transform, d3.zoomIdentity);
+
+  //   e.stopPropagation()
+  // })
 
   // useEffect(() => {
   //   svgElement.transition()
@@ -333,7 +343,9 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         }
       })
       .on("click", function(e, d) {
-        deleteLinks(d);
+        if (mode === "path") {
+          deleteLinks(d);
+        }
       });
 
   // Each ellipse represents an attribute
@@ -353,12 +365,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("cursor", "pointer")
       .call(d3.drag()
         .on("start", function(e, d) {
-          e.sourceEvent.stopPropagation();
         })
         .on("drag", function (e, d) {
-          console.log(e, d);
-
-          e.sourceEvent.stopPropagation();
 
           if (mode === "default") {
             // Adjust the position of a node
@@ -367,8 +375,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
         })
         .on("end", function (e, d) {
-
-          e.sourceEvent.stopPropagation();
 
           // Update the new position of the node
           if (mode === "default") {
@@ -379,7 +385,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       )
       .on("click", function (e, d) {
 
-        e.sourceEvent.stopPropagation();
+        e.stopPropagation();
 
         if (mode === "path") {
 
@@ -413,6 +419,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .on("contextmenu", (e, d) => handleContextMenu(e, d));
 
   const menuStyle = {};
+  let aStyle = {"height":"24px"};
 
   return (
     <div>
@@ -431,6 +438,11 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         <MenuItem onClick={handleOutcome} selected={contextItem===outcome}>Set as Outcome</MenuItem>
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
+      <IconButton id="fitScreen">
+        <a style={aStyle} title="fit screen" onClick={() => resetZoom()}>
+          <FullscreenExitOutlinedIcon />
+        </a>
+      </IconButton>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgDAG">
         <g>
           <g id="links" />
