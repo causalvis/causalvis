@@ -17,4 +17,4 @@ Start the app with:
 npm run storybook
 ```
 
-This should open a new browser window. On the left hand menu, navigate to the `DAG` tab to access the DAGEdtor tool.
+This should open a new browser window. On the left hand menu, navigate to the `DAG` tab to access the DAGEditor tool.
