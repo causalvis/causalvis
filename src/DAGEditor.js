@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
 import Menu from '@mui/material/Menu';
@@ -10,6 +10,9 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   const [open, setOpen] = React.useState(false);
   const [anchorPos, setAnchorPos] = React.useState(null);
   const [contextItem, setContextItem] = React.useState(null);
+  // const [translate, setTranslate] = React.useState([0, 0]);
+  // const [scale, setScale] = React.useState(1);
+  const [transform, setTransform] = React.useState({});
 
   function handleClose() {
     setAnchorPos(null);
@@ -70,17 +73,29 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   //   d.target = nodelinks.nodes[linkTarget];
   // });
 
-  let svgElement = d3.select(ref.current);
+  let svg = d3.select(ref.current)
+
+  let svgElement = svg.select("g");
+
+  function zoomed({transform}) {
+    // setTransform(transform);
+    svgElement.attr("transform", transform);
+    // node.attr("transform", transform);
+    // text.attr("transform", transform);
+    // link.attr("transform", transform);
+    // arrowleft.attr("transform", transform);
+    // arrowright.attr("transform", transform);
+  }
 
   const zoom = d3.zoom()
       .extent([[0, 0], [layout.width, layout.height]])
       .scaleExtent([0.1, 8])
-      .on("zoom", zoomed)
+      .on("zoom", zoomed);
 
-  svgElement.call(zoom);
+  svg.call(zoom);
 
   // Reset zoom on click
-  svgElement.on('click', function(e) {
+  svg.on('click', function(e) {
     svgElement.transition()
       .duration(750)
       .call(zoom.transform, d3.zoomIdentity);
@@ -88,13 +103,11 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     e.stopPropagation()
   })
 
-  function zoomed({transform}) {
-    node.attr("transform", transform);
-    text.attr("transform", transform);
-    link.attr("transform", transform);
-    arrowleft.attr("transform", transform);
-    arrowright.attr("transform", transform);
-  }
+  // useEffect(() => {
+  //   svgElement.transition()
+  //     .duration(750)
+  //     .call(zoom.transform, d3.zoomIdentity);
+  // }, [nodelinks])
 
   function getAngle(height, width, theta) {
     let angle;
@@ -177,6 +190,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke-width", 1);
 
   function onDrag(el, e, d) {
+
+    // console.log(e.x, e.y, e);
 
     // Change position of node
     d3.select(el).attr("cx", e.x).attr("cy", e.y);
@@ -276,6 +291,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .attr("stroke", "black")
       .attr("stroke-width", 1);
+
+      // zoomed(transform);
   }
 
   var text = svgElement
@@ -335,7 +352,13 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .call(d3.drag()
+        .on("start", function(e, d) {
+          e.sourceEvent.stopPropagation();
+        })
         .on("drag", function (e, d) {
+          console.log(e, d);
+
+          e.sourceEvent.stopPropagation();
 
           if (mode === "default") {
             // Adjust the position of a node
@@ -345,6 +368,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         })
         .on("end", function (e, d) {
 
+          e.sourceEvent.stopPropagation();
+
           // Update the new position of the node
           if (mode === "default") {
             updateNodePos(d.id, e.x, e.y);
@@ -353,6 +378,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         })
       )
       .on("click", function (e, d) {
+
+        e.sourceEvent.stopPropagation();
 
         if (mode === "path") {
 
@@ -385,7 +412,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .on("contextmenu", (e, d) => handleContextMenu(e, d));
 
-  const menuStyle = {}
+  const menuStyle = {};
 
   return (
     <div>
@@ -405,9 +432,11 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgDAG">
-        <g id="links" />
-        <g id="nodes" />
-        <g id="nodeNames" />
+        <g>
+          <g id="links" />
+          <g id="nodes" />
+          <g id="nodeNames" />
+        </g>
       </svg>
     </div>
   )

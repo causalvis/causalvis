@@ -1,5 +1,7 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { select } from 'd3-selection';
+import { scaleLinear } from 'd3-scale';
+import { extent } from 'd3-array';
 
 import { DAGEditor } from './DAGEditor';
 import { AttributesManager } from './AttributesManager';
@@ -19,7 +21,11 @@ import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 // import MovingOutlinedIcon from '@mui/icons-material/MovingOutlined';
 // import * as d3 from 'd3';
 
-export const DAG = ({dataset = [], attributes = []}) => {
+import { saveAs } from 'file-saver';
+
+export const DAG = ({dataset = [], attributes = [], graph}) => {
+
+  // console.log(dataset);
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -35,6 +41,8 @@ export const DAG = ({dataset = [], attributes = []}) => {
   const [mediators, setMediators] = React.useState([]);
   const [confounds, setConfounds] = React.useState([]);
 
+  // Track attributes
+  const [allAttributes, setAllAttributes] = React.useState(attributes);
   // Tracks attributes added to DAG
   const [added, setAdded] = React.useState([]);
 
@@ -44,7 +52,82 @@ export const DAG = ({dataset = [], attributes = []}) => {
   // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
 
+  const [ID, setID] = React.useState(new Set());
+
   const layout = {"height": 500, "width": 1000, "margin": 60};
+
+  function generateID() {
+    return (new Date()).getTime() + Math.floor(Math.random() * 98);
+  }
+
+  function loadGraph(graph) {
+
+    var xScale = scaleLinear()
+          .domain(extent(graph.nodes, d => d.x))
+          .range([layout.margin, layout.width - layout.margin])
+
+    var yScale = scaleLinear()
+          .domain(extent(graph.nodes, d => d.y))
+          .range([layout.height - layout.margin, layout.margin])
+
+    let nodes = graph.nodes;
+    let links = graph.links;
+
+    let newID = new Set();
+    let newAttributes = [];
+
+    for (let n of nodes) {
+      if (!n.id) {
+        let id = generateID();
+
+        while (newID.has(id)) {
+          id = generateID();
+        }
+
+        n.id = id;
+      }
+
+      newID.add(n.id);
+
+      n.x = xScale(n.x);
+      n.y = yScale(n.y);
+      n.children = new Set();
+      n.parents = new Set();
+
+      newAttributes.push(n.name);
+    }
+
+    setID(newID);
+    setAllAttributes(newAttributes);
+    setAdded(newAttributes);
+
+    // let newAdded = new Set();
+
+    for (let l of links) {
+      let s = l.source;
+      let t = l.target;
+
+      let sourceNode = nodes.filter(n => n.name === s)[0];
+      let targetNode = nodes.filter(n => n.name === t)[0];
+
+      sourceNode.children.add(targetNode.id);
+      targetNode.parents.add(sourceNode.id);
+
+      l.source = nodes.filter(n => n.name === s)[0];
+      l.target = nodes.filter(n => n.name === t)[0];
+
+      // newAdded.add(sourceNode.name);
+      // newAdded.add(targetNode.name);
+    }
+
+    // setAdded(Array.from(newAdded));
+
+    setnodelinks({...graph});
+  }
+
+  useEffect(() => {
+    loadGraph(graph);
+  }, [graph]);
 
   // Add new attribute to the DAG
   function addAttribute(val) {
@@ -374,7 +457,7 @@ export const DAG = ({dataset = [], attributes = []}) => {
   return (
     <div style={bodyStyle}>
       <AttributesManager
-        attributes={attributes}
+        attributes={allAttributes}
         added={added}
         treatment={treatment}
         outcome={outcome}
