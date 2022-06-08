@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { DAG } from '../src';
+import { DAG } from '../src/DAG.js';
 import dataset from '../public/student_data.json';
-import graph from '../public/student_nodelink.json'
+import graph from '../public/DAG.json'
 
 let attributes = Object.keys(dataset[0]);
 

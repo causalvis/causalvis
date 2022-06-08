@@ -65,7 +65,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     handleClose();
   }
 
-  const ref = useRef('scatterplot');
+  const ref = useRef('svgDAG');
 
   let currentPath = [];
 
@@ -81,13 +81,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   let svgElement = svg.select("g");
 
   function zoomed({transform}) {
-    // setTransform(transform);
     svgElement.attr("transform", transform);
-    // node.attr("transform", transform);
-    // text.attr("transform", transform);
-    // link.attr("transform", transform);
-    // arrowleft.attr("transform", transform);
-    // arrowright.attr("transform", transform);
   }
 
   const zoom = d3.zoom()
@@ -102,22 +96,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     svg.transition()
       .duration(750)
       .call(zoom.transform, d3.zoomIdentity);
-
-    // e.stopPropagation()
   }
-  // svg.on('click', function(e) {
-  //   svg.transition()
-  //     .duration(750)
-  //     .call(zoom.transform, d3.zoomIdentity);
-
-  //   e.stopPropagation()
-  // })
-
-  // useEffect(() => {
-  //   svgElement.transition()
-  //     .duration(750)
-  //     .call(zoom.transform, d3.zoomIdentity);
-  // }, [nodelinks])
 
   function getAngle(height, width, theta) {
     let angle;
@@ -303,8 +282,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .attr("stroke", "black")
       .attr("stroke-width", 1);
-
-      // zoomed(transform);
   }
 
   var text = svgElement
@@ -440,8 +417,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         <MenuItem onClick={handleOutcome} selected={contextItem===outcome}>Set as Outcome</MenuItem>
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
-      <IconButton id="fitScreen">
-        <a style={aStyle} title="reset zoom" onClick={() => resetZoom()}>
+      <IconButton id="fitScreen" onClick={() => resetZoom()}>
+        <a style={aStyle} title="reset zoom">
           <FullscreenExitOutlinedIcon />
         </a>
       </IconButton>
