@@ -284,6 +284,19 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke-width", 1);
   }
 
+  // Determine node color
+  function nodeColor(d) {
+    if (d.name === treatment) {
+      return "#1976d2"
+    } else if (d.name === outcome) {
+      return "#f57c00"
+    } else if (d.$custom) {
+      return "#9e9e9e"
+    } else {
+      return "black"
+    }
+  }
+
   var text = svgElement
     .select("#nodeNames")
     .selectAll(".nodeName")
@@ -293,7 +306,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .text(d => d.name)
     .attr("x", d => d.x)
     .attr("y", d => d.y)
-    .attr("fill", d => d.name === treatment ? "#1976d2" : d.name === outcome ? "#f57c00" : "black")
+    .attr("fill", d => nodeColor(d))
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "middle")
 
@@ -339,7 +352,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("cx", d => d.x)
       .attr("cy", d => d.y)
       .attr("fill", "white")
-      .attr("stroke", d => d.name === treatment ? "#1976d2" : d.name === outcome ? "#f57c00" : "black")
+      .attr("stroke", d => nodeColor(d))
       .attr("stroke-width", 1)
       .attr("cursor", "pointer")
       .call(d3.drag()

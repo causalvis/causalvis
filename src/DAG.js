@@ -3,9 +3,10 @@ import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { extent } from 'd3-array';
 
-import { DAGEditor } from './DAGEditor';
 import { AttributesManager } from './AttributesManager';
+import { DAGEditor } from './DAGEditor';
 import { DownloadDialog } from './DownloadDialog';
+import { NodeDialog } from './NodeDialog';
 
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -13,6 +14,7 @@ import Paper from '@mui/material/Paper';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 // import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
@@ -35,6 +37,9 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
 
   // Controls whether download dialog is open
   const [open, setOpen] = React.useState(false);
+
+  // Controls whether add node dialog is open
+  const [addNode, setAddNode] = React.useState(false);
 
   // Tracks colliders, mediators and confounds in DAG
   const [colliders, setColliders] = React.useState([]);
@@ -133,7 +138,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   }, [graph]);
 
   // Add new attribute to the DAG
-  function addAttribute(val) {
+  function addAttribute(val, custom=false) {
     // console.log(val);
 
     let index = added.indexOf(val);
@@ -145,7 +150,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
                                                           "id": id,
                                                           "name": val,
                                                           "parents": new Set(),
-                                                          "children": new Set()}],
+                                                          "children": new Set(),
+                                                          "$custom": custom}],
                             "links": [...nodelinks.links]};
       
       setnodelinks(newnodelinks);
@@ -282,8 +288,19 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     setOpen(true);
   };
 
+  // Open and close node add dialog
+  const handleNodeOpen = () => {
+    setAddNode(true);
+  };
+
+  // Close download dialog
   const handleClose = () => {
     setOpen(false);
+  };
+
+  // Close add node dialog
+  const handleNodeClose = () => {
+    setAddNode(false);
   };
 
   // Download DAG as PNG image
@@ -496,6 +513,10 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         colliders={colliders}
         mediators={mediators}
         handleClose={handleClose} />
+      <NodeDialog
+        open={addNode}
+        handleNodeClose={handleNodeClose}
+        addAttribute={addAttribute} />
       <div>
         <div style={menuStyle}>
           <ToggleButtonGroup
@@ -512,6 +533,11 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
             <ToggleButton value="path" alt="connect">
               <a title="edit links">
                 <LinearScaleRoundedIcon style={connectIcon} />
+              </a>
+            </ToggleButton>
+            <ToggleButton value="node" alt="custom node" onClick={() => handleNodeOpen()}>
+              <a title="custom node">
+                <AddCircleOutlineIcon />
               </a>
             </ToggleButton>
           </ToggleButtonGroup>

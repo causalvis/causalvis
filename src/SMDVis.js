@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SMDDataset = []}) => {
+export const SMDVis = ({layout = {"height": 600, "width": 600, "margin": 50, "marginLeft": 150}, SMDDataset = []}) => {
 
   const ref = useRef('svgSMD');
 
@@ -11,7 +11,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
 
   var xScale = d3.scaleLinear()
           .domain([Math.min(d3.min(SMDDataset, d => d.unweighted), d3.min(SMDDataset, d => d.weighted)), Math.max(d3.max(SMDDataset, d => d.unweighted), d3.max(SMDDataset, d => d.weighted))])
-          .range([layout.margin, layout.width - layout.margin])
+          .range([layout.marginLeft, layout.width - layout.margin])
 
   var yScale = d3.scaleBand()
           .domain(SMDDataset.map(d => d.covariate))
@@ -23,7 +23,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .join("circle")
     .attr("class", "weightedSMD")
     .attr("cx", d => xScale(d.weighted))
-    .attr("cy", d => yScale(d.covariate))
+    .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("r", 3)
     .attr("fill", "steelblue")
     .attr("stroke", "steelblue")
@@ -34,7 +34,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .join("circle")
     .attr("class", "weightedSMD")
     .attr("cx", d => xScale(d.unweighted))
-    .attr("cy", d => yScale(d.covariate))
+    .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("r", 3)
     .attr("fill", "white")
     .attr("stroke", "orange")
@@ -45,9 +45,9 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .join("line")
     .attr("class", "diffLine")
     .attr("x1", d => xScale(d.unweighted))
-    .attr("y1", d => yScale(d.covariate))
+    .attr("y1", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("x2", d => xScale(d.weighted))
-    .attr("y2", d => yScale(d.covariate))
+    .attr("y2", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("stroke", "black")
     .attr("stroke-dasharray", "2")
 
@@ -57,9 +57,9 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .join("line")
     .attr("class", "thresholdLine")
     .attr("x1", d => xScale(d))
-    .attr("y1", 0)
+    .attr("y1", layout.margin - 20)
     .attr("x2", d => xScale(d))
-    .attr("y2", layout.height)
+    .attr("y2", layout.height - layout.margin + 20)
     .attr("stroke", "black")
     .attr("stroke-dasharray", "2")
 
@@ -71,12 +71,13 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .attr("x", d => xScale(d) + 5)
     .attr("y", layout.margin - 20)
     .text(d => d)
-    .attr('font-family', 'sans-serif')
-    .attr('font-size', 10)
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 10)
+    .attr("alignment-baseline", "hanging")
 
   svgElement.select("#legend")
     .selectAll(".legend")
-    .data(['weighted', 'unweighted'])
+    .data(["weighted", "unweighted"])
     .join("circle")
     .attr("class", "legend")
     .attr("cx", layout.width - 2*layout.margin)
@@ -92,16 +93,16 @@ export const SMDVis = ({layout = {"height": 500, "width": 500, "margin": 50}, SM
     .attr("x", layout.width - 2*layout.margin + 10)
     .attr("y", (d, i) => layout.height - 2*layout.margin + i * 10)
     .text(d => d)
-    .attr('alignment-baseline', 'middle')
-    .attr('font-family', 'sans-serif')
-    .attr('font-size', 10)
+    .attr("alignment-baseline", "middle")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 10)
 
   svgElement.select('#x-axis')
           .attr('transform', `translate(0, ${layout.height - layout.margin})`)
           .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
   svgElement.select('#y-axis')
-          .attr('transform', `translate(${layout.margin}, 0)`)
+          .attr('transform', `translate(${layout.marginLeft}, 0)`)
           .call(d3.axisLeft(yScale).tickSize(3).ticks(5))
 
   return (
