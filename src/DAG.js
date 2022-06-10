@@ -8,22 +8,29 @@ import { DAGEditor } from './DAGEditor';
 import { DownloadDialog } from './DownloadDialog';
 import { NodeDialog } from './NodeDialog';
 
+import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
 import Paper from '@mui/material/Paper';
+import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+// import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
+import ControlPointDuplicateOutlinedIcon from '@mui/icons-material/ControlPointDuplicateOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 // import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
 // import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
 // import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
+import SearchIcon from '@mui/icons-material/Search';
 // import MovingOutlinedIcon from '@mui/icons-material/MovingOutlined';
-// import * as d3 from 'd3';
 
 import { saveAs } from 'file-saver';
 
@@ -37,6 +44,9 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
 
   // Controls whether download dialog is open
   const [open, setOpen] = React.useState(false);
+
+  // Tracks search item
+  const [search, setSearch] = React.useState("");
 
   // Controls whether add node dialog is open
   const [addNode, setAddNode] = React.useState(false);
@@ -138,15 +148,15 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   }, [graph]);
 
   // Add new attribute to the DAG
-  function addAttribute(val, custom=false) {
+  function addAttribute(val, custom=false, x=layout.width/2, y=layout.height/2) {
     // console.log(val);
 
     let index = added.indexOf(val);
 
     if (index < 0) {
       const id = (new Date()).getTime() + Math.floor(Math.random() * 98);
-      const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": layout.width/2,
-                                                          "y": layout.height/2,
+      const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": x,
+                                                          "y": y,
                                                           "id": id,
                                                           "name": val,
                                                           "parents": new Set(),
@@ -190,6 +200,11 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // Set an attribute as the outcome of interest
   function changeOutcome(attribute) {
     setOutcome(attribute);
+  }
+
+  // Set search item
+  function changeSearch(e, val) {
+    setSearch(val);
   }
 
   // Update node position after dragging
@@ -492,6 +507,13 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   let downloadStyle = {"marginLeft": "auto", "marginRight": "none"};
   let aStyle = {"height":"24px"};
   let divider = {"borderRight": "1px solid gray"};
+  let searchStyle = {"padding-top":"11px", "padding-bottom":"11px"};
+
+  const styles = theme => ({
+      input: {
+          color: 'white'
+      }
+  });
 
   return (
     <div style={bodyStyle}>
@@ -525,22 +547,58 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
             exclusive
             onChange={(e, val) => toggleMode(e, val)}
             aria-label="text alignment">
-            <ToggleButton value="default" alt="move">
-              <a title="move">
+            <ToggleButton value="default" alt="select">
+              <a title="select">
                 <NearMeOutlinedIcon />
               </a>
             </ToggleButton>
-            <ToggleButton value="path" alt="connect">
+            <ToggleButton value="path" alt="edit links">
               <a title="edit links">
                 <LinearScaleRoundedIcon style={connectIcon} />
               </a>
             </ToggleButton>
             <ToggleButton value="node" alt="custom node" onClick={() => handleNodeOpen()}>
               <a title="custom node">
-                <AddCircleOutlineIcon />
+                <ControlPointDuplicateOutlinedIcon />
               </a>
             </ToggleButton>
           </ToggleButtonGroup>
+
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={added}
+            sx={{ width: 300 }}
+            onChange={(e, val) => changeSearch(e, val)}
+            renderInput={(params) =>
+              <TextField
+                {...params}
+                sx={{"height": "48px",
+                    "border-radius": "24px",
+                    "margin-left": "10px",
+                    "& .MuiOutlinedInput-input": { height: "12px" },
+                    "& .MuiOutlinedInput-root": { "padding": "11px" },
+                    "& .MuiInputLabel-formControl": { "top": "-1px"}
+                }}
+                label="Search"
+              />}
+          />
+
+          {/*<FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">*/}
+            {/*<InputLabel htmlFor="search">Search</InputLabel>*/}
+            {/*<OutlinedInput
+              variant="outlined"
+              sx={{"height": "48px",
+                  "border-radius": "24px",
+                  "& .MuiOutlinedInput-input": { height: "12px" }
+              }}
+              endAdornment={
+                <InputAdornment position="end">
+                  <SearchIcon />
+                </InputAdornment>
+              }
+            />*/}
+          {/*</FormControl>*/}
           <div style={downloadStyle}>
             <IconButton id="downloadSVG" onClick={() => downloadSVG()}>
               <a style={aStyle} title="save image">
@@ -561,6 +619,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
             mode={mode}
             treatment={treatment}
             outcome={outcome}
+            search={search}
             updateNodePos={updateNodePos}
             deleteAttribute={deleteAttribute}
             changeTreatment={changeTreatment}

@@ -7,15 +7,15 @@ import MenuItem from '@mui/material/MenuItem';
 
 import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
 
-export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", treatment="", outcome="", updateNodePos, deleteAttribute, changeTreatment, changeOutcome, updateLinks, deleteLinks}) => {
+export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", treatment="", outcome="", search, updateNodePos, deleteAttribute, changeTreatment, changeOutcome, updateLinks, deleteLinks}) => {
 
-  // const [anchorEl, setAnchorEl] = React.useState(null);
+  // Controls node options menu
   const [open, setOpen] = React.useState(false);
   const [anchorPos, setAnchorPos] = React.useState(null);
   const [contextItem, setContextItem] = React.useState(null);
-  // const [translate, setTranslate] = React.useState([0, 0]);
-  // const [scale, setScale] = React.useState(1);
-  const [transform, setTransform] = React.useState({});
+
+  // Track selected nodes
+  const [selected, setSelected] = React.useState([]);
 
   function handleClose() {
     setAnchorPos(null);
@@ -60,10 +60,45 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     }
   }
 
+  // Delete single Node
   function handleDelete() {
-    deleteAttribute(contextItem);
-    handleClose();
+    if (selected.length === 0) {
+      deleteAttribute(contextItem);
+      handleClose();
+    }
+
+    // else {
+
+    //   for (let n of selected) {
+    //     console.log(n);
+    //     deleteAttribute(n);
+    //   }
+
+    //   handleClose();
+    //   setSelected([]);
+    // }
+    
   }
+
+  // Add node to selections
+  function handleSelected(nodeName) {
+    let selectedIndex = selected.indexOf(nodeName);
+
+    if (selectedIndex < 0) {
+      setSelected([...selected, nodeName]);
+    } else {
+      selected.splice(selectedIndex, 1)
+      setSelected([...selected]);
+    }
+  }
+
+  // Highlight node that matches search
+  useEffect(() => {
+    if (search) {
+      node.filter(n => n.name === search)
+        .attr("stroke-width", "3px")
+    }
+  }, [search])
 
   const ref = useRef('svgDAG');
 
@@ -79,6 +114,14 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   let svg = d3.select(ref.current)
 
   let svgElement = svg.select("g");
+
+  svg.on("click", function(e) {
+    console.log(mode);
+
+    if (mode === "node") {
+      console.log("here", e.x, e.y);
+    }
+  })
 
   function zoomed({transform}) {
     svgElement.attr("transform", transform);
@@ -309,6 +352,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .attr("fill", d => nodeColor(d))
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "middle")
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 12)
 
   // Each line represents a link between attributes
   var link = svgElement
@@ -353,7 +398,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("cy", d => d.y)
       .attr("fill", "white")
       .attr("stroke", d => nodeColor(d))
-      .attr("stroke-width", 1)
+      .attr("stroke-width", d => selected.indexOf(d.name) < 0 ? 1 : 3)
       .attr("cursor", "pointer")
       .call(d3.drag()
         .on("start", function(e, d) {
@@ -396,6 +441,10 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
             currentPath = [];
           }
         }
+
+        // if (mode === "default") {
+        //   handleSelected(d.name);
+        // }
         
       })
       .on("mouseover", function (e, d) {
@@ -404,7 +453,10 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         }
       })
       .on("mouseout", function (e, d) {
+
         if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0) {
+          d3.select(this).attr("stroke-width", 1);
+        } else if (mode === "default" && selected.indexOf(d.name) < 0) {
           d3.select(this).attr("stroke-width", 1);
         }
       })

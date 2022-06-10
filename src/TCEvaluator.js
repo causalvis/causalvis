@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 
 import { SMDVis } from './SMDVis';
-import { BalanceVis } from './BalanceVis';
+import { DistributionVis } from './DistributionVis';
 
 export const TCEvaluator = ({dataset={}, TCDataset={}, SMDDataset=[], treatment="treatment"}) => {
 
@@ -30,7 +30,7 @@ export const TCEvaluator = ({dataset={}, TCDataset={}, SMDDataset=[], treatment=
   return (
     <div>
       <SMDVis SMDDataset={SMDDataset.sort((a, b) => a.unweighted > b.unweighted)} />
-      <BalanceVis TDataset={TDataset} CDataset={CDataset} attribute="age" />
+      <DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />
     </div>
   )
 }

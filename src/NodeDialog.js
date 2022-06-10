@@ -13,7 +13,7 @@ import TextField from '@mui/material/TextField';
 
 // import { saveAs } from 'file-saver';
 
-export const NodeDialog = ({open=false, handleNodeClose, addAttribute}) => {
+export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addPos}) => {
   const [value, setValue] = React.useState("");
 
   function handleChange(e) {
