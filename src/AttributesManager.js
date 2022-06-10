@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome}) => {
+export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag}) => {
   const [attr, setAttr] = React.useState(attributes);
 
   // const addedColor = grey[500];
@@ -67,7 +67,8 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
                 addAttribute={addAttribute}
                 deleteAttribute={deleteAttribute}
                 changeTreatment={changeTreatment}
-                changeOutcome={changeOutcome} />
+                changeOutcome={changeOutcome}
+                handleAddTag={handleAddTag} />
           })}
         </div>
       </ThemeProvider>

@@ -5,7 +5,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome}) => {
+export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag}) => {
 
   // const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -55,6 +55,11 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     }
   }
 
+  function handleTag() {
+    handleAddTag(value);
+    handleClose();
+  }
+
   function handleDelete() {
     deleteAttribute(value);
     handleClose();
@@ -84,6 +89,7 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
       >
         <MenuItem onClick={handleTreatment} selected={value===treatment}>Set as Treatment</MenuItem>
         <MenuItem onClick={handleOutcome} selected={value===outcome}>Set as Outcome</MenuItem>
+        <MenuItem onClick={handleTag}>Add Tag</MenuItem>
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
     </div>

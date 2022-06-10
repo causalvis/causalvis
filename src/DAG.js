@@ -1,4 +1,8 @@
 import React, {useState, useEffect} from 'react';
+
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { grey, blue, orange } from '@mui/material/colors';
+
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { extent } from 'd3-array';
@@ -6,10 +10,12 @@ import { extent } from 'd3-array';
 import { AttributesManager } from './AttributesManager';
 import { DAGEditor } from './DAGEditor';
 import { DownloadDialog } from './DownloadDialog';
+import { TagDialog } from './TagDialog'
 import { NodeDialog } from './NodeDialog';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -45,11 +51,15 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // Controls whether download dialog is open
   const [open, setOpen] = React.useState(false);
 
-  // Tracks search item
-  const [search, setSearch] = React.useState("");
-
   // Controls whether add node dialog is open
   const [addNode, setAddNode] = React.useState(false);
+
+  // Controls whether add tag dialog is open
+  const [addTag, setAddTag] = React.useState(false);
+  const [tagNode, setTagNode] = React.useState();
+
+  // Tracks search item
+  const [search, setSearch] = React.useState("");
 
   // Tracks colliders, mediators and confounds in DAG
   const [colliders, setColliders] = React.useState([]);
@@ -207,6 +217,20 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     setSearch(val);
   }
 
+  // Update tags for an attribute
+  function updateTag(color, tagName) {
+    console.log(color, tagName, tagNode);
+    let newnodelinks = { ...nodelinks };
+    let taggingNode = newnodelinks.nodes.filter(n => n.name === tagNode)[0];
+    if (!taggingNode.tags) {
+      taggingNode.tags = [tagName];
+    } else {
+      taggingNode.tags.push(tagName);
+    }
+
+    setnodelinks(newnodelinks);
+  }
+
   // Update node position after dragging
   function updateNodePos(id, newX, newY) {
     let newnodelinks = { ...nodelinks };
@@ -303,20 +327,36 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     setOpen(true);
   };
 
-  // Open and close node add dialog
-  const handleNodeOpen = () => {
-    setAddNode(true);
-  };
-
   // Close download dialog
   const handleClose = () => {
     setOpen(false);
+  };
+
+  // Open and close node add dialog
+  const handleNodeOpen = () => {
+    setAddNode(true);
   };
 
   // Close add node dialog
   const handleNodeClose = () => {
     setAddNode(false);
   };
+
+  // Open and close tag add dialog
+  const handleTagOpen = () => {
+    setAddTag(true);
+  };
+
+  // Close add tag dialog
+  const handleTagClose = () => {
+    setAddTag(false);
+  };
+
+  const handleAddTag = (value) => {
+    // console.log(value);
+    setTagNode(value);
+    handleTagOpen();
+  }
 
   // Download DAG as PNG image
   function downloadSVG() {
@@ -497,6 +537,17 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     return confounds;
   }
 
+  const theme = createTheme({
+    palette: {
+      grey: {
+        light: grey[300],
+        main: grey[500],
+        dark: grey[700],
+        contrastText: '#fff',
+      },
+    },
+  });
+
   let bodyStyle = {"display": "flex"};
   let connectIcon = {"transform": "rotate(-45deg)"};
   let buttonStyle = {"marginBottom": "0px"};
@@ -507,13 +558,17 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   let downloadStyle = {"marginLeft": "auto", "marginRight": "none"};
   let aStyle = {"height":"24px"};
   let divider = {"borderRight": "1px solid gray"};
-  let searchStyle = {"padding-top":"11px", "padding-bottom":"11px"};
-
-  const styles = theme => ({
-      input: {
-          color: 'white'
-      }
-  });
+  let searchStyle = {"height": "48px",
+                    "border-radius": "24px",
+                    "margin-left": "10px",
+                    "& .MuiOutlinedInput-input": { height: "12px" },
+                    "& .MuiOutlinedInput-root": { "padding": "11px" },
+                    "& .MuiInputLabel-formControl": { "top": "-1px"}};
+  let customButtonStyle = {"height":"48px",
+                           "padding":"5px 11px",
+                           "margin-left": "10px",
+                           "& .MuiButton-startIcon":{"margin":"0px"},
+                           "& .MuiSvgIcon-root": {"width":"24px", "height": "24px"}};
 
   return (
     <div style={bodyStyle}>
@@ -525,7 +580,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         addAttribute={addAttribute}
         deleteAttribute={deleteAttribute}
         changeTreatment={changeTreatment}
-        changeOutcome={changeOutcome} />
+        changeOutcome={changeOutcome}
+        handleAddTag={handleAddTag} />
       <DownloadDialog
         open={open}
         nodelinks={nodelinks}
@@ -539,6 +595,11 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         open={addNode}
         handleNodeClose={handleNodeClose}
         addAttribute={addAttribute} />
+      <TagDialog
+        tagNode={tagNode}
+        open={addTag}
+        handleTagClose={handleTagClose}
+        updateTag={updateTag} />
       <div>
         <div style={menuStyle}>
           <ToggleButtonGroup
@@ -557,12 +618,24 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
                 <LinearScaleRoundedIcon style={connectIcon} />
               </a>
             </ToggleButton>
-            <ToggleButton value="node" alt="custom node" onClick={() => handleNodeOpen()}>
+            {/*<ToggleButton value="node" alt="custom node" onClick={() => handleNodeOpen()}>
               <a title="custom node">
                 <ControlPointDuplicateOutlinedIcon />
               </a>
-            </ToggleButton>
+            </ToggleButton>*/}
           </ToggleButtonGroup>
+
+          <ThemeProvider theme={theme}>
+            <ButtonGroup variant="text" aria-label="text button group">
+              <Button
+                variant="outlined"
+                startIcon={<ControlPointDuplicateOutlinedIcon />}
+                onClick={() => handleNodeOpen()}
+                color={"grey"}
+                sx={customButtonStyle}>
+              </Button>
+            </ButtonGroup>
+          </ThemeProvider>
 
           <Autocomplete
             disablePortal
@@ -573,13 +646,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
             renderInput={(params) =>
               <TextField
                 {...params}
-                sx={{"height": "48px",
-                    "border-radius": "24px",
-                    "margin-left": "10px",
-                    "& .MuiOutlinedInput-input": { height: "12px" },
-                    "& .MuiOutlinedInput-root": { "padding": "11px" },
-                    "& .MuiInputLabel-formControl": { "top": "-1px"}
-                }}
+                sx={searchStyle}
                 label="Search"
               />}
           />
