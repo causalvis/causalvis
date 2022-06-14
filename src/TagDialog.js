@@ -57,7 +57,7 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
   };
 
   let textStyle = {"margin": "24px 10px 0px 0px"};
-  let dialogContentStyle = {"display":"flex", "align-items":"center"};
+  let dialogContentStyle = {"display":"flex", "alignItems":"center"};
   let swatchStyle = {"margin": "24px 24px 0px 0px",
                     "width":"48px",
                     "height":"48px",

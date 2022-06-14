@@ -10,7 +10,9 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
-export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag}) => {
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+
+export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag, handleNodeOpen}) => {
   const [attr, setAttr] = React.useState(attributes);
 
   // const addedColor = grey[500];
@@ -50,13 +52,21 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
     }
   }
 
-  let attrStyle = {"display": "flex", "flexDirection": "column", "width": "150px", "marginRight": "20px", "height": "550px", "overflow": "scroll"};
+  const buttonStyle = {"width":"100%", "marginBottom":"5px", "width": "150px",};
+  let attrStyle = {"display": "flex", "flexDirection": "column", "width": "150px", "marginRight": "20px", "height": "500px", "overflow": "scroll"};
 
   return (
     <div>
+      <Button
+        style={buttonStyle}
+        startIcon={<AddOutlinedIcon />}
+        variant="contained"
+        onClick={() => handleNodeOpen()}><a title="click to add">Add Node</a></Button>
       {/* <CardHeader title="Attributes" /> */}
       <ThemeProvider theme={theme}>
+
         <div style={attrStyle}>
+
           {attr.map((value, index) => {
             return <Attribute key={index}
                 value={value}

@@ -454,9 +454,9 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .on("mouseout", function (e, d) {
 
-        if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0) {
+        if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0 && d.name !== search) {
           d3.select(this).attr("stroke-width", 1);
-        } else if (mode === "default" && selected.indexOf(d.name) < 0) {
+        } else if (mode === "default" && selected.indexOf(d.name) < 0 && d.name !== search) {
           d3.select(this).attr("stroke-width", 1);
         }
       })

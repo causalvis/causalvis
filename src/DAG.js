@@ -57,6 +57,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // Controls whether add tag dialog is open
   const [addTag, setAddTag] = React.useState(false);
   const [tagNode, setTagNode] = React.useState();
+  const [tagColors, setTagColors] = React.useState({});
 
   // Tracks search item
   const [search, setSearch] = React.useState("");
@@ -77,6 +78,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
 
+  // All IDs used
   const [ID, setID] = React.useState(new Set());
 
   const layout = {"height": 500, "width": 1000, "margin": 60};
@@ -147,6 +149,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       delete l.target.children;
       delete l.target.parents;
     }
+
+    console.log(newnodelinks);
 
     setnodelinks(newnodelinks);
   }
@@ -276,13 +280,15 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       }
     }
 
-    delete newLink[0].parents;
-    delete newLink[0].children;
+    let newLinkCopy = JSON.parse(JSON.stringify(newLink));
 
-    delete newLink[1].parents;
-    delete newLink[1].children;
+    delete newLinkCopy[0].parents;
+    delete newLinkCopy[0].children;
 
-    const newnodelinks = {"nodes": [...nodelinks.nodes], "links": [...nodelinks.links, {"source": newLink[0], "target": newLink[1]}]};
+    delete newLinkCopy[1].parents;
+    delete newLinkCopy[1].children;
+
+    const newnodelinks = {"nodes": [...nodelinks.nodes], "links": [...nodelinks.links, {"source": newLinkCopy[0], "target": newLinkCopy[1]}]};
     // console.log(newnodelinks);
     setnodelinks(newnodelinks);
   }
@@ -417,6 +423,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // For unique descendents, apply Set() to the result
   function getDescendents(node) {
     // console.log(node, node["children"])
+    console.log(node, node.children);
     let result = Array.from(node.children);
     for (let c of node.children) {
       let nodeC = nodelinks.nodes.filter(n => n.id === c)[0];
@@ -515,11 +522,13 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   function getConfounds(treatment, outcome) {
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
+      console.log('c1')
       return [];
     }
 
     // Return if no treatment and outcome variables indicated
     if (treatment === "" || outcome === "") {
+      console.log('c2')
       return [];
     }
 
@@ -533,6 +542,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         confounds.push(n);
       }
     }
+
+    console.log('c3', confounds);
 
     return confounds;
   }
@@ -559,14 +570,14 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   let aStyle = {"height":"24px"};
   let divider = {"borderRight": "1px solid gray"};
   let searchStyle = {"height": "48px",
-                    "border-radius": "24px",
-                    "margin-left": "10px",
+                    "borderRadius": "24px",
+                    "marginLeft": "10px",
                     "& .MuiOutlinedInput-input": { height: "12px" },
                     "& .MuiOutlinedInput-root": { "padding": "11px" },
                     "& .MuiInputLabel-formControl": { "top": "-1px"}};
   let customButtonStyle = {"height":"48px",
                            "padding":"5px 11px",
-                           "margin-left": "10px",
+                           "marginLeft": "10px",
                            "& .MuiButton-startIcon":{"margin":"0px"},
                            "& .MuiSvgIcon-root": {"width":"24px", "height": "24px"}};
 
@@ -581,7 +592,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
         deleteAttribute={deleteAttribute}
         changeTreatment={changeTreatment}
         changeOutcome={changeOutcome}
-        handleAddTag={handleAddTag} />
+        handleAddTag={handleAddTag}
+        handleNodeOpen={handleNodeOpen} />
       <DownloadDialog
         open={open}
         nodelinks={nodelinks}
@@ -625,7 +637,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
             </ToggleButton>*/}
           </ToggleButtonGroup>
 
-          <ThemeProvider theme={theme}>
+          {/*<ThemeProvider theme={theme}>
             <ButtonGroup variant="text" aria-label="text button group">
               <Button
                 variant="outlined"
@@ -635,7 +647,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
                 sx={customButtonStyle}>
               </Button>
             </ButtonGroup>
-          </ThemeProvider>
+          </ThemeProvider>*/}
 
           <Autocomplete
             disablePortal
