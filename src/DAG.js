@@ -262,6 +262,9 @@ export const DAG = ({attributes = [], graph}) => {
     // console.log(newAllAttributes);
 
     setAllAttributes(newAllAttributes);
+
+    tagColors[tagName] = color;
+    setTagColors({...tagColors});
   }
 
   // Update node position after dragging
@@ -638,6 +641,7 @@ export const DAG = ({attributes = [], graph}) => {
         addCustom={addCustom} />
       <TagDialog
         tagNode={tagNode}
+        tagColors={tagColors}
         open={addTag}
         handleTagClose={handleTagClose}
         updateTag={updateTag} />
@@ -681,7 +685,7 @@ export const DAG = ({attributes = [], graph}) => {
           <Autocomplete
             disablePortal
             id="combo-box-demo"
-            options={added}
+            options={added.concat(Object.keys(tagColors).map(c => "tag:" + c))}
             sx={{ width: 300 }}
             onChange={(e, val) => changeSearch(e, val)}
             renderInput={(params) =>

@@ -1,5 +1,7 @@
 import React, {useEffect} from 'react';
 import { SwatchesPicker } from 'react-color';
+
+import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,12 +16,21 @@ import TextField from '@mui/material/TextField';
 
 // import { saveAs } from 'file-saver';
 
-export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) => {
+export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose, updateTag}) => {
   const [value, setValue] = React.useState("");
   const [colorOpen, setColorOpen] = React.useState(false);
   const [color, setColor] = React.useState("#000000");
 
-  function handleChange(e) {
+  // console.log(tagColors);
+
+  // Handle when users select a tag from existing tags;
+  function handleChange(e, val) {
+    setValue(val);
+    setColor(tagColors[val]);
+  }
+
+  // Handle when users add a new tag;
+  function handleInputChange(e) {
     // console.log(e.target.value);
     setValue(e.target.value);
   };
@@ -53,6 +64,8 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
       updateTag(color, value);
       handleTagClose();
     }
+
+    setColor("#000000");
   };
 
   const styles = {
@@ -65,7 +78,7 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
       },
   };
 
-  let textStyle = {"margin": "24px 10px 0px 0px"};
+  let textStyle = {"margin": "24px 10px 0px 0px", "width": "300px"};
   let dialogContentStyle = {"display":"flex", "alignItems":"center"};
   let swatchStyle = {"margin": "24px 24px 0px 0px",
                     "width":"48px",
@@ -94,12 +107,26 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
           You are editing tags for the node: <i>{tagNode}</i>
           </DialogContentText>
           <div style={dialogContentStyle}>
-            <TextField
+            <Autocomplete
+              disablePortal
+              freeSolo
+              options={Object.keys(tagColors)}
+              sx={textStyle}
+              onChange={(e, val) => handleChange(e, val)}
+              onInputChange={(e) => handleInputChange(e)}
+              renderInput={(params) =>
+                <TextField
+                  {...params}
+                  label="Tag Name"
+                />}
+            />
+
+            {/*<TextField
               style={textStyle}
               id="outlined-basic"
-              label="Variable Name"
+              label="Tag Name"
               variant="outlined"
-              onChange={(e) => handleChange(e)} />
+              onChange={(e) => handleChange(e)} />*/}
             <div style={ swatchStyle } onClick={ handleClick }>
               <div style={ colorStyle } />
               { colorOpen ? <div style={ popoverStyle }>
