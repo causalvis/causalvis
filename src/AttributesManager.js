@@ -13,9 +13,11 @@ import MenuItem from '@mui/material/MenuItem';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag, handleNodeOpen}) => {
-  const [attr, setAttr] = React.useState(attributes);
+  // const [attr, setAttr] = React.useState(attributes);
 
   // const addedColor = grey[500];
+
+  console.log(attributes);
 
   const theme = createTheme({
     palette: {
@@ -67,7 +69,7 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
 
         <div style={attrStyle}>
 
-          {attr.map((value, index) => {
+          {attributes.map((value, index) => {
             return <Attribute key={index}
                 value={value}
                 isAdded={added.indexOf(value) >= 0 ? true : false}

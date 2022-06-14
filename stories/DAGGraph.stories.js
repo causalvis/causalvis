@@ -8,13 +8,13 @@ let attributes = [];
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'DAG Empty',
+  title: 'DAG from Graph',
 };
 
 export const ToStorybook = () => (
-  <DAG attributes={attributes} />
+  <DAG graph={graph} />
 )
 
 ToStorybook.story = {
-  name: 'DAG Empty',
+  name: 'DAG from Graph',
 };

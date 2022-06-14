@@ -334,7 +334,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     } else if (d.name === outcome) {
       return "#f57c00"
     } else if (d.$custom) {
-      return "#9e9e9e"
+      // return "#9e9e9e"
+      return "black"
     } else {
       return "black"
     }
@@ -399,6 +400,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("fill", "white")
       .attr("stroke", d => nodeColor(d))
       .attr("stroke-width", d => selected.indexOf(d.name) < 0 ? 1 : 3)
+      .attr("stroke-dasharray", d => d["$custom"] ? "5 5 2 5" : "none")
       .attr("cursor", "pointer")
       .call(d3.drag()
         .on("start", function(e, d) {

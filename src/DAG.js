@@ -40,7 +40,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { saveAs } from 'file-saver';
 
-export const DAG = ({dataset = [], attributes = [], graph}) => {
+export const DAG = ({attributes = [], graph}) => {
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -68,7 +68,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   const [confounds, setConfounds] = React.useState([]);
 
   // Track attributes
-  const [allAttributes, setAllAttributes] = React.useState(attributes);
+  const [allAttributes, setAllAttributes] = React.useState({});
   // Tracks attributes added to DAG
   const [added, setAdded] = React.useState([]);
 
@@ -103,7 +103,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     let links = newnodelinks.links;
 
     let newID = new Set();
-    let newAttributes = [];
+    let newAllAttributes = {};
 
     for (let n of nodes) {
       if (!n.id) {
@@ -123,12 +123,12 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       n.children = new Set();
       n.parents = new Set();
 
-      newAttributes.push(n.name);
+      newAllAttributes[n.name] = {"$custom": false, "tags": []};
     }
 
     setID(newID);
-    setAllAttributes(newAttributes);
-    setAdded(newAttributes);
+    setAllAttributes(newAllAttributes);
+    setAdded(Object.keys(newAllAttributes));
 
     for (let l of links) {
       let s = l.source.name ? l.source.name : l.source;
@@ -150,7 +150,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       delete l.target.parents;
     }
 
-    console.log(newnodelinks);
+    // console.log(newnodelinks);
 
     setnodelinks(newnodelinks);
   }
@@ -161,6 +161,17 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     }
   }, [graph]);
 
+  useEffect(() => {
+    if (attributes.length > 0 && !graph) {
+      let newAllAttributes = {}
+      for (let a of attributes) {
+        newAllAttributes[a] = {"$custom": false, "tags": []}
+      }
+
+      setAllAttributes(newAllAttributes);
+    }
+  }, [attributes]);
+
   // Add new attribute to the DAG
   function addAttribute(val, custom=false, x=layout.width/2, y=layout.height/2) {
     // console.log(val);
@@ -168,19 +179,27 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
     let index = added.indexOf(val);
 
     if (index < 0) {
-      const id = (new Date()).getTime() + Math.floor(Math.random() * 98);
+      const id = generateID();
       const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": x,
                                                           "y": y,
                                                           "id": id,
                                                           "name": val,
                                                           "parents": new Set(),
                                                           "children": new Set(),
-                                                          "$custom": custom}],
+                                                          "$custom": allAttributes[val] ? allAttributes[val]["$custom"] : custom}],
                             "links": [...nodelinks.links]};
       
       setnodelinks(newnodelinks);
       setAdded([...added, val]);
-    } 
+    }
+  }
+
+  function addCustom(val) {
+    let newAllAttributes = JSON.parse(JSON.stringify(allAttributes));
+    newAllAttributes[val] = {"$custom": true, "tags": []};
+    setAllAttributes(newAllAttributes);
+    
+    addAttribute(val, true);
   }
 
   // Delete an attribute from the DAG
@@ -223,7 +242,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
 
   // Update tags for an attribute
   function updateTag(color, tagName) {
-    console.log(color, tagName, tagNode);
+    // console.log(color, tagName, tagNode);
     let newnodelinks = { ...nodelinks };
     let taggingNode = newnodelinks.nodes.filter(n => n.name === tagNode)[0];
     if (!taggingNode.tags) {
@@ -422,8 +441,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   // The same descendent may be included twice if there are multiple causal pathways
   // For unique descendents, apply Set() to the result
   function getDescendents(node) {
-    // console.log(node, node["children"])
-    console.log(node, node.children);
+    // console.log(node, node.children);
     let result = Array.from(node.children);
     for (let c of node.children) {
       let nodeC = nodelinks.nodes.filter(n => n.id === c)[0];
@@ -522,13 +540,13 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   function getConfounds(treatment, outcome) {
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
-      console.log('c1')
+      // console.log('c1')
       return [];
     }
 
     // Return if no treatment and outcome variables indicated
     if (treatment === "" || outcome === "") {
-      console.log('c2')
+      // console.log('c2')
       return [];
     }
 
@@ -543,7 +561,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       }
     }
 
-    console.log('c3', confounds);
+    // console.log('c3', confounds);
 
     return confounds;
   }
@@ -584,7 +602,7 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
   return (
     <div style={bodyStyle}>
       <AttributesManager
-        attributes={allAttributes}
+        attributes={Object.keys(allAttributes)}
         added={added}
         treatment={treatment}
         outcome={outcome}
@@ -606,7 +624,8 @@ export const DAG = ({dataset = [], attributes = [], graph}) => {
       <NodeDialog
         open={addNode}
         handleNodeClose={handleNodeClose}
-        addAttribute={addAttribute} />
+        addAttribute={addAttribute}
+        addCustom={addCustom} />
       <TagDialog
         tagNode={tagNode}
         open={addTag}

@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 
 // import { saveAs } from 'file-saver';
 
-export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addPos}) => {
+export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addCustom}) => {
   const [value, setValue] = React.useState("");
 
   function handleChange(e) {
@@ -21,7 +21,8 @@ export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addPos}) 
     if (value === "") {
       handleNodeClose();
     } else {
-      addAttribute(value, true);
+      addCustom(value);
+      // addAttribute(value, true);
       setValue("");
       handleNodeClose();
     }
