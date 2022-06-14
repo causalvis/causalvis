@@ -98,7 +98,13 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   // Highlight node that matches search
   useEffect(() => {
-    if (search) {
+    if (!search) {
+      node.attr("stroke-width", "1px")
+    } else if (search.startsWith("tag:")) {
+      let searchTerm = search.slice(4);
+      node.filter(n => n.tags && n.tags.indexOf(searchTerm) >= 0)
+        .attr("stroke-width", "3px")
+    } else if (search.length > 0) {
       node.filter(n => n.name === search)
         .attr("stroke-width", "3px")
     }
