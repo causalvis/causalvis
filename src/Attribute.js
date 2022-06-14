@@ -89,7 +89,7 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
       >
         <MenuItem onClick={handleTreatment} selected={value===treatment}>Set as Treatment</MenuItem>
         <MenuItem onClick={handleOutcome} selected={value===outcome}>Set as Outcome</MenuItem>
-        <MenuItem onClick={handleTag}>Add Tag</MenuItem>
+        <MenuItem onClick={handleTag}>Edit Tags</MenuItem>
         <MenuItem onClick={handleDelete}>Delete from Graph</MenuItem>
       </Menu>
     </div>

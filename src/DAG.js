@@ -246,6 +246,13 @@ export const DAG = ({attributes = [], graph}) => {
   // Update tags for an attribute
   function updateTag(color, tagName) {
     // console.log(color, tagName, tagNode);
+
+    // If attribute already has a tag, do not add the tag again
+    if (allAttributes[tagNode]["tags"] && allAttributes[tagNode]["tags"].indexOf(tagName) >= 0) {
+      return;
+    }
+
+    // Update nodelink diagram
     let newnodelinks = { ...nodelinks };
     let taggingNode = newnodelinks.nodes.filter(n => n.name === tagNode)[0];
     if (!taggingNode.tags) {
@@ -256,13 +263,12 @@ export const DAG = ({attributes = [], graph}) => {
 
     setnodelinks(newnodelinks);
 
+    // Update attributes
     let newAllAttributes = JSON.parse(JSON.stringify(allAttributes));
     newAllAttributes[tagNode]["tags"].push(tagName);
-
-    // console.log(newAllAttributes);
-
     setAllAttributes(newAllAttributes);
 
+    // Update dictionary of tag colors
     tagColors[tagName] = color;
     setTagColors({...tagColors});
   }
@@ -642,6 +648,7 @@ export const DAG = ({attributes = [], graph}) => {
       <TagDialog
         tagNode={tagNode}
         tagColors={tagColors}
+        attrTags={allAttributes[tagNode] ? allAttributes[tagNode]["tags"] : []}
         open={addTag}
         handleTagClose={handleTagClose}
         updateTag={updateTag} />

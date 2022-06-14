@@ -96,16 +96,25 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     }
   }
 
+  // Return true if node name or node tags matches search
+  function isSearched(n) {
+    if (!search) {
+      return false
+    } else if (search === n.name) {
+      return true
+    } else if (search.startsWith("tag:") && n.tags && n.tags.indexOf(search.slice(4)) >= 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+
   // Highlight node that matches search
   useEffect(() => {
     if (!search) {
       node.attr("stroke-width", "1px")
-    } else if (search.startsWith("tag:")) {
-      let searchTerm = search.slice(4);
-      node.filter(n => n.tags && n.tags.indexOf(searchTerm) >= 0)
-        .attr("stroke-width", "3px")
-    } else if (search.length > 0) {
-      node.filter(n => n.name === search)
+    } else {
+      node.filter(n => isSearched(n))
         .attr("stroke-width", "3px")
     }
   }, [search])
@@ -125,13 +134,13 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   let svgElement = svg.select("g");
 
-  svg.on("click", function(e) {
-    console.log(mode);
+  // svg.on("click", function(e) {
+  //   console.log(mode);
 
-    if (mode === "node") {
-      console.log("here", e.x, e.y);
-    }
-  })
+  //   if (mode === "node") {
+  //     console.log("here", e.x, e.y);
+  //   }
+  // })
 
   function zoomed({transform}) {
     svgElement.attr("transform", transform);
@@ -396,6 +405,17 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         }
       });
 
+  function getStrokeWidth(d) {
+    if (selected.indexOf(d.name) >= 0) {
+      return 3
+    } else if (isSearched(d)) {
+      // console.log('here');
+      return 3
+    } else {
+      return 1
+    }
+  }
+
   // Each ellipse represents an attribute
   var node = svgElement
     .select("#nodes")
@@ -409,7 +429,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("cy", d => d.y)
       .attr("fill", "white")
       .attr("stroke", d => nodeColor(d))
-      .attr("stroke-width", d => selected.indexOf(d.name) < 0 ? 1 : 3)
+      .attr("stroke-width", d => getStrokeWidth(d))
       .attr("stroke-dasharray", d => d["$custom"] ? "5 5 2 5" : "none")
       .attr("cursor", "pointer")
       .call(d3.drag()
@@ -428,6 +448,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           // Update the new position of the node
           if (mode === "default") {
             updateNodePos(d.id, e.x, e.y);
+            // console.log("here")
           }
 
         })
@@ -466,9 +487,12 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .on("mouseout", function (e, d) {
 
+        // console.log(d.tags.indexOf(search.slice(4)))
+
         if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0 && d.name !== search) {
           d3.select(this).attr("stroke-width", 1);
-        } else if (mode === "default" && selected.indexOf(d.name) < 0 && d.name !== search) {
+        } else if (mode === "default" && !isSearched(d)) {
+          // console.log('mouseout');
           d3.select(this).attr("stroke-width", 1);
         }
       })

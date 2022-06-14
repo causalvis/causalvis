@@ -3,6 +3,7 @@ import { SwatchesPicker } from 'react-color';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,11 +13,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 // import FormLabel from '@mui/material/FormLabel';
 // import FormGroup from '@mui/material/FormGroup';
 // import FormControlLabel from '@mui/material/FormControlLabel';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 // import { saveAs } from 'file-saver';
 
-export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose, updateTag}) => {
+export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, handleTagClose, updateTag}) => {
   const [value, setValue] = React.useState("");
   const [colorOpen, setColorOpen] = React.useState(false);
   const [color, setColor] = React.useState("#000000");
@@ -59,14 +61,18 @@ export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose,
 
   const handleAdd = () => {
     if (value === "") {
-      handleTagClose();
+      // handleTagClose();
     } else {
       updateTag(color, value);
-      handleTagClose();
+      // handleTagClose();
     }
 
     setColor("#000000");
   };
+
+  const handleDelete = (value) => {
+    console.log("deleting...", value);
+  }
 
   const styles = {
       cover: {
@@ -92,9 +98,10 @@ export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose,
   let colorStyle = {"width":"100%",
                     "height":"100%",
                     "borderRadius": '4px',
-                    "background": `${ color }`}
+                    "background": `${ color }`};
   let popoverStyle = {position: 'fixed',
-                      zIndex: '1301'}
+                      zIndex: '1301'};
+  let stackStyle = {"display": attrTags.length > 0 ? "block" : "none", "margin": "24px 10px 0px 0px"};
 
   return (
     <div>
@@ -106,6 +113,11 @@ export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose,
           <DialogContentText>
           You are editing tags for the node: <i>{tagNode}</i>
           </DialogContentText>
+          <Stack style={stackStyle} direction="row" spacing={1}>
+            {attrTags.map((value, index) => {
+              return <Chip label={value} variant="outlined" onDelete={() => handleDelete(value)} sx={{"color": tagColors[value]}}/>
+            })}
+          </Stack>
           <div style={dialogContentStyle}>
             <Autocomplete
               disablePortal
@@ -137,7 +149,7 @@ export const TagDialog = ({tagNode="", tagColors={}, open=false, handleTagClose,
           </div>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleTagClose}>Cancel</Button>
+          <Button onClick={handleTagClose}>Close</Button>
           <Button onClick={handleAdd}>Add</Button>
         </DialogActions>
       </Dialog>
