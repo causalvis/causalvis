@@ -17,6 +17,10 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   // Track selected nodes
   const [selected, setSelected] = React.useState([]);
 
+  // Track color of nodes
+  const [colorMap, setColorMap] = React.useState({"treatment": "#1976d2",
+                                                  "outcome": "#f57c00"});
+
   function handleClose() {
     setAnchorPos(null);
     setContextItem(null);
@@ -464,6 +468,39 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .on("contextmenu", (e, d) => handleContextMenu(e, d));
 
+  // function legendColor(val) {
+  //   if (val === "treatment") {
+  //     return "#1976d2"
+  //   } else if (val === "outcome") {
+  //     return "#f57c00"
+  //   }
+  // }
+
+  var legend = svg.select("#legend")
+    .selectAll(".legendRect")
+    .data(["treatment", "outcome", "confounds", "colliders", "mediators"])
+    .join("rect")
+    .attr("class", "legendRect")
+    .attr("x", layout.width - layout.margin * 2)
+    .attr("y", (d, i) => layout.height - layout.margin * 2 + 18 * i)
+    .attr("width", 15)
+    .attr("height", 15)
+    .attr("fill", d => colorMap[d])
+
+  var legendText = svg.select("#legend")
+    .selectAll(".legendText")
+    .data(["treatment", "outcome", "confounds", "colliders", "mediators"])
+    .join("text")
+    .attr("class", "legendText")
+    .attr("x", layout.width - layout.margin * 2 + 18)
+    .attr("y", (d, i) => layout.height - layout.margin * 2 + 18 * i + 9)
+    .attr("alignment-baseline", "middle")
+    .attr("text-anchor", "start")
+    .attr("fill", d => colorMap[d])
+    .attr("font-family", "sans-serif")
+    .attr("font-size", 12)
+    .text(d => d)
+
   const menuStyle = {};
   let aStyle = {"height":"24px"};
 
@@ -495,6 +532,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           <g id="nodes" />
           <g id="nodeNames" />
         </g>
+        <g id="legend" />
       </svg>
     </div>
   )

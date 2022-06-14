@@ -17,7 +17,7 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
 
   // const addedColor = grey[500];
 
-  console.log(attributes);
+  // console.log(attributes);
 
   const theme = createTheme({
     palette: {

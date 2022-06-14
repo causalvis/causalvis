@@ -178,6 +178,8 @@ export const DAG = ({attributes = [], graph}) => {
 
     let index = added.indexOf(val);
 
+    console.log(allAttributes[val]);
+
     if (index < 0) {
       const id = generateID();
       const newnodelinks = {"nodes": [...nodelinks.nodes, {"x": x,
@@ -186,7 +188,8 @@ export const DAG = ({attributes = [], graph}) => {
                                                           "name": val,
                                                           "parents": new Set(),
                                                           "children": new Set(),
-                                                          "$custom": allAttributes[val] ? allAttributes[val]["$custom"] : custom}],
+                                                          "$custom": allAttributes[val] ? allAttributes[val]["$custom"] : custom,
+                                                          "tags": allAttributes[val] ? allAttributes[val]["tags"] : []}],
                             "links": [...nodelinks.links]};
       
       setnodelinks(newnodelinks);
@@ -252,6 +255,13 @@ export const DAG = ({attributes = [], graph}) => {
     }
 
     setnodelinks(newnodelinks);
+
+    let newAllAttributes = JSON.parse(JSON.stringify(allAttributes));
+    newAllAttributes[tagNode]["tags"].push(tagName);
+
+    // console.log(newAllAttributes);
+
+    setAllAttributes(newAllAttributes);
   }
 
   // Update node position after dragging

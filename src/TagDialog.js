@@ -24,15 +24,15 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
     setValue(e.target.value);
   };
 
-  function handleAdd() {
-    if (value === "") {
-      handleNodeClose();
-    } else {
-      addAttribute(value, true);
-      setValue("");
-      handleNodeClose();
-    }
-  }
+  // function handleAdd() {
+  //   if (value === "") {
+  //     handleNodeClose();
+  //   } else {
+  //     addAttribute(value, true);
+  //     setValue("");
+  //     handleNodeClose();
+  //   }
+  // }
 
   const handleClick = () => {
     setColorOpen(!colorOpen);
@@ -44,6 +44,15 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
 
   const handleColorChange = (color) => {
     setColor(color.hex);
+  };
+
+  const handleAdd = () => {
+    if (value === "") {
+      handleTagClose();
+    } else {
+      updateTag(color, value);
+      handleTagClose();
+    }
   };
 
   const styles = {
@@ -102,7 +111,7 @@ export const TagDialog = ({tagNode="", open=false, handleTagClose, updateTag}) =
         </DialogContent>
         <DialogActions>
           <Button onClick={handleTagClose}>Cancel</Button>
-          <Button onClick={() => updateTag(color, value)}>Add</Button>
+          <Button onClick={handleAdd}>Add</Button>
         </DialogActions>
       </Dialog>
     </div>
