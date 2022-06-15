@@ -642,7 +642,9 @@ export const DAG = ({attributes = [], graph}) => {
 
   let bodyStyle = {"display": "flex"};
   let connectIcon = {"transform": "rotate(-45deg)"};
-  let buttonStyle = {"marginBottom": "0px"};
+  let buttonStyle = {"marginBottom": "0px",
+                     "height":"48px",
+                     "& .MuiButtonBase-root":{"height":"48px"},};
   let menuStyle = {"display": "flex",
                   "width": "100%",
                   "alignItems": "center",
@@ -706,12 +708,12 @@ export const DAG = ({attributes = [], graph}) => {
             onChange={(e, val) => toggleMode(e, val)}
             aria-label="text alignment">
             <ToggleButton value="default" alt="select">
-              <a title="select">
+              <a style={aStyle} title="select">
                 <NearMeOutlinedIcon />
               </a>
             </ToggleButton>
             <ToggleButton value="path" alt="edit links">
-              <a title="edit links">
+              <a style={aStyle} title="edit links">
                 <LinearScaleRoundedIcon style={connectIcon} />
               </a>
             </ToggleButton>
