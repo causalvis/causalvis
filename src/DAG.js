@@ -161,6 +161,7 @@ export const DAG = ({attributes = [], graph}) => {
     }
   }, [graph]);
 
+  // If attributes are provided without an accompanying graph set attributes only
   useEffect(() => {
     if (attributes.length > 0 && !graph) {
       let newAllAttributes = {}
@@ -172,13 +173,38 @@ export const DAG = ({attributes = [], graph}) => {
     }
   }, [attributes]);
 
+  // When treatment and outcome variables are changed
+  // Or when the graph is updated
+  // Recalculate mediators, colliders, and confounds
+  useEffect(() => {
+    // Check that both treatment and outcome have been indicated
+    if (treatment.length > 0 && outcome.length > 0) {
+      let newColliders = getColliders(treatment, outcome);
+      let colliderNames = []
+
+      for (let c of newColliders) {
+        colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name)
+      }
+
+      setColliders(colliderNames);
+      setMediators(Array.from(getMediators(treatment, outcome)).map(m => m.name));
+      setConfounds(getConfounds(treatment, outcome).map(m => m.name));
+    } else {
+      // If either treatment or outcome is missing,
+      // Set all variable types to empty
+      setColliders([]);
+      setMediators([]);
+      setConfounds([]);
+    }
+  }, [treatment, outcome, nodelinks]);
+
   // Add new attribute to the DAG
   function addAttribute(val, custom=false, x=layout.width/2, y=layout.height/2) {
     // console.log(val);
 
     let index = added.indexOf(val);
 
-    console.log(allAttributes[val]);
+    // console.log(allAttributes[val]);
 
     if (index < 0) {
       const id = generateID();
@@ -271,6 +297,24 @@ export const DAG = ({attributes = [], graph}) => {
     // Update dictionary of tag colors
     tagColors[tagName] = color;
     setTagColors({...tagColors});
+  }
+
+  // Delete tags for an attribute
+  function deleteTag(tagName) {
+    // Update nodelink diagram
+    let newnodelinks = { ...nodelinks };
+    let taggingNode = newnodelinks.nodes.filter(n => n.name === tagNode)[0];
+
+    let tagIndex = taggingNode.tags.indexOf(tagName);
+    taggingNode.tags.splice(tagIndex, 1);
+
+    setnodelinks(newnodelinks);
+
+    // Update attributes
+    let newAllAttributes = JSON.parse(JSON.stringify(allAttributes));
+    tagIndex = newAllAttributes[tagNode]["tags"].indexOf(tagName);
+    newAllAttributes[tagNode]["tags"].splice(tagIndex, 1);
+    setAllAttributes(newAllAttributes);
   }
 
   // Update node position after dragging
@@ -460,7 +504,7 @@ export const DAG = ({attributes = [], graph}) => {
   // The same descendent may be included twice if there are multiple causal pathways
   // For unique descendents, apply Set() to the result
   function getDescendents(node) {
-    // console.log(node, node.children);
+    // console.log(node);
     let result = Array.from(node.children);
     for (let c of node.children) {
       let nodeC = nodelinks.nodes.filter(n => n.id === c)[0];
@@ -651,7 +695,8 @@ export const DAG = ({attributes = [], graph}) => {
         attrTags={allAttributes[tagNode] ? allAttributes[tagNode]["tags"] : []}
         open={addTag}
         handleTagClose={handleTagClose}
-        updateTag={updateTag} />
+        updateTag={updateTag}
+        deleteTag={deleteTag} />
       <div>
         <div style={menuStyle}>
           <ToggleButtonGroup
@@ -738,6 +783,9 @@ export const DAG = ({attributes = [], graph}) => {
             mode={mode}
             treatment={treatment}
             outcome={outcome}
+            mediators={mediators}
+            colliders={colliders}
+            confounds={confounds}
             search={search}
             updateNodePos={updateNodePos}
             deleteAttribute={deleteAttribute}

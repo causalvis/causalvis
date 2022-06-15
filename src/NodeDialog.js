@@ -7,8 +7,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 
-// import { saveAs } from 'file-saver';
-
 export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addCustom}) => {
   const [value, setValue] = React.useState("");
 
@@ -17,12 +15,12 @@ export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addCustom
     setValue(e.target.value);
   };
 
+  // Add node with input attribute name
   function handleAdd() {
     if (value === "") {
       handleNodeClose();
     } else {
       addCustom(value);
-      // addAttribute(value, true);
       setValue("");
       handleNodeClose();
     }

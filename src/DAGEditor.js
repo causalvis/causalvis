@@ -7,7 +7,40 @@ import MenuItem from '@mui/material/MenuItem';
 
 import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
 
-export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}, nodelinks = [], mode = "default", treatment="", outcome="", search, updateNodePos, deleteAttribute, changeTreatment, changeOutcome, updateLinks, deleteLinks}) => {
+/* Interactive editor for the directed acyclic graph (DAG)
+
+Props:
+  - layout: Object, dimensions of svg
+  - nodelinks: Object, {nodes: [...], links: [...]}
+  - mode: String, "default" or "path"
+  - treatment: String, treatment variable
+  - outcome: String, outcome variable
+  - mediators: Array, variable names of type String given treatment and outcome
+  - colliders: Array, variable names of type String given treatment and outcome
+  - confounds: Array, variable names of type String given treatment and outcome
+  - search: Array, variables names of type String
+  - updateNodePos: Function, updates position of nodes in nodelink
+  - deleteAttribute: Function, deletes attribute/variable from nodelink
+  - changeTreatment: Function, updates treatment variable
+  - changeOutcome: Function, updates outcome variable
+  - updateLinks: Function, updates/adds links in nodelink
+  - deleteLinks: Function, deletes links in nodelink
+*/       
+export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60},
+                           nodelinks = {},
+                           mode = "default",
+                           treatment="",
+                           outcome="",
+                           mediators=[],
+                           colliders=[],
+                           confounds=[],
+                           search,
+                           updateNodePos,
+                           deleteAttribute,
+                           changeTreatment,
+                           changeOutcome,
+                           updateLinks,
+                           deleteLinks}) => {
 
   // Controls node options menu
   const [open, setOpen] = React.useState(false);
@@ -17,9 +50,12 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   // Track selected nodes
   const [selected, setSelected] = React.useState([]);
 
-  // Track color of nodes
-  const [colorMap, setColorMap] = React.useState({"treatment": "#1976d2",
-                                                  "outcome": "#f57c00"});
+  // Track color scheme of nodes
+  const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
+                                                  "outcome": "#f28e2c",
+                                                  "confounds": "#e15759",
+                                                  "colliders": "#76b7b2",
+                                                  "mediators": "#59a14f"});
 
   function handleClose() {
     setAnchorPos(null);
@@ -118,6 +154,33 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         .attr("stroke-width", "3px")
     }
   }, [search])
+
+  useEffect(() => {
+    for (let m of mediators) {
+      node.filter(d => d.name === m)
+        .attr("stroke", colorMap.mediators)
+
+      text.filter(d => d.name === m)
+        .attr("fill", colorMap.mediators)
+    }
+
+    for (let co of colliders) {
+      node.filter(d => d.name === co)
+        .attr("stroke", colorMap.colliders)
+
+      text.filter(d => d.name === co)
+        .attr("fill", colorMap.colliders)
+    }
+
+    for (let con of confounds) {
+      node.filter(d => d.name === con)
+        .attr("stroke", colorMap.confounds)
+
+      text.filter(d => d.name === con)
+        .attr("fill", colorMap.confounds)
+    }
+
+  }, [mediators, colliders, confounds])
 
   const ref = useRef('svgDAG');
 
@@ -349,12 +412,18 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
   // Determine node color
   function nodeColor(d) {
     if (d.name === treatment) {
-      return "#1976d2"
+      return colorMap.treatment
     } else if (d.name === outcome) {
-      return "#f57c00"
+      return colorMap.outcome
     } else if (d.$custom) {
       // return "#9e9e9e"
       return "black"
+    } else if (mediators.indexOf(d.name) >= 0) {
+      return colorMap.mediators
+    } else if (colliders.indexOf(d.name) >= 0) {
+      return colorMap.colliders
+    } else if (confounds.indexOf(d.name) >= 0) {
+      return colorMap.confounds
     } else {
       return "black"
     }
@@ -391,7 +460,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .on("mouseover", function () {
         if (mode === "path") {
           d3.select(this).attr("stroke-width", 3);
-          // d3.select(this).attr("stroke", "#1976d2").attr("stroke-width", 3);
         }
       })
       .on("mouseout", function () {
@@ -497,14 +565,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
         }
       })
       .on("contextmenu", (e, d) => handleContextMenu(e, d));
-
-  // function legendColor(val) {
-  //   if (val === "treatment") {
-  //     return "#1976d2"
-  //   } else if (val === "outcome") {
-  //     return "#f57c00"
-  //   }
-  // }
 
   var legend = svg.select("#legend")
     .selectAll(".legendRect")

@@ -13,10 +13,6 @@ import MenuItem from '@mui/material/MenuItem';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag, handleNodeOpen}) => {
-  // const [attr, setAttr] = React.useState(attributes);
-
-  // const addedColor = grey[500];
-
   // console.log(attributes);
 
   const theme = createTheme({
@@ -29,19 +25,20 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
       },
       treatment: {
         light: blue[500],
-        main: blue[700],
+        main: "#4e79a7",
         dark: blue[900],
         contrastText: '#fff',
       },
       outcome: {
         light: orange[500],
-        main: orange[700],
+        main: "#f28e2c",
         dark: orange[900],
         contrastText: '#fff',
       }
     },
   });
 
+  // Get color of attribute
   function getColor(value) {
     if (treatment === value) {
       return "treatment"

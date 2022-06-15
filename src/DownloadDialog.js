@@ -27,6 +27,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
   const [error, setError] = React.useState(false);
   const [downloadJSON, setJSON] = React.useState('');
 
+  // Update download json based on user selections
   useEffect(() => {
     let newDownload = {};
     

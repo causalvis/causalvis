@@ -18,7 +18,7 @@ import TextField from '@mui/material/TextField';
 
 // import { saveAs } from 'file-saver';
 
-export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, handleTagClose, updateTag}) => {
+export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, handleTagClose, updateTag, deleteTag}) => {
   const [value, setValue] = React.useState("");
   const [colorOpen, setColorOpen] = React.useState(false);
   const [color, setColor] = React.useState("#000000");
@@ -37,28 +37,22 @@ export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, ha
     setValue(e.target.value);
   };
 
-  // function handleAdd() {
-  //   if (value === "") {
-  //     handleNodeClose();
-  //   } else {
-  //     addAttribute(value, true);
-  //     setValue("");
-  //     handleNodeClose();
-  //   }
-  // }
-
+  // Toggle open/close color selector
   const handleClick = () => {
     setColorOpen(!colorOpen);
   };
 
+  // Close color selector
   const handleClose = () => {
     setColorOpen(false);
   };
 
+  // Update color selected
   const handleColorChange = (color) => {
     setColor(color.hex);
   };
 
+  // Add tag and associated color
   const handleAdd = () => {
     if (value === "") {
       // handleTagClose();
@@ -70,8 +64,10 @@ export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, ha
     setColor("#000000");
   };
 
+  // Delete tag for selected attribute
   const handleDelete = (value) => {
-    console.log("deleting...", value);
+    // console.log("deleting...", value);
+    deleteTag(value);
   }
 
   const styles = {

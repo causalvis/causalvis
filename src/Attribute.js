@@ -16,6 +16,7 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     setOpen(false);
   }
 
+  // Toggle open/close context menu for attributes that are added to graph
   function handleContextMenu(e) {
     e.preventDefault();
     if (isAdded) {
@@ -25,6 +26,8 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     }
   }
 
+  // Set this attribute as treatment
+  // If attribute already is treatment, deselect
   function handleTreatment() {
     if (treatment === value) {
       changeTreatment("");
@@ -40,6 +43,8 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     }
   }
 
+  // Set this attribute as outcome
+  // If attribute already is outcome, deselect
   function handleOutcome() {
     if (outcome === value) {
       changeOutcome("");
@@ -55,11 +60,13 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     }
   }
 
+  // Open tag editor for this attribute
   function handleTag() {
     handleAddTag(value);
     handleClose();
   }
 
+  // Delete this attribute from graph
   function handleDelete() {
     deleteAttribute(value);
     handleClose();
@@ -67,7 +74,6 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
 
   const buttonStyle = {"width":"100%", "marginBottom":"5px"};
   const menuStyle = {}
-  // const iconStyle = {"margin-left":"auto"}
 
   return (
     <div>
