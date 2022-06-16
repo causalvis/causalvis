@@ -1,21 +1,23 @@
 import React from 'react';
 
-import { PropDistribution } from '../src/PropDistribution.js'
+import { CovariateBalance } from '../src/CovariateBalance.js';
 import CohortPropensity from '../public/cohort_propensity.json'
 import CohortConfounds from '../public/cohort_confounds.json'
 import CohortTreatments from '../public/cohort_treatment.json'
 
-// let data = CohortConfounds.map((d, i) => {d.treatment = CohortTreatments[i]; return d});
+// let attributes = Object.keys(dataset[0]);
+
+// let confounds = CohortConfounds.map(c => {delete c.treatment; return c});
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Cohort/Propensity Distribution',
+  title: 'Cohort/Covariate Evaluator',
 };
 
 export const ToStorybook = () => (
-  <PropDistribution propensity={CohortPropensity} data={CohortConfounds} treatment={CohortTreatments} />
+  <CovariateBalance dataUnadjusted={CohortConfounds} treatment={CohortTreatments} propensity={CohortPropensity} />
 )
 
 ToStorybook.story = {
-  name: 'Propensity Distribution',
+  name: 'Covariate Evaluator',
 };

@@ -1,7 +1,7 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const PropDistributionVis = ({layout = {"height": 500, "width": 600, "margin": 50, "marginLeft": 150}, propensity=[], data=[], setSelected}) => {
+export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, propensity=[], data=[], treatment=[], setSelected}) => {
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
@@ -43,7 +43,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 600, "mar
 
     for (let i = 0; i < data.length; i++) {
       let dataRow = data[i];
-      let assignedTreatment = dataRow.treatment;
+      let assignedTreatment = treatment[i];
 
       // console.log(dataRow);
 
@@ -95,12 +95,13 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 600, "mar
     .on("click", (e, d) => setSelected(d))
 
   svgElement.select('#x-axis')
-          .attr('transform', `translate(0, ${layout.height / 2})`)
+          .attr('transform', `translate(0, ${layout.height - layout.margin})`)
           .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
   svgElement.select('#y-axistreatment')
     .attr('transform', `translate(${layout.marginLeft}, 0)`)
     .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
+  svgElement.select('#y-axistreatment').selectAll('.tick:first-child').remove()
   
   svgElement.select('#y-axiscontrol')
     .attr('transform', `translate(${layout.marginLeft}, 0)`)

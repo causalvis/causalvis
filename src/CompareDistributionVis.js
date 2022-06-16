@@ -60,7 +60,7 @@ export const CompareDistributionVis = ({layout = {"height": 200, "width": 200, "
     .attr("class", "referenceBars")
     .attr("x", (d, i) => xScale(d.x0))
     .attr("y", d => yScale(d.length / referenceSize))
-    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
+    .attr("width", d => xScale(d.x1) - xScale(d.x0))
     .attr("height", d => yScale(0) - yScale(d.length / referenceSize))
     .attr("fill", "none")
     .attr("stroke", "black")
@@ -73,7 +73,7 @@ export const CompareDistributionVis = ({layout = {"height": 200, "width": 200, "
     .attr("class", "selectionBars")
     .attr("x", (d, i) => xScale(d.x0))
     .attr("y", d => yScale(d.length / selectionSize))
-    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
+    .attr("width", d => xScale(d.x1) - xScale(d.x0))
     .attr("height", d => yScale(0) - yScale(d.length / selectionSize))
     .attr("fill", "steelblue")
 

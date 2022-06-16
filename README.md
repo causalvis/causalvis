@@ -9,7 +9,7 @@ git clone https://github.ibm.com/bumchul-kwon/causalvis.git
 npm install
 ```
 
-### Running
+### Run Modules
 
 Start the app with:
 
@@ -18,3 +18,7 @@ npm run storybook
 ```
 
 This should open a new browser window. On the left hand menu, navigate to the `DAG` tab to access the DAGEditor tool.
+
+### Data Sets
+
+All data sets are located under `./public`
