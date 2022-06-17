@@ -1,11 +1,7 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const CompareDistributionVis = ({layout = {"height": 200, "width": 200, "margin": 20, "marginLeft": 20}, reference = [], selection = [], refIndex = ""}) => {
-
-  // // Treatment and control data for the selected attribute
-  // const [TAttribute, setTAttribute] = React.useState([])
-  // const [CAttribute, setCAttribute] = React.useState([])
+export const CompareDistributionVis = ({layout = {"height": 200, "width": 200, "margin": 20, "marginLeft": 20}, reference = [], selection = [], refIndex = "", updateFilter}) => {
 
   // Get bins for treatment and control groups
   const [referenceBins, setReferenceBins] = React.useState([]);
@@ -38,6 +34,32 @@ export const CompareDistributionVis = ({layout = {"height": 200, "width": 200, "
   let svg = d3.select(ref.current);
 
   let svgElement = svg.select("g");
+
+  function onBrush(e) {
+    let brushSelection = e.selection;
+    // console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+  }
+
+  function brushEnd(e) {
+    let brushSelection = e.selection;
+    let brushExtent;
+
+    if (brushSelection) {
+      brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
+    } else {
+      brushExtent = null;
+    }
+    
+    updateFilter(refIndex, brushExtent);
+    console.log(e, brushExtent);
+  }
+
+  var brush = d3.brushX()
+              .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
+              .on("brush", (e) => onBrush(e))
+              .on("end", (e) => brushEnd(e))
+
+  svgElement.call(brush)
 
   const xScale = d3.scaleLinear()
     .domain([d3.min(reference), d3.max(reference)])

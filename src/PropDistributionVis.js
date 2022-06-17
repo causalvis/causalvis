@@ -1,22 +1,12 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, propensity=[], data=[], treatment=[], setSelected}) => {
+export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n=1, maxPropensity=1, setSelected}) => {
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
-                                                  "outcome": "#f28e2c",});
-
-  // Treatment and control data for the selected attribute
-  const [TAttribute, setTAttribute] = React.useState([])
-  const [CAttribute, setCAttribute] = React.useState([])
-
-  // Get bins for treatment and control groups
-  const [TBins, setTBins] = React.useState([]);
-  const [CBins, setCBins] = React.useState([]);
-
-  const bins = 20;
-  const n = propensity.length;
+                                                  "outcome": "#f28e2c",
+                                                  "control": "#90b0d1"});
   
   const ref = useRef('svgPropDistribution');
 
@@ -24,88 +14,112 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
   let svgElement = svg.select("g");
 
-  const xScale = d3.scaleLinear()
-    .domain([0, d3.max(TAttribute, d => d.propensity)])
+  var xScale = d3.scaleLinear()
+    .domain([0, maxPropensity])
     .range([layout.marginLeft, layout.width - layout.margin])
 
-  const yScaleTreatment = d3.scaleLinear()
-    .domain([0, d3.max(TBins.map(d => d.length)) / n])
+  let yMax = d3.max([d3.max(bins.TBins.map(d => d.length)) / n, d3.max(bins.CBins.map(d => d.length)) / n])
+
+  var yScaleTreatment = d3.scaleLinear()
+    .domain([0, yMax])
     .range([layout.height / 2, layout.height - layout.margin])
 
-  const yScaleControl = d3.scaleLinear()
-    .domain([0, d3.max(CBins.map(d => d.length)) / n])
+  var yScaleControl = d3.scaleLinear()
+    .domain([0, yMax])
     .range([layout.height / 2, layout.margin])
 
-  useEffect(() => {
-
-    let newTAttribute = [];
-    let newCAttribute = [];
-
-    for (let i = 0; i < data.length; i++) {
-      let dataRow = data[i];
-      let assignedTreatment = treatment[i];
-
-      // console.log(dataRow);
-
-      if (assignedTreatment === 0) {
-        // console.log(assignedTreatment, propensity[i]);
-        dataRow.propensity = propensity[i][1];
-        newCAttribute.push(dataRow);
-      } else {
-        // console.log(assignedTreatment, propensity[i]);
-        dataRow.propensity = propensity[i][1];
-        newTAttribute.push(dataRow);
-      }
-    }
-
-    setTAttribute(newTAttribute);
-    setCAttribute(newCAttribute);
-
-    var histogram = d3.histogram().value(d => d.propensity).domain([0, 1]).thresholds(bins);
-    var newTBins = histogram(newTAttribute);
-    var newCBins = histogram(newCAttribute);
-
-    setTBins(newTBins);
-    setCBins(newCBins);
-
-  }, [propensity])
-
-  svgElement.select("#bars")
+  let controlBars = svgElement.select("#bars")
     .selectAll(".controlBars")
-    .data(CBins)
+    .data(bins.CBins)
     .join("rect")
     .attr("class", "controlBars")
     .attr("x", (d, i) => xScale(d.x0))
-    .attr("y", d => yScaleControl(d.length / n))
+    .attr("y", d => yScaleControl(0))
     .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
-    .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
-    .attr("fill", colorMap.outcome)
+    .attr("height", 0)
+    .attr("fill", colorMap.control)
+    .attr("cursor", "pointer")
     .on("click", (e, d) => setSelected(d))
 
-  svgElement.select("#bars")
+  let treatmentBars = svgElement.select("#bars")
     .selectAll(".treatmentBars")
-    .data(TBins)
+    .data(bins.TBins)
     .join("rect")
     .attr("class", "treatmentBars")
     .attr("x", (d, i) => xScale(d.x0))
     .attr("y", d => yScaleTreatment(0))
     .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
-    .attr("height", d =>  yScaleTreatment(d.length / n) - yScaleTreatment(0))
+    .attr("height", 0)
     .attr("fill", colorMap.treatment)
+    .attr("cursor", "pointer")
     .on("click", (e, d) => setSelected(d))
 
-  svgElement.select('#x-axis')
+  let xAxis = svgElement.select('#x-axis')
           .attr('transform', `translate(0, ${layout.height - layout.margin})`)
           .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
-  svgElement.select('#y-axistreatment')
-    .attr('transform', `translate(${layout.marginLeft}, 0)`)
-    .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
-  svgElement.select('#y-axistreatment').selectAll('.tick:first-child').remove()
-  
-  svgElement.select('#y-axiscontrol')
-    .attr('transform', `translate(${layout.marginLeft}, 0)`)
-    .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
+  let yAxisTreatment = svgElement.select('#y-axistreatment')
+          .attr('transform', `translate(${layout.marginLeft}, 0)`)
+          .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
+    
+  let yAxisControl = svgElement.select('#y-axiscontrol')
+          .attr('transform', `translate(${layout.marginLeft}, 0)`)
+          .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
+
+  useEffect(() => {
+
+    controlBars.transition()
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .attr("y", d => yScaleControl(d.length / n))
+      .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
+
+    treatmentBars.transition()
+      .duration(1000)
+      .ease(d3.easeLinear)
+      .attr("height", d =>  yScaleTreatment(d.length / n) - yScaleTreatment(0))
+
+    svgElement.select("#legend")
+      .selectAll(".legend")
+      .data(["treatment", "control"])
+      .join("rect")
+      .attr("class", "legend")
+      .attr("x", layout.marginLeft + 10)
+      .attr("y", (d, i) => layout.height - layout.margin * 2 + 16 * i )
+      .attr("width", 12)
+      .attr("height", 12)
+      .attr("fill", d => colorMap[d])
+
+    svgElement.select("#legend")
+      .selectAll(".legendText")
+      .data(["treatment", "control"])
+      .join("text")
+      .attr("class", "legendText")
+      .attr("x", layout.marginLeft + 10 + 18)
+      .attr("y", (d, i) => layout.height - layout.margin * 2 + 16 * i + 6)
+      .attr("alignment-baseline", "middle")
+      .attr("text-anchor", "start")
+      .attr("fill", d => colorMap[d])
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 12)
+      .text(d => d)
+
+    xAxis.transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
+
+    yAxisTreatment.transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
+
+    yAxisControl.transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
+
+  })
 
   return (
     <div>
@@ -115,6 +129,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
           <g id="x-axis" />
           <g id="y-axistreatment" />
           <g id="y-axiscontrol" />
+          <g id="legend" />
         </g>
       </svg>
     </div>

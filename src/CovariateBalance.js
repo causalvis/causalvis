@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 
 import { SMDVis } from './SMDVis';
+import { min, max } from 'd3-array'
 
 /*
 Props:
@@ -11,7 +12,7 @@ Props:
   - propensity: Array, propensity scores for each item in the data set, order of items should be identical to unadjusted data set
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
 */
-export const CovariateBalance = ({dataUnadjusted=[], dataAdjusted=[], treatment="treatment", propensity=[], weights}) => {
+export const CovariateBalance = ({cohortData={}, dataAdjusted, weights}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
@@ -19,20 +20,8 @@ export const CovariateBalance = ({dataUnadjusted=[], dataAdjusted=[], treatment=
   // Treatment assignment for dataset
   const [treatmentAssignment, setTreatmentAssignment] = React.useState();
 
-  // All attributes in data
-  // const [attributes, setAttributes] = React.useState([]);  
-
-  useEffect(() => {
-    if ( typeof treatment === "string") {
-      let newTreatmentAssignment = dataUnadjusted.map(d => d[treatment]);
-
-      setTreatmentAssignment(newTreatmentAssignment);
-      setTreatmentLevels(Array.from(new Set(newTreatmentAssignment)));
-    } else {
-      setTreatmentAssignment(treatment);
-      setTreatmentLevels(Array.from(new Set(treatment)));
-    }
-  }, [treatment])
+  const [SMD, setSMD] = React.useState([]);
+  const [SMDExtent, setSMDExtent] = React.useState([0, 1])
 
   function getWeightedMean(x, w) {
     let total = 0;
@@ -90,7 +79,7 @@ export const CovariateBalance = ({dataUnadjusted=[], dataAdjusted=[], treatment=
   function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignment) {
     let newSMD = [];
 
-    let attributes = Object.keys(dataUnadjusted[0]).filter(a => a !== treatment && a !== "propensity");
+    let attributes = Object.keys(dataUnadjusted[0]);
     // console.log(attributes);
 
     for (let a of attributes) {
@@ -131,26 +120,40 @@ export const CovariateBalance = ({dataUnadjusted=[], dataAdjusted=[], treatment=
     return newSMD;
   }
 
-  let newSMD = [];
+  useEffect(() => {
 
-  if (treatmentAssignment) {
+    if (cohortData.confounds.length !== 0) {
+      let newSMD = [];
 
-    if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
-      newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
-    } else if (weights && dataUnadjusted.length === weights.length) {
-      newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
-    } else if (propensity && dataUnadjusted.length === propensity.length) {
-      let treatmentPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
-      let propensityWeights = treatmentPropensity.map(p => 1/p);
-      newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
-    } else {
-      console.log("Missing data");
+      let treatmentAssignment = cohortData.treatment;
+      let dataUnadjusted = cohortData.confounds;
+      let propensity = cohortData.propensity;
+
+      // console.log(treatmentAssignment, dataUnadjusted, propensity)
+
+      if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
+        newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
+      } else if (weights && dataUnadjusted.length === weights.length) {
+        newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
+      } else if (propensity && dataUnadjusted.length === propensity.length) {
+        let treatmentPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
+        let propensityWeights = treatmentPropensity.map(p => 1/p);
+        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
+      } else {
+        console.log("Missing data");
+      }
+
+      setSMD(newSMD);
+
+      let newSMDExtent = [Math.min(min(newSMD, d => d.unadjusted), min(newSMD, d => d.adjusted)), Math.max(max(newSMD, d => d.unadjusted), max(newSMD, d => d.adjusted))];
+      setSMDExtent(newSMDExtent);
     }
-  }
+    
+  }, [cohortData])
 
   return (
     <div>
-      <SMDVis SMDDataset={newSMD.sort((a, b) => a.unadjusted > b.unadjusted)} />
+      <SMDVis SMDDataset={SMD.sort((a, b) => a.unadjusted > b.unadjusted)} SMDExtent={SMDExtent} />
       {/*<DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />*/}
     </div>
   )
