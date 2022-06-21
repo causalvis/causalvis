@@ -115,7 +115,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
     svgElement.select("#legend")
       .selectAll(".legend")
-      .data(["treatment", "control"])
+      .data(["control", "treatment"])
       .join("rect")
       .attr("class", "legend")
       .attr("x", layout.marginLeft + 10)
@@ -126,7 +126,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
     svgElement.select("#legend")
       .selectAll(".legendText")
-      .data(["treatment", "control"])
+      .data(["control", "treatment"])
       .join("text")
       .attr("class", "legendText")
       .attr("x", layout.marginLeft + 10 + 18)

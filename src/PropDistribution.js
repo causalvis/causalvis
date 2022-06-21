@@ -3,50 +3,42 @@ import { histogram } from 'd3-array';
 
 import { PropDistributionVis } from './PropDistributionVis';
 
-export const PropDistribution = ({cohortData={}, setSelected}) => {
+export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
-  // Get bins for treatment and control groups
+  // Track bins for treatment and control groups
   const [bins, setBins] = React.useState({"TBins":[], "CBins":[]});
-  // const [n, setN] = React.useState(cohortData.propensity ? cohortData.propensity.length : 0);
 
   const binCount = 20;
-  const n = cohortData.propensity ? cohortData.propensity.length : 0;
+  const n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
 
   useEffect(() => {
-    // console.log('reset prop')
-
-    if (cohortData.confounds) {
+    if (unadjustedCohortData.confounds) {
       let newTAttribute = [];
       let newCAttribute = [];
 
-      for (let i = 0; i < cohortData.confounds.length; i++) {
-        let dataRow = JSON.parse(JSON.stringify(cohortData.confounds[i]));
-        let assignedTreatment = cohortData.treatment[i];
+      for (let i = 0; i < unadjustedCohortData.confounds.length; i++) {
+        let dataRow = JSON.parse(JSON.stringify(unadjustedCohortData.confounds[i]));
+        let assignedTreatment = unadjustedCohortData.treatment[i];
 
-        // console.log(dataRow);
-
+        // Separate treatment and control rows
         if (assignedTreatment === 0) {
-          // console.log(assignedTreatment, propensity[i]);
-          dataRow.propensity = cohortData.propensity[i][1];
+          dataRow.propensity = unadjustedCohortData.propensity[i][1];
           newCAttribute.push(dataRow);
         } else {
-          // console.log(assignedTreatment, propensity[i]);
-          dataRow.propensity = cohortData.propensity[i][1];
+          dataRow.propensity = unadjustedCohortData.propensity[i][1];
           newTAttribute.push(dataRow);
         }
       }
 
+      // Get histogram for treatment and control data sets
       var h = histogram().value(d => d.propensity).domain([0, 1]).thresholds(binCount);
       var newTBins = h(newTAttribute);
       var newCBins = h(newCAttribute);
 
-      // console.log(cohortData.propensity.length)
-
       setBins({"TBins": newTBins, "CBins": newCBins});
-      // setN(cohortData.propensity.length);
     }
 
-  }, [cohortData])
+  }, [unadjustedCohortData])
 
   return (
     <div>

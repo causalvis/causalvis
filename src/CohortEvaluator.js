@@ -5,30 +5,34 @@ import { CovariateBalance } from './CovariateBalance';
 import { PropDistribution } from './PropDistribution';
 import { SMDMenu } from './SMDMenu'
 
-export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], CohortTreatments=[]}) => {
+/*
+Props:
+  - unadjustedCohort: Array, data set before adjustment
+  - adjustedCohort: Array, data set after adjustment
+  - treatment: String, name of treatment variable
+  - propensity: String, name of propensity variable, should be 1-D Array of propensities for each treatment level
+  - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
+*/
+export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatment="treatment", propensity="propensity"}) => {
 
   const [attributes, setAttributes] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
 
-  // const [filteredConfounds, setFilteredConfounds] = React.useState([]);
-  // const [filteredTreatments, setFilteredTreatments] = React.useState([]);
-  // const [filteredPropensity, setFilteredPropensity] = React.useState([]);
-
-  const [cohortData, setCohortData] = React.useState({"confounds":[], "propensity":[], "treatment":[]});
+  const [unadjustedCohortData, setUnadjustedCohortData] = React.useState({"confounds":[], "propensity":[], "treatment":[]});
 
   const [sort, setSort] = React.useState("Adjusted High to Low");
 
-  let allData = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d["treatment"] = CohortTreatments[i]; d["propensity"] = CohortPropensity[i]; return d});
+  let allData = JSON.parse(JSON.stringify(unadjustedCohort));
   let filteredData = crossfilter(allData);
 
   const [allAttributeFilters, setAllAttributeFilters] = React.useState({})
 
-  // let allAttributeFilters = {};
-
   useEffect(() => {
-    // console.log("running...")
-
-    let allAttributes = Object.keys(CohortConfounds[0])
+    // Get all the confounding attributes, excluding treatment and propensity score
+    let allAttributes = new Set(Object.keys(unadjustedCohort[0]));
+    allAttributes.delete(treatment);
+    allAttributes.delete(propensity);
+    allAttributes = Array.from(allAttributes);
 
     setAttributes(allAttributes);
 
@@ -41,13 +45,16 @@ export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], Cohort
 
     setAllAttributeFilters(newAttributeFilters);
 
-    setCohortData({"confounds": CohortConfounds, "propensity": CohortPropensity, "treatment": CohortTreatments});
+    let newCohortConfounds = JSON.parse(JSON.stringify(unadjustedCohort)).map(d => {delete d.treatment; delete d.propensity; return d});
+    let newCohortTreatments = unadjustedCohort.map(d => d.treatment);
+    let newCohortPropensity = unadjustedCohort.map(d => d.propensity);
 
-  }, [CohortConfounds, CohortPropensity, CohortTreatments])
+    setUnadjustedCohortData({"confounds": newCohortConfounds, "propensity": newCohortPropensity, "treatment": newCohortTreatments});
+
+  }, [unadjustedCohort])
 
   function updateFilter(attribute, extent) {
     let attributeFilter = allAttributeFilters[attribute];
-    // console.log(attributeFilter, extent);
     attributeFilter.filter(extent);
 
     let newData = attributeFilter.top(Infinity);
@@ -63,8 +70,8 @@ export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], Cohort
   return (
     <div>
       <div style={plotLayout}>
-        <PropDistribution cohortData={cohortData} setSelected={setSelected} />
-        <CovariateBalance cohortData={cohortData} updateFilter={updateFilter} />
+        <PropDistribution unadjustedCohortData={unadjustedCohortData} setSelected={setSelected} />
+        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} />
         <SMDMenu setSort={setSort} />
       </div>
     </div>

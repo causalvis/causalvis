@@ -15,26 +15,20 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 /*
 Props:
-  - dataUnadjusted: Array, data set before adjustment
-  - dataAdjusted: Array, data set after adjustment, order of items should be identical to unadjusted data set
-  - treatment: String, name of treatment variable
-               Array, treatment assignment for each item in the data set, order of items should be identical to unadjusted data set
+  - unadjustedCohortData: Object, data set before adjustment, {"confounds":[], "treatment":[], "propensity":[]}
+  - adjustedCohortData: Object, data set after adjustment, {"confounds":[], "treatment":[], "propensity":[]}
   - propensity: Array, propensity scores for each item in the data set, order of items should be identical to unadjusted data set
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
+  - updateFilter: Function, updates filter functions when a covariate range is selected
 */
-export const CovariateBalance = ({cohortData={}, dataAdjusted, weights, updateFilter}) => {
+export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
 
-  // Treatment assignment for dataset
-  const [treatmentAssignment, setTreatmentAssignment] = React.useState();
-
   // Track standard mean differences for each attribute
   const [SMD, setSMD] = React.useState([]);
   const [SMDExtent, setSMDExtent] = React.useState([0, 1]);
-
-  const [attributes, setAttributes] = React.useState([]);
 
   const [expand, setExpand] = React.useState(false);
 
@@ -49,7 +43,6 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights, updateFi
     } else {
       return;
     }
-    // setExpand(!expand);
   }
 
   function getWeightedMean(x, w) {
@@ -153,35 +146,44 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights, updateFi
 
     // console.log("reset");
 
-    if (cohortData.confounds && cohortData.confounds.length !== 0) {
+    if (unadjustedCohortData.confounds && unadjustedCohortData.confounds.length !== 0) {
       let newSMD = [];
 
-      let treatmentAssignment = cohortData.treatment;
-      let dataUnadjusted = cohortData.confounds;
-      let propensity = cohortData.propensity;
+      let treatmentAssignment = unadjustedCohortData.treatment;
+      let dataUnadjusted = unadjustedCohortData.confounds;
+      let propensity = unadjustedCohortData.propensity;
+
+      // If no adjusted data set provided, use propensity to calculate IPW
+      if (!adjustedCohortData) {
+        // Get propensity of assigned treatment level
+        let allPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
+
+        // Get inverse propensity weights
+        let propensityWeights = allPropensity.map(p => 1/p);
+
+        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
+      }
+      
 
       // console.log(treatmentAssignment, dataUnadjusted, propensity)
 
-      if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
-        newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
-      } else if (weights && dataUnadjusted.length === weights.length) {
-        newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
-      } else if (propensity && dataUnadjusted.length === propensity.length) {
-        let treatmentPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
-        let propensityWeights = treatmentPropensity.map(p => 1/p);
-        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
-      } else {
-        console.log("Missing data");
-      }
+      // if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
+      //   newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
+      // } else if (weights && dataUnadjusted.length === weights.length) {
+      //   newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
+      // } else if (propensity && dataUnadjusted.length === propensity.length) {
+        
+      // } else {
+      //   console.log("Missing data");
+      // }
 
       setSMD(newSMD.sort((a, b) => a.adjusted > b.adjusted));
 
       let newSMDExtent = [Math.min(min(newSMD, d => d.unadjusted), min(newSMD, d => d.adjusted)), Math.max(max(newSMD, d => d.unadjusted), max(newSMD, d => d.adjusted))];
       setSMDExtent(newSMDExtent);
-      setAttributes(Object.keys(dataUnadjusted[0]));
     }
     
-  }, [cohortData])
+  }, [unadjustedCohortData])
 
   let SMDContainer = {"display": !expand ? "flex" : "none"};
   let attributesContainer = {"display": expand ? "flex" : "none",
@@ -214,11 +216,11 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights, updateFi
         {testAttribute.map((value, index) => {
           return <CompareDistributionVis
                     key={index}
-                    unadjusted={cohortData.confounds.map(d => d[value])}
+                    unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                    unadjustedTreatment={unadjustedCohortData.treatment}
+                    unadjustedPropensity={unadjustedCohortData.propensity}
                     selection={selected.map(d => d[value])}
-                    propensity={cohortData.propensity}
-                    treatmentAssignment={cohortData.treatment}
-                    refIndex={value}
+                    attribute={value}
                     updateFilter={updateFilter} />
         })}
     </div>
