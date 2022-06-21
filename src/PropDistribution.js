@@ -7,11 +7,13 @@ export const PropDistribution = ({cohortData={}, setSelected}) => {
 
   // Get bins for treatment and control groups
   const [bins, setBins] = React.useState({"TBins":[], "CBins":[]});
+  // const [n, setN] = React.useState(cohortData.propensity ? cohortData.propensity.length : 0);
 
   const binCount = 20;
   const n = cohortData.propensity ? cohortData.propensity.length : 0;
 
   useEffect(() => {
+    // console.log('reset prop')
 
     if (cohortData.confounds) {
       let newTAttribute = [];
@@ -38,7 +40,10 @@ export const PropDistribution = ({cohortData={}, setSelected}) => {
       var newTBins = h(newTAttribute);
       var newCBins = h(newCAttribute);
 
+      // console.log(cohortData.propensity.length)
+
       setBins({"TBins": newTBins, "CBins": newCBins});
+      // setN(cohortData.propensity.length);
     }
 
   }, [cohortData])

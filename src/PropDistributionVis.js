@@ -3,76 +3,110 @@ import * as d3 from 'd3';
 
 export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n=1, maxPropensity=1, setSelected}) => {
 
+  // console.log(n);
+
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
                                                   "outcome": "#f28e2c",
                                                   "control": "#90b0d1"});
+
+  // Track previous bar heights
+  const [prevCBins, setPrevCBins] = React.useState(null);
+  const [prevTBins, setPrevTBins] = React.useState(null);
   
   const ref = useRef('svgPropDistribution');
+
+  const transitionDuration = 1000;
 
   let svg = d3.select(ref.current)
 
   let svgElement = svg.select("g");
 
-  var xScale = d3.scaleLinear()
+  useEffect(() => {
+    // let n = bins.TBins.reduce((currentCount, row) => currentCount + row.length, 0);
+
+    let newCBins = [];
+    let newTBins = [];
+
+    var xScale = d3.scaleLinear()
     .domain([0, maxPropensity])
     .range([layout.marginLeft, layout.width - layout.margin])
 
-  let yMax = d3.max([d3.max(bins.TBins.map(d => d.length)) / n, d3.max(bins.CBins.map(d => d.length)) / n])
+    let yMax = d3.max([d3.max(bins.TBins.map(d => d.length)) / n, d3.max(bins.CBins.map(d => d.length)) / n]);
 
-  var yScaleTreatment = d3.scaleLinear()
-    .domain([0, yMax])
-    .range([layout.height / 2, layout.height - layout.margin])
+    // Some hardcoding to ensure proper scaling on initialization;
+    if (yMax === 0) {yMax = 1};
 
-  var yScaleControl = d3.scaleLinear()
-    .domain([0, yMax])
-    .range([layout.height / 2, layout.margin])
+    var yScaleTreatment = d3.scaleLinear()
+      .domain([0, yMax])
+      .range([layout.height / 2, layout.height - layout.margin])
 
-  let controlBars = svgElement.select("#bars")
-    .selectAll(".controlBars")
-    .data(bins.CBins)
-    .join("rect")
-    .attr("class", "controlBars")
-    .attr("x", (d, i) => xScale(d.x0))
-    .attr("y", d => yScaleControl(0))
-    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
-    .attr("height", 0)
-    .attr("fill", colorMap.control)
-    .attr("cursor", "pointer")
-    .on("click", (e, d) => setSelected(d))
+    var yScaleControl = d3.scaleLinear()
+      .domain([0, yMax])
+      .range([layout.height / 2, layout.margin])
 
-  let treatmentBars = svgElement.select("#bars")
-    .selectAll(".treatmentBars")
-    .data(bins.TBins)
-    .join("rect")
-    .attr("class", "treatmentBars")
-    .attr("x", (d, i) => xScale(d.x0))
-    .attr("y", d => yScaleTreatment(0))
-    .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
-    .attr("height", 0)
-    .attr("fill", colorMap.treatment)
-    .attr("cursor", "pointer")
-    .on("click", (e, d) => setSelected(d))
-
-  let xAxis = svgElement.select('#x-axis')
-          .attr('transform', `translate(0, ${layout.height - layout.margin})`)
-          .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
-
-  let yAxisTreatment = svgElement.select('#y-axistreatment')
-          .attr('transform', `translate(${layout.marginLeft}, 0)`)
-          .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
-    
-  let yAxisControl = svgElement.select('#y-axiscontrol')
-          .attr('transform', `translate(${layout.marginLeft}, 0)`)
-          .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
-
-  useEffect(() => {
-
+    let controlBars = svgElement.select("#bars")
+      .selectAll(".controlBars")
+      .data(bins.CBins)
+      .join("rect")
+      .attr("class", "controlBars")
+      .attr("x", (d, i) => xScale(d.x0))
+      .attr("y", (d, i) => prevCBins[i] ? prevCBins[i].y : yScaleControl(0))
+      .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
+      .attr("height", (d, i) => prevCBins[i] ? prevCBins[i].height : 0)
+      .attr("fill", colorMap.control)
+      .attr("cursor", "pointer")
+      .on("click", (e, d) => setSelected(d))
+      
     controlBars.transition()
-      .duration(1000)
+      .duration(transitionDuration)
       .ease(d3.easeLinear)
-      .attr("y", d => yScaleControl(d.length / n))
-      .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
+      .attr("y", (d, i) => {
+        newCBins[i] = {"y": yScaleControl(d.length / n)};
+        return yScaleControl(d.length / n)})
+      .attr("height", (d, i) => {
+        newCBins[i].height = yScaleControl(0) - yScaleControl(d.length / n);
+        return yScaleControl(0) - yScaleControl(d.length / n)
+      })
+
+    let treatmentBars = svgElement.select("#bars")
+      .selectAll(".treatmentBars")
+      .data(bins.TBins)
+      .join("rect")
+      .attr("class", "treatmentBars")
+      .attr("x", (d, i) => xScale(d.x0))
+      .attr("y", (d, i) => yScaleTreatment(0))
+      .attr("width", d => xScale(d.x1) - xScale(d.x0) - 1)
+      .attr("height", (d, i) => prevTBins[i] ? prevTBins[i].height : 0)
+      .attr("fill", colorMap.treatment)
+      .attr("cursor", "pointer")
+      .on("click", (e, d) => setSelected(d))
+
+    treatmentBars.transition()
+      .duration(transitionDuration)
+      .ease(d3.easeLinear)
+      .attr("height", (d, i) => {
+        newTBins[i] = {"height":yScaleTreatment(d.length / n) - yScaleTreatment(0)};
+        return yScaleTreatment(d.length / n) - yScaleTreatment(0)
+      })
+
+    let xAxis = svgElement.select('#x-axis')
+            .attr('transform', `translate(0, ${layout.height - layout.margin})`)
+            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
+
+    let yAxisTreatment = svgElement.select('#y-axistreatment')
+            .attr('transform', `translate(${layout.marginLeft}, 0)`)
+            .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3))
+      
+    let yAxisControl = svgElement.select('#y-axiscontrol')
+            .attr('transform', `translate(${layout.marginLeft}, 0)`)
+            .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
+
+    // controlBars.transition()
+    //   .duration(transitionDuration)
+    //   .ease(d3.easeLinear)
+    //   .attr("y", d => yScaleControl(d.length / n))
+    //   .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
 
     treatmentBars.transition()
       .duration(1000)
@@ -119,7 +153,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
         .ease(d3.easeLinear)
         .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
 
-  })
+    // console.log(bins.CBins);
+
+    setPrevCBins([...newCBins]);
+    setPrevTBins([...newTBins]);
+  }, [bins])
 
   return (
     <div>

@@ -1,20 +1,22 @@
 import React, {useState, useEffect} from 'react';
 import crossfilter from 'crossfilter2';
 
-import { CompareDistributionVis } from './CompareDistributionVis';
 import { CovariateBalance } from './CovariateBalance';
 import { PropDistribution } from './PropDistribution';
+import { SMDMenu } from './SMDMenu'
 
 export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], CohortTreatments=[]}) => {
 
   const [attributes, setAttributes] = React.useState([]);
   const [selected, setSelected] = React.useState([]);
 
-  const [filteredConfounds, setFilteredConfounds] = React.useState([]);
-  const [filteredTreatments, setFilteredTreatments] = React.useState([]);
-  const [filteredPropensity, setFilteredPropensity] = React.useState([]);
+  // const [filteredConfounds, setFilteredConfounds] = React.useState([]);
+  // const [filteredTreatments, setFilteredTreatments] = React.useState([]);
+  // const [filteredPropensity, setFilteredPropensity] = React.useState([]);
 
   const [cohortData, setCohortData] = React.useState({"confounds":[], "propensity":[], "treatment":[]});
+
+  const [sort, setSort] = React.useState("Adjusted High to Low");
 
   let allData = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d["treatment"] = CohortTreatments[i]; d["propensity"] = CohortPropensity[i]; return d});
   let filteredData = crossfilter(allData);
@@ -24,6 +26,8 @@ export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], Cohort
   // let allAttributeFilters = {};
 
   useEffect(() => {
+    // console.log("running...")
+
     let allAttributes = Object.keys(CohortConfounds[0])
 
     setAttributes(allAttributes);
@@ -54,24 +58,14 @@ export const CohortEvaluator = ({CohortConfounds=[], CohortPropensity=[], Cohort
     setCohortData({"confounds": newFilteredConfounds, "propensity": newFilteredPropensity, "treatment": newFilteredTreatments})
   }
 
-  let attributesContainer = {"display":"flex", "width":"100%", "flexWrap":"wrap"};
   let plotLayout = {"display":"flex"};
 
   return (
     <div>
       <div style={plotLayout}>
         <PropDistribution cohortData={cohortData} setSelected={setSelected} />
-        <CovariateBalance cohortData={cohortData} />
-      </div>
-      <div style={attributesContainer}>
-        {selected.length > 0 ? attributes.map((value, index) => {
-          return <CompareDistributionVis
-                    key={index}
-                    reference={CohortConfounds.map(d => d[value])}
-                    selection={selected.map(d => d[value])}
-                    refIndex={value}
-                    updateFilter={updateFilter} />
-        }) : <div/> }
+        <CovariateBalance cohortData={cohortData} updateFilter={updateFilter} />
+        <SMDMenu setSort={setSort} />
       </div>
     </div>
   )

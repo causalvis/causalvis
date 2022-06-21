@@ -1,57 +1,78 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "marginLeft": 150}, SMDDataset = [], SMDExtent=[]}) => {
+export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "marginLeft": 150}, SMDDataset=[], SMDExtent=[]}) => {
 
-  // console.log("in vis", SMDDataset);
+  // console.log("rerender...");
+
+  const [SMD, setSMD] = React.useState(SMDDataset);
 
   const ref = useRef('svgSMD');
+  const transitionDuration = 750
 
-  let svg = d3.select(ref.current)
+  let svg = d3.select(ref.current);
 
   let svgElement = svg.select("g");
 
+  // console.log("SMD changed")
+
+  useEffect(() => {
+
+    setSMD(SMDDataset);
+
+  }, [SMDDataset])
+
+  // useEffect(() => {
   var xScale = d3.scaleLinear()
-          .domain(SMDExtent)
-          .range([layout.marginLeft, layout.width - layout.margin])
+        .domain(SMDExtent)
+        .range([layout.marginLeft, layout.width - layout.margin])
 
   var yScale = d3.scaleBand()
-          .domain(SMDDataset.map(d => d.covariate))
+          .domain(SMD.map(d => d.covariate))
           .range([layout.height - layout.margin, layout.margin])
 
   let adjustedCircles = svgElement.select("#adjusted")
     .selectAll(".adjustedSMD")
-    .data(SMDDataset)
+    .data(SMD)
     .join("circle")
     .attr("class", "adjustedSMD")
-    .attr("cx", layout.marginLeft)
     .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("r", 3)
     .attr("fill", "black")
     .attr("stroke", "black")
+    // .transition()
+    // .duration(transitionDuration)
+    // .ease(d3.easeLinear)
+    .attr("cx", d => xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft)
 
   let unadjustedCircles = svgElement.select("#unadjusted")
     .selectAll(".unadjustedSMD")
-    .data(SMDDataset)
+    .data(SMD)
     .join("circle")
     .attr("class", "unadjustedSMD")
-    .attr("cx", layout.marginLeft)
     .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("r", 3)
     .attr("fill", "white")
     .attr("stroke", "black")
+    // .transition()
+    // .duration(transitionDuration)
+    // .ease(d3.easeLinear)
+    .attr("cx", d => xScale(d.unadjusted) ? xScale(d.unadjusted) : layout.marginLeft)
 
   let diffLine = svgElement.select("#diff")
     .selectAll(".diffLine")
-    .data(SMDDataset)
+    .data(SMD)
     .join("line")
     .attr("class", "diffLine")
-    .attr("x1", layout.marginLeft)
     .attr("y1", d => yScale(d.covariate) + yScale.bandwidth() / 2)
-    .attr("x2", layout.marginLeft)
     .attr("y2", d => yScale(d.covariate) + yScale.bandwidth() / 2)
     .attr("stroke", "black")
     .attr("stroke-dasharray", "2")
+    // .transition()
+    // .duration(transitionDuration)
+    // .ease(d3.easeLinear)
+    .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
+    .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
 
   let thresholdText = svgElement.select("#threshold")
     .selectAll(".thresholdText")
@@ -96,23 +117,21 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
           .attr('transform', `translate(${layout.marginLeft}, 0)`)
           .call(d3.axisLeft(yScale).tickSize(3).ticks(5))
 
-  useEffect(() => {
+    // adjustedCircles.transition()
+    //   .duration(transitionDuration)
+    //   .ease(d3.easeLinear)
+    //   .attr("cx", d => xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft)
 
-    adjustedCircles.transition()
-      .duration(1000)
-      .ease(d3.easeLinear)
-      .attr("cx", d => xScale(d.adjusted))
+    // unadjustedCircles.transition()
+    //   .duration(transitionDuration)
+    //   .ease(d3.easeLinear)
+    //   .attr("cx", d => xScale(d.adjusted) ? xScale(d.unadjusted) : layout.marginLeft)
 
-    unadjustedCircles.transition()
-      .duration(1000)
-      .ease(d3.easeLinear)
-      .attr("cx", d => xScale(d.unadjusted))
-
-    diffLine.transition()
-      .duration(1000)
-      .ease(d3.easeLinear)
-      .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
-      .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
+    // diffLine.transition()
+    //   .duration(transitionDuration)
+    //   .ease(d3.easeLinear)
+    //   .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
+    //   .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
 
     svgElement.select("#legend")
       .selectAll(".legend")
@@ -138,14 +157,15 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("font-size", 10)
 
     xAxis.transition()
-        .duration(1000)
+        .duration(transitionDuration)
         .ease(d3.easeLinear)
         .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
-    
-  })
+  // }, [SMD])
+
+  let containerStyle = {"display":"flex"};
 
   return (
-    <div>
+    <div style={containerStyle}>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgSMD">
         <g>
           <g id="diff" />
@@ -157,6 +177,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
           <g id="legend" />
         </g>
       </svg>
+
     </div>
   )
 }

@@ -1,7 +1,17 @@
 import React, {useState, useEffect} from 'react';
 
 import { SMDVis } from './SMDVis';
-import { min, max } from 'd3-array'
+import { min, max } from 'd3-array';
+
+import { CompareDistributionVis } from './CompareDistributionVis';
+
+import ViewHeadlineSharpIcon from '@mui/icons-material/ViewHeadlineSharp';
+import ViewStreamSharpIcon from '@mui/icons-material/ViewStreamSharp';
+
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+
+// import SortRoundedIcon from '@mui/icons-material/SortRounded';
 
 /*
 Props:
@@ -12,7 +22,7 @@ Props:
   - propensity: Array, propensity scores for each item in the data set, order of items should be identical to unadjusted data set
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
 */
-export const CovariateBalance = ({cohortData={}, dataAdjusted, weights}) => {
+export const CovariateBalance = ({cohortData={}, dataAdjusted, weights, updateFilter}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
@@ -20,8 +30,27 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights}) => {
   // Treatment assignment for dataset
   const [treatmentAssignment, setTreatmentAssignment] = React.useState();
 
+  // Track standard mean differences for each attribute
   const [SMD, setSMD] = React.useState([]);
-  const [SMDExtent, setSMDExtent] = React.useState([0, 1])
+  const [SMDExtent, setSMDExtent] = React.useState([0, 1]);
+
+  const [attributes, setAttributes] = React.useState([]);
+
+  const [expand, setExpand] = React.useState(false);
+
+  const selected = [];
+
+  function handleExpand(e, v) {
+    console.log(v);
+    if (v === "collapse") {
+      setExpand(false);
+    } else if (v === "expand") {
+      setExpand(true);
+    } else {
+      return;
+    }
+    // setExpand(!expand);
+  }
 
   function getWeightedMean(x, w) {
     let total = 0;
@@ -122,7 +151,9 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights}) => {
 
   useEffect(() => {
 
-    if (cohortData.confounds.length !== 0) {
+    // console.log("reset");
+
+    if (cohortData.confounds && cohortData.confounds.length !== 0) {
       let newSMD = [];
 
       let treatmentAssignment = cohortData.treatment;
@@ -143,17 +174,54 @@ export const CovariateBalance = ({cohortData={}, dataAdjusted, weights}) => {
         console.log("Missing data");
       }
 
-      setSMD(newSMD);
+      setSMD(newSMD.sort((a, b) => a.adjusted > b.adjusted));
 
       let newSMDExtent = [Math.min(min(newSMD, d => d.unadjusted), min(newSMD, d => d.adjusted)), Math.max(max(newSMD, d => d.unadjusted), max(newSMD, d => d.adjusted))];
       setSMDExtent(newSMDExtent);
+      setAttributes(Object.keys(dataUnadjusted[0]));
     }
     
   }, [cohortData])
 
+  let SMDContainer = {"display": !expand ? "flex" : "none"};
+  let attributesContainer = {"display": expand ? "flex" : "none",
+                            "minWidth":"600px",
+                            "flexDirection":"column",
+                            "height": "600px",
+                            "overflow":"scroll"};
+
+  let testAttribute = ["age", "emp.var.rate", "euribor3m"]
+
   return (
     <div>
-      <SMDVis SMDDataset={SMD.sort((a, b) => a.unadjusted > b.unadjusted)} SMDExtent={SMDExtent} />
+      <ToggleButtonGroup
+        value={expand ? "expand" : "collapse"}
+        exclusive
+        onChange={(e, v) => handleExpand(e, v)}
+        aria-label="text alignment"
+      >
+        <ToggleButton value="collapse" aria-label="left aligned">
+          <ViewHeadlineSharpIcon />
+        </ToggleButton>
+        <ToggleButton value="expand" aria-label="centered">
+          <ViewStreamSharpIcon />
+        </ToggleButton>
+      </ToggleButtonGroup>
+      <div style={SMDContainer}>
+        <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
+      </div>
+      <div style={attributesContainer}>
+        {testAttribute.map((value, index) => {
+          return <CompareDistributionVis
+                    key={index}
+                    unadjusted={cohortData.confounds.map(d => d[value])}
+                    selection={selected.map(d => d[value])}
+                    propensity={cohortData.propensity}
+                    treatmentAssignment={cohortData.treatment}
+                    refIndex={value}
+                    updateFilter={updateFilter} />
+        })}
+    </div>
       {/*<DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />*/}
     </div>
   )
