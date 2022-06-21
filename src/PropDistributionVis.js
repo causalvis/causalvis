@@ -13,6 +13,9 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
   // Track previous bar heights
   const [prevCBins, setPrevCBins] = React.useState(null);
   const [prevTBins, setPrevTBins] = React.useState(null);
+
+  // Keep track of selection
+  // const [selectedID, setSelectedID] = React.useState(null);
   
   const ref = useRef('svgPropDistribution');
 
@@ -56,7 +59,18 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("height", (d, i) => prevCBins[i] ? prevCBins[i].height : 0)
       .attr("fill", colorMap.control)
       .attr("cursor", "pointer")
-      .on("click", (e, d) => setSelected(d))
+      .on("click", function (e, d) {
+        if (d3.select(this).attr("opacity") === "1") {
+          setSelected({"selectedData":[], "treatment":false});
+          controlBars.attr("opacity", null);
+          treatmentBars.attr("opacity", null);
+        } else {
+          setSelected({"selectedData":d, "treatment":false});
+          controlBars.attr("opacity", 0.5);
+          treatmentBars.attr("opacity", 0.5);
+          d3.select(this).attr("opacity", 1);
+        }
+      })
       
     controlBars.transition()
       .duration(transitionDuration)
@@ -80,7 +94,18 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("height", (d, i) => prevTBins[i] ? prevTBins[i].height : 0)
       .attr("fill", colorMap.treatment)
       .attr("cursor", "pointer")
-      .on("click", (e, d) => setSelected(d))
+      .on("click", function (e, d) {
+        if (d3.select(this).attr("opacity") === "1") {
+          setSelected({"selectedData":[], "treatment":false});
+          controlBars.attr("opacity", null);
+          treatmentBars.attr("opacity", null);
+        } else {
+          setSelected({"selectedData":d, "treatment":true});
+          controlBars.attr("opacity", 0.5);
+          treatmentBars.attr("opacity", 0.5);
+          d3.select(this).attr("opacity", 1);
+        }
+      })
 
     treatmentBars.transition()
       .duration(transitionDuration)

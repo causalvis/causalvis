@@ -16,7 +16,7 @@ Props:
 export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatment="treatment", propensity="propensity"}) => {
 
   const [attributes, setAttributes] = React.useState([]);
-  const [selected, setSelected] = React.useState([]);
+  const [selected, setSelected] = React.useState({"selectedData":[], "treatment": false});
 
   const [unadjustedCohortData, setUnadjustedCohortData] = React.useState({"confounds":[], "propensity":[], "treatment":[]});
 
@@ -71,7 +71,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
     <div>
       <div style={plotLayout}>
         <PropDistribution unadjustedCohortData={unadjustedCohortData} setSelected={setSelected} />
-        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} sort={sort} />
+        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} sort={sort} selected={selected} />
         <SMDMenu setSort={setSort} />
       </div>
     </div>

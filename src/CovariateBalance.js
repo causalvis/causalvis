@@ -21,7 +21,7 @@ Props:
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
   - updateFilter: Function, updates filter functions when a covariate range is selected
 */
-export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter, sort}) => {
+export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter, sort, selected=[]}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
@@ -32,7 +32,7 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   const [expand, setExpand] = React.useState(false);
 
-  const selected = [];
+  // const selected = [];
 
   function handleExpand(e, v) {
     // console.log(v);
@@ -100,9 +100,6 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignment) {
     let newSMD = [];
-
-    // let attributes = Object.keys(dataUnadjusted[0]);
-    // console.log(attributes);
 
     for (let a of attributes) {
 
@@ -241,9 +238,9 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
                     unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
                     unadjustedTreatment={unadjustedCohortData.treatment}
                     unadjustedPropensity={unadjustedCohortData.propensity}
-                    selection={selected.map(d => d[value])}
                     attribute={value}
-                    updateFilter={updateFilter} />
+                    updateFilter={updateFilter}
+                    selectedAttribute={selected.selectedData.map(d => d[value])} />
         })}
     </div>
       {/*<DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />*/}

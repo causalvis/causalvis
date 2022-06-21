@@ -1,15 +1,19 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "margin": 20, "marginLeft": 20}, unadjustedAttribute = [], adjustedAttribute, unadjustedTreatment = [], unadjustedPropensity = [], selection = [], attribute = "", updateFilter}) => {
+export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "margin": 20, "marginLeft": 20}, unadjustedAttribute = [], adjustedAttribute, unadjustedTreatment = [], unadjustedPropensity = [], selection = [], attribute = "", updateFilter, selectedAttribute = []}) => {
 
   const [unadjustedTreatmentData, setUnadjustedTreatmentData] = React.useState([]);
   const [unadjustedControlData, setUnadjustedControlData] = React.useState([]);
 
-  const [selectionBins, setSelectionBins] = React.useState([]);
+  const [selectedBins, setSelectedBins] = React.useState([]);
+
+  const [x, setX] = React.useState();
+  const [yTreatment, setYTreatment] = React.useState();
+  const [yControl, setYControl] = React.useState();
 
   // const unadjustedSize = unadjustedAttribute.length;
-  const selectionSize = selection.length;
+  // const selectionSize = selection.length;
 
   const bins = 50;
 
@@ -72,13 +76,8 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     return density
   }
 
-  // Modify to multiply by weight
   function epanechnikov(bandwidth) {
-    // if (weights) {
-      // return
-    // } else {
-      return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
-    // }
+    return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
   }
 
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
@@ -160,6 +159,10 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     const yScaleControl = d3.scaleLinear()
       .domain([0, maxProportion])
       .range([layout.height / 2, layout.margin])
+
+    setX(xScale);
+    setYTreatment(yScaleTreatment);
+    setYControl(yScaleControl);
 
     let thresholds = xScale.ticks(bins);
 
@@ -386,6 +389,18 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     //   .attr("height", d => yScale(0) - yScale(d.length / selectionSize))
     //   .attr("fill", "steelblue")
 
+    svgElement.select("#selected")
+      .selectAll(".selectedBars")
+      .data(selectedBins)
+      .join("rect")
+      .attr("class", "selectedBars")
+      .attr("x", (d, i) => xScale(d.x0))
+      .attr("y", d => yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("width", d => xScale(d.x1) - xScale(d.x0))
+      .attr("height", d => yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("fill", "none")
+      .attr("stroke", "black")
+
     svgElement.select('#x-axis')
             .attr('transform', `translate(0, ${layout.height/2})`)
             .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
@@ -398,7 +413,16 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
       .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(2))
 
-  }, [unadjustedTreatmentData, unadjustedControlData])
+  }, [unadjustedTreatmentData, unadjustedControlData, selectedBins])
+
+  useEffect(() => {
+
+    var histogram = d3.histogram().domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).thresholds(bins);
+    var newSelectedBins = histogram(selectedAttribute);
+
+    setSelectedBins(newSelectedBins);
+    
+  }, [selectedAttribute])
 
   
   let covStyle = {"display":"flex", "alignItems":"center"};
@@ -415,6 +439,7 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
           <g id="unadjusted" />
           <g id="unadjustedMean" />
           <g id="adjustedMean" />
+          <g id="selected" />
           
           <g id="x-axis" />
           <g id="y-axistreatment" />
