@@ -21,7 +21,7 @@ Props:
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
   - updateFilter: Function, updates filter functions when a covariate range is selected
 */
-export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter}) => {
+export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter, sort}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
@@ -35,7 +35,7 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   const selected = [];
 
   function handleExpand(e, v) {
-    console.log(v);
+    // console.log(v);
     if (v === "collapse") {
       setExpand(false);
     } else if (v === "expand") {
@@ -101,7 +101,7 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignment) {
     let newSMD = [];
 
-    let attributes = Object.keys(dataUnadjusted[0]);
+    // let attributes = Object.keys(dataUnadjusted[0]);
     // console.log(attributes);
 
     for (let a of attributes) {
@@ -177,6 +177,8 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       //   console.log("Missing data");
       // }
 
+      // setSMD(newSMD);
+
       setSMD(newSMD.sort((a, b) => a.adjusted > b.adjusted));
 
       let newSMDExtent = [Math.min(min(newSMD, d => d.unadjusted), min(newSMD, d => d.adjusted)), Math.max(max(newSMD, d => d.unadjusted), max(newSMD, d => d.adjusted))];
@@ -184,6 +186,26 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     }
     
   }, [unadjustedCohortData])
+
+  useEffect(() => {
+    let newSMD;
+
+    if (sort === "Adjusted High to Low") {
+      newSMD = SMD.sort((a, b) => a.adjusted > b.adjusted);
+    } else if (sort === "Adjusted Low to High") {
+      newSMD = SMD.sort((a, b) => a.adjusted < b.adjusted);
+    } else if (sort === "Unadjusted High to Low") {
+      newSMD = SMD.sort((a, b) => a.unadjusted > b.unadjusted);
+    } else if (sort === "Unadjusted Low to High") {
+      newSMD = SMD.sort((a, b) => a.unadjusted < b.unadjusted);
+    } else if (sort === "Difference High to Low") {
+      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted));
+    } else if (sort === "Difference Low to High") {
+      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) < Math.abs(b.unadjusted - b.adjusted));
+    }
+
+    setSMD([...newSMD]);
+  }, [sort])
 
   let SMDContainer = {"display": !expand ? "flex" : "none"};
   let attributesContainer = {"display": expand ? "flex" : "none",

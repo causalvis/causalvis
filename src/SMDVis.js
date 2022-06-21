@@ -3,9 +3,9 @@ import * as d3 from 'd3';
 
 export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "marginLeft": 150}, SMDDataset=[], SMDExtent=[]}) => {
 
-  // console.log("rerender...");
+  // console.log(SMDDataset);
 
-  const [SMD, setSMD] = React.useState(SMDDataset);
+  // const [SMD, setSMD] = React.useState(SMDDataset);
 
   const ref = useRef('svgSMD');
   const transitionDuration = 750
@@ -16,11 +16,11 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
   // console.log("SMD changed")
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    setSMD(SMDDataset);
+  //   setSMD(SMDDataset);
 
-  }, [SMDDataset])
+  // }, [SMDDataset])
 
   // useEffect(() => {
   var xScale = d3.scaleLinear()
@@ -28,12 +28,12 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
         .range([layout.marginLeft, layout.width - layout.margin])
 
   var yScale = d3.scaleBand()
-          .domain(SMD.map(d => d.covariate))
+          .domain(SMDDataset.map(d => d.covariate))
           .range([layout.height - layout.margin, layout.margin])
 
   let adjustedCircles = svgElement.select("#adjusted")
     .selectAll(".adjustedSMD")
-    .data(SMD)
+    .data(SMDDataset)
     .join("circle")
     .attr("class", "adjustedSMD")
     .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
@@ -47,7 +47,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
   let unadjustedCircles = svgElement.select("#unadjusted")
     .selectAll(".unadjustedSMD")
-    .data(SMD)
+    .data(SMDDataset)
     .join("circle")
     .attr("class", "unadjustedSMD")
     .attr("cy", d => yScale(d.covariate) + yScale.bandwidth() / 2)
@@ -61,7 +61,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
   let diffLine = svgElement.select("#diff")
     .selectAll(".diffLine")
-    .data(SMD)
+    .data(SMDDataset)
     .join("line")
     .attr("class", "diffLine")
     .attr("y1", d => yScale(d.covariate) + yScale.bandwidth() / 2)

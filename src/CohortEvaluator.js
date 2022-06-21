@@ -71,7 +71,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
     <div>
       <div style={plotLayout}>
         <PropDistribution unadjustedCohortData={unadjustedCohortData} setSelected={setSelected} />
-        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} />
+        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} sort={sort} />
         <SMDMenu setSort={setSort} />
       </div>
     </div>
