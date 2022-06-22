@@ -8,10 +8,6 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
   const [selectedBins, setSelectedBins] = React.useState([]);
 
-  // const [x, setX] = React.useState();
-  // const [yTreatment, setYTreatment] = React.useState();
-  // const [yControl, setYControl] = React.useState();
-
   const bins = 2;
 
   // Track color map
@@ -32,6 +28,7 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       let controlIPW = controlPropensity.map(p => 1/p);
       let treatmentIPW = treatmentPropensity.map(p => 1/p);
 
+      // Zip attribute values with weight for each data instance
       treatment = treatment.map((t, i) => [t, treatmentIPW[i]]);
       control = control.map((c, i) => [c, controlIPW[i]]);
 
@@ -41,8 +38,6 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
   }, [unadjustedAttribute])
 
-  // console.log(refIndex);
-
   let newRef = "svgCompare" + attribute
   
   const ref = useRef("svgCompare");
@@ -51,6 +46,7 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
   let svgElement = svg.select("g");
 
+  // Get max values for yScale
   function getMaxProportion(TBins, CBins, total, totalWeight) {
     let currentMax = 0;
 
@@ -79,6 +75,7 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
     return currentMax;
   }
 
+  // Get weighted mean given data
   function getWeightedMean(xw) {
     let total = 0;
     let totalWeight = 0;
@@ -121,7 +118,8 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
     // svgElement.call(brush)
 
-    // Unfortunately, binning seems to be the most effective way of getting the min-max values of the y-axis
+    // Histogram domain has been adjusted to create a pseudo-bandScale()
+    // This allows plotting of both categorical histogram + numerical means on the same plot
     var histogram = d3.histogram()
                       .value(d => d[0])
                       .domain([-0.5, 1.5])
@@ -159,8 +157,6 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       .range([layout.height / 2, layout.margin])
 
     let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2
-
-    // console.log(TBins, CBins);
 
     let unadjustedCBars = svgElement.select("#unadjusted")
       .selectAll(".unadjustedCBars")
@@ -236,10 +232,10 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
     //   .attr("stroke", "black")
 
     /*
-
+     *
     Indicate adjusted means
-
-    */
+     *
+     */
     svgElement.select("#adjustedMean")
       .selectAll(".adjustedCMeanLine")
       .data([adjustedCMean])
@@ -287,11 +283,10 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       .attr("stroke", "black")
     
     /*
-
+     *
     Indicate unadjusted means
-
-    */
-
+     *
+     */
     svgElement.select("#unadjustedMean")
       .selectAll(".unadjustedCMeanLine")
       .data([unadjustedCMean])
@@ -322,15 +317,15 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
     svgElement.select('#x-axis')
             .attr('transform', `translate(0, ${layout.height/2})`)
-            .call(d3.axisBottom(xScale).tickSize(3).ticks(2))
+            .call(d3.axisBottom(xScale).tickSize(3).tickValues([0, 1]))
 
     svgElement.select('#y-axistreatment')
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
-      .call(d3.axisLeft(yScaleTreatment).tickSize(3).tickValues([0, 1]))
+      .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(2))
 
     svgElement.select('#y-axiscontrol')
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
-      .call(d3.axisLeft(yScaleControl).tickSize(3).tickValues([0, 1]))
+      .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(2))
 
   }, [unadjustedTreatmentData, unadjustedControlData, selectedBins])
 

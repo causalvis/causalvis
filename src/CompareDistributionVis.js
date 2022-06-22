@@ -8,21 +8,12 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
 
   const [selectedBins, setSelectedBins] = React.useState([]);
 
-  // const [x, setX] = React.useState();
-  // const [yTreatment, setYTreatment] = React.useState();
-  // const [yControl, setYControl] = React.useState();
-
-  // const unadjustedSize = unadjustedAttribute.length;
-  // const selectionSize = selection.length;
-
   const bins = 30;
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
                                                   "outcome": "#f28e2c",
                                                   "control": "#90b0d1"});
-
-  // console.log(refIndex);
 
   useEffect(() => {
 
@@ -33,8 +24,6 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     setUnadjustedControlData([...control]);
 
   }, [unadjustedAttribute])
-
-  // console.log(refIndex);
 
   let newRef = "svgCompare" + attribute
   
@@ -76,17 +65,16 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     return density
   }
 
+  // The following function used as-is from https://observablehq.com/@d3/kernel-density-estimation
   function epanechnikov(bandwidth) {
     return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
   }
 
+  // Return svg path given data
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
-    // console.log(weights);
     let density = kdeWeighted(epanechnikov(5), thresholds, d, weights);
 
     density = [startPoint].concat(density).concat([endPoint]);
-
-    // console.log(density);
 
     let line = d3.line()
       .curve(d3.curveBasis)
@@ -96,6 +84,7 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     return line(density);
   }
 
+  // Get weighted mean of data
   function getWeightedMean(x, w) {
     let total = 0;
     let totalWeight = 0;
@@ -141,7 +130,7 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
 
     // svgElement.call(brush)
 
-    // Unfortunately, binning seems to be the most effective way of getting the min-max values of the y-axis
+    // Unfortunately, binning seems to be the most effective way of estimating the max values of the yScale
     var histogram = d3.histogram().domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).thresholds(bins);
     var TBins = histogram(unadjustedTreatmentData);
     var CBins = histogram(unadjustedControlData);
@@ -160,16 +149,10 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       .domain([0, maxProportion])
       .range([layout.height / 2, layout.margin])
 
-    // setX(xScale);
-    // setYTreatment(yScaleTreatment);
-    // setYControl(yScaleControl);
-
     let thresholds = xScale.ticks(bins / 2);
 
     let startPoint = [d3.min(unadjustedAttribute), 0];
     let endPoint = [d3.max(unadjustedAttribute), 0];
-
-    // console.log(unadjustedControlData, unadjustedTreatmentData);
 
     // Get KDE of unadjusted data
     let unadjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, xScale, yScaleControl);
@@ -187,7 +170,6 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
 
     // If adjusted data set not provided, calculate adjustment using IPW and get weighted KDE
     if (!adjustedAttribute) {
-      // console.log("calculating weight")
       let allPropensity = unadjustedPropensity.map((p, i) => p[unadjustedTreatment[i]]);
       let controlPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 0);
       let treatmentPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 1);
@@ -201,8 +183,6 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       adjustedCMean = getWeightedMean(unadjustedControlData, controlIPW);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData, treatmentIPW);
     }
-
-    // console.log("propensity", propensity, controlPropensity, controlPropensity.map(p => 1/p))
 
     svgElement.select("#unadjusted")
       .selectAll(".unadjustedCLine")
@@ -247,10 +227,10 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       .attr("d", d => d);
 
     /*
-
+     *
     Indicate adjusted means
-
-    */
+     *
+     */
     svgElement.select("#adjustedMean")
       .selectAll(".adjustedCMeanLine")
       .data([adjustedCMean])
@@ -298,11 +278,10 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       .attr("stroke", "black")
     
     /*
-
+     *
     Indicate unadjusted means
-
-    */
-
+     *
+     */
     svgElement.select("#unadjustedMean")
       .selectAll(".unadjustedCMeanLine")
       .data([unadjustedCMean])
@@ -352,42 +331,6 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
     //   .attr("r", 3)
     //   .attr("fill", "white")
     //   .attr("stroke", "black")
-
-    // let controlBars = svgElement.select("#unadjustedCBars")
-    //   .selectAll(".unadjustedCBars")
-    //   .data(unadjustedCBins)
-    //   .join("rect")
-    //   .attr("class", "unadjustedCBars")
-    //   .attr("x", (d, i) => xScale(d.x0))
-    //   .attr("y", d => yScaleControl(d.length / unadjustedSize))
-    //   .attr("width", d => xScale(d.x1) - xScale(d.x0))
-    //   .attr("height", d => yScaleControl(0) - yScaleControl(d.length / unadjustedSize))
-    //   .attr("fill", "none")
-    //   .attr("stroke", "black")
-
-    // let treatmentBars = svgElement.select("#unadjustedTBars")
-    //   .selectAll(".unadjustedTBars")
-    //   .data(unadjustedTBins)
-    //   .join("rect")
-    //   .attr("class", "unadjustedTBars")
-    //   .attr("x", (d, i) => xScale(d.x0))
-    //   .attr("y", d => yScaleTreatment(0))
-    //   .attr("width", d => xScale(d.x1) - xScale(d.x0))
-    //   .attr("height", d => yScaleTreatment(d.length / unadjustedSize) - yScaleTreatment(0))
-    //   .attr("fill", "none")
-    //   .attr("stroke", "black")
-      // .attr("opacity", "0.35")
-
-    // svgElement.select("#selectionBars")
-    //   .selectAll(".selectionBars")
-    //   .data(selectionBins)
-    //   .join("rect")
-    //   .attr("class", "selectionBars")
-    //   .attr("x", (d, i) => xScale(d.x0))
-    //   .attr("y", d => yScale(d.length / selectionSize))
-    //   .attr("width", d => xScale(d.x1) - xScale(d.x0))
-    //   .attr("height", d => yScale(0) - yScale(d.length / selectionSize))
-    //   .attr("fill", "steelblue")
 
     svgElement.select("#selected")
       .selectAll(".selectedBars")
