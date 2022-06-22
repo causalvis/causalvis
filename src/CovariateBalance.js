@@ -4,6 +4,7 @@ import { SMDVis } from './SMDVis';
 import { min, max } from 'd3-array';
 
 import { CompareDistributionVis } from './CompareDistributionVis';
+import { CompareHistogramVis } from './CompareHistogramVis';
 
 import ViewHeadlineSharpIcon from '@mui/icons-material/ViewHeadlineSharp';
 import ViewStreamSharpIcon from '@mui/icons-material/ViewStreamSharp';
@@ -25,6 +26,7 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
+  const [attributeLevels, setAttributeLevels] = React.useState({});
 
   // Track standard mean differences for each attribute
   const [SMD, setSMD] = React.useState([]);
@@ -141,8 +143,6 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   useEffect(() => {
 
-    // console.log("reset");
-
     if (unadjustedCohortData.confounds && unadjustedCohortData.confounds.length !== 0) {
       let newSMD = [];
 
@@ -154,13 +154,20 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       if (!adjustedCohortData) {
         // Get propensity of assigned treatment level
         let allPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
-
         // Get inverse propensity weights
         let propensityWeights = allPropensity.map(p => 1/p);
 
         newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
       }
       
+      let newAttributeLevels = {};
+
+      for (let a of attributes) {
+        let attributeValues = dataUnadjusted.map(d => d[a]);
+        newAttributeLevels[a] = Array.from(new Set(attributeValues));
+      }
+
+      setAttributeLevels(newAttributeLevels);
 
       // console.log(treatmentAssignment, dataUnadjusted, propensity)
 
@@ -207,11 +214,12 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   let SMDContainer = {"display": !expand ? "flex" : "none"};
   let attributesContainer = {"display": expand ? "flex" : "none",
                             "minWidth":"600px",
+                            "marginTop":"30px",
                             "flexDirection":"column",
-                            "height": "600px",
+                            "height": "420px",
                             "overflow":"scroll"};
 
-  let testAttribute = ["age", "emp.var.rate", "euribor3m"]
+  let testAttribute = ["age", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"]
 
   return (
     <div>
@@ -232,8 +240,9 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
         <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
       </div>
       <div style={attributesContainer}>
-        {testAttribute.map((value, index) => {
-          return <CompareDistributionVis
+        {attributes.map((value, index) => {
+          if (attributeLevels[value] && attributeLevels[value].length === 2) {
+            return <CompareHistogramVis
                     key={index}
                     unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
                     unadjustedTreatment={unadjustedCohortData.treatment}
@@ -241,6 +250,16 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
                     attribute={value}
                     updateFilter={updateFilter}
                     selectedAttribute={selected.selectedData.map(d => d[value])} />
+          } else {
+            return <CompareDistributionVis
+                    key={index}
+                    unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                    unadjustedTreatment={unadjustedCohortData.treatment}
+                    unadjustedPropensity={unadjustedCohortData.propensity}
+                    attribute={value}
+                    updateFilter={updateFilter}
+                    selectedAttribute={selected.selectedData.map(d => d[value])} />
+          }
         })}
     </div>
       {/*<DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />*/}

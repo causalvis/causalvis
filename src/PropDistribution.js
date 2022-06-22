@@ -40,8 +40,10 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
   }, [unadjustedCohortData])
 
+  let propContainer = {"marginTop":"48px"}
+
   return (
-    <div>
+    <div style={propContainer}>
       <PropDistributionVis bins={bins} n={n} setSelected={setSelected}/> 
     </div>
   )

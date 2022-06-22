@@ -8,14 +8,14 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
 
   const [selectedBins, setSelectedBins] = React.useState([]);
 
-  const [x, setX] = React.useState();
-  const [yTreatment, setYTreatment] = React.useState();
-  const [yControl, setYControl] = React.useState();
+  // const [x, setX] = React.useState();
+  // const [yTreatment, setYTreatment] = React.useState();
+  // const [yControl, setYControl] = React.useState();
 
   // const unadjustedSize = unadjustedAttribute.length;
   // const selectionSize = selection.length;
 
-  const bins = 50;
+  const bins = 30;
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
@@ -45,7 +45,7 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
   let svgElement = svg.select("g");
 
   // The following function is modified from https://observablehq.com/@d3/kernel-density-estimation
-  function kde_weighted(kernel, thresholds, data, weights) {
+  function kdeWeighted(kernel, thresholds, data, weights) {
     let density = [];
 
     for (let t of thresholds) {
@@ -82,7 +82,7 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
 
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
     // console.log(weights);
-    let density = kde_weighted(epanechnikov(3.5), thresholds, d, weights);
+    let density = kdeWeighted(epanechnikov(5), thresholds, d, weights);
 
     density = [startPoint].concat(density).concat([endPoint]);
 
@@ -160,11 +160,11 @@ export const CompareDistributionVis = ({layout = {"height": 120, "width": 500, "
       .domain([0, maxProportion])
       .range([layout.height / 2, layout.margin])
 
-    setX(xScale);
-    setYTreatment(yScaleTreatment);
-    setYControl(yScaleControl);
+    // setX(xScale);
+    // setYTreatment(yScaleTreatment);
+    // setYControl(yScaleControl);
 
-    let thresholds = xScale.ticks(bins);
+    let thresholds = xScale.ticks(bins / 2);
 
     let startPoint = [d3.min(unadjustedAttribute), 0];
     let endPoint = [d3.max(unadjustedAttribute), 0];
