@@ -211,15 +211,14 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     setSMD([...newSMD]);
   }, [sort])
 
-  let SMDContainer = {"display": !expand ? "flex" : "none"};
-  let attributesContainer = {"display": expand ? "flex" : "none",
-                            "minWidth":"600px",
+  let SMDContainer = {"height": !expand ? "auto" : "0px", "overflow": "hidden"};
+  let attributesContainer = {"minWidth":"600px",
                             "marginTop":"30px",
                             "flexDirection":"column",
-                            "height": "420px",
+                            "height": expand ? "420px" : "0px",
                             "overflow":"scroll"};
 
-  let testAttribute = ["age", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"]
+  let testAttribute = ["age", "cons.price.idx", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"];
 
   return (
     <div>
@@ -240,25 +239,27 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
         <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
       </div>
       <div style={attributesContainer}>
-        {attributes.map((value, index) => {
+        {testAttribute.map((value, index) => {
           if (attributeLevels[value] && attributeLevels[value].length === 2) {
             return <CompareHistogramVis
-                    key={index}
+                    key={value}
                     unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
                     unadjustedTreatment={unadjustedCohortData.treatment}
                     unadjustedPropensity={unadjustedCohortData.propensity}
                     attribute={value}
                     updateFilter={updateFilter}
-                    selectedAttribute={selected.selectedData.map(d => d[value])} />
+                    selectedAttribute={selected.selectedData.map(d => d[value])}
+                    selectedTreatment={selected.treatment} />
           } else {
             return <CompareDistributionVis
-                    key={index}
+                    key={value}
                     unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
                     unadjustedTreatment={unadjustedCohortData.treatment}
                     unadjustedPropensity={unadjustedCohortData.propensity}
                     attribute={value}
                     updateFilter={updateFilter}
-                    selectedAttribute={selected.selectedData.map(d => d[value])} />
+                    selectedAttribute={selected.selectedData.map(d => d[value])}
+                    selectedTreatment={selected.treatment} />
           }
         })}
     </div>

@@ -1,12 +1,22 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "margin": 20, "marginLeft": 20}, unadjustedAttribute = [], adjustedAttribute, unadjustedTreatment = [], unadjustedPropensity = [], selection = [], attribute = "", updateFilter, selectedAttribute = []}) => {
+export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margin": 20, "marginLeft": 20},
+                                    unadjustedAttribute=[],
+                                    adjustedAttribute,
+                                    unadjustedTreatment=[],
+                                    unadjustedPropensity=[],
+                                    attribute="",
+                                    updateFilter,
+                                    selectedAttribute=[],
+                                    selectedTreatment=false}) => {
 
   const [unadjustedTreatmentData, setUnadjustedTreatmentData] = React.useState([]);
   const [unadjustedControlData, setUnadjustedControlData] = React.useState([]);
 
-  const [selectedBins, setSelectedBins] = React.useState([]);
+  const [xScale, setXScale] = React.useState(() => x => x);
+  const [yScaleTreatment, setYScaleTreatment] = React.useState(() => y => y);
+  const [yScaleControl, setYScaleControl] = React.useState(() => y => y);
 
   const bins = 2;
 
@@ -93,6 +103,8 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       return;
     }
 
+    let isSelected = selectedAttribute.length > 0;
+
     // function onBrush(e) {
     //   let brushSelection = e.selection;
     //   // console.log(brushSelection[1], xScale.invert(brushSelection[1]));
@@ -126,6 +138,7 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
                       .thresholds(bins);
     var TBins = histogram(unadjustedTreatmentData);
     var CBins = histogram(unadjustedControlData);
+    var selectedBins = histogram(selectedAttribute.map(s => [0, s]));
 
     // Get mean of unadjusted data
     let unadjustedCMean = d3.mean(unadjustedControlData, d => d[0]);
@@ -144,92 +157,71 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
 
     let maxProportion = getMaxProportion(TBins, CBins, unadjustedAttribute.length, totalWeight);
 
-    const xScale = d3.scaleLinear()
+    const newXScale = d3.scaleLinear()
       .domain([-0.5, 1.5])
       .range([layout.marginLeft, layout.width - layout.margin])
 
-    const yScaleTreatment = d3.scaleLinear()
+    const newYScaleTreatment = d3.scaleLinear()
       .domain([0, maxProportion])
       .range([layout.height / 2, layout.height - layout.margin])
 
-    const yScaleControl = d3.scaleLinear()
+    const newYScaleControl = d3.scaleLinear()
       .domain([0, maxProportion])
       .range([layout.height / 2, layout.margin])
 
-    let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2
+    setXScale(() => x => newXScale(x));
+    setYScaleTreatment(() => y => newYScaleTreatment(y));
+    setYScaleControl(() => y => newYScaleControl(y));
+
+    let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2;
 
     let unadjustedCBars = svgElement.select("#unadjusted")
       .selectAll(".unadjustedCBars")
       .data(CBins)
       .join("rect")
       .attr("class", "unadjustedCBars")
-      .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+      .attr("y", d => newYScaleControl(d.length / unadjustedAttribute.length))
       .attr("width", d => bandwidth)
-      .attr("height", d => yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / unadjustedAttribute.length))
       .attr("fill", "none")
-      .attr("stroke", "black")
+      .attr("stroke", "black");
 
     let unadjustedTBars = svgElement.select("#unadjusted")
       .selectAll(".unadjustedTBars")
       .data(TBins)
       .join("rect")
       .attr("class", "unadjustedTBars")
-      .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => yScaleTreatment(0))
+      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+      .attr("y", d => newYScaleTreatment(0))
       .attr("width", bandwidth)
-      .attr("height", d => yScaleTreatment(d.length / unadjustedAttribute.length) - yScaleTreatment(0))
+      .attr("height", d => newYScaleTreatment(d.length / unadjustedAttribute.length) - newYScaleTreatment(0))
       .attr("fill", "none")
-      .attr("stroke", "black")
+      .attr("stroke", "black");
 
     let adjustedCBars = svgElement.select("#adjusted")
-      .selectAll(".udjustedCBars")
+      .selectAll(".adjustedCBars")
       .data(CBins)
       .join("rect")
       .attr("class", "adjustedCBars")
-      .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => yScaleControl(d3.sum(d, v => v[1]) / totalWeight))
+      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+      .attr("y", d => newYScaleControl(d3.sum(d, v => v[1]) / totalWeight))
       .attr("width", bandwidth)
-      .attr("height", d => yScaleControl(0) - yScaleControl(d3.sum(d, v => v[1]) / totalWeight))
+      .attr("height", d => newYScaleControl(0) - newYScaleControl(d3.sum(d, v => v[1]) / totalWeight))
       .attr("fill", colorMap.control)
-      .attr("opacity", ".8")
-      .attr("stroke", "none")
+      .attr("stroke", "none");
 
     let adjustedTBars = svgElement.select("#adjusted")
       .selectAll(".adjustedTBars")
       .data(TBins)
       .join("rect")
       .attr("class", "adjustedTBars")
-      .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => yScaleTreatment(0))
+      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+      .attr("y", d => newYScaleTreatment(0))
       .attr("width", bandwidth)
-      .attr("height", d => yScaleTreatment(d3.sum(d, v => v[1]) / totalWeight) - yScaleTreatment(0))
+      .attr("height", d => newYScaleTreatment(d3.sum(d, v => v[1]) / totalWeight) - newYScaleTreatment(0))
       .attr("fill", colorMap.treatment)
-      .attr("opacity", ".8")
-      .attr("stroke", "none")
-
-    // // svgElement.select("#selectionBars")
-    // //   .selectAll(".selectionBars")
-    // //   .data(selectionBins)
-    // //   .join("rect")
-    // //   .attr("class", "selectionBars")
-    // //   .attr("x", (d, i) => xScale(d.x0))
-    // //   .attr("y", d => yScale(d.length / selectionSize))
-    // //   .attr("width", d => xScale(d.x1) - xScale(d.x0))
-    // //   .attr("height", d => yScale(0) - yScale(d.length / selectionSize))
-    // //   .attr("fill", "steelblue")
-
-    // svgElement.select("#selected")
-    //   .selectAll(".selectedBars")
-    //   .data(selectedBins)
-    //   .join("rect")
-    //   .attr("class", "selectedBars")
-    //   .attr("x", (d, i) => xScale(d.x0))
-    //   .attr("y", d => yScaleControl(d.length / unadjustedAttribute.length))
-    //   .attr("width", d => xScale(d.x1) - xScale(d.x0))
-    //   .attr("height", d => yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length))
-    //   .attr("fill", "none")
-    //   .attr("stroke", "black")
+      .attr("stroke", "none");
 
     /*
      *
@@ -241,32 +233,36 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       .data([adjustedCMean])
       .join("line")
       .attr("class", "adjustedCMeanLine")
-      .attr("x1", d => xScale(d))
-      .attr("x2", d => xScale(d))
+      .attr("x1", d => newXScale(d))
+      .attr("x2", d => newXScale(d))
       .attr("y1", layout.height / 2)
-      .attr("y2", layout.margin)
+      .attr("y2", layout.margin - 10)
       .attr("stroke-dasharray", "5 5 2 5")
       .attr("stroke", "black")
+      .attr('stroke-width', 2)
+      .attr("stroke-linecap", "round")
 
     svgElement.select("#adjustedMean")
       .selectAll(".adjustedTMeanLine")
       .data([adjustedTMean])
       .join("line")
       .attr("class", "adjustedTMeanLine")
-      .attr("x1", d => xScale(d))
-      .attr("x2", d => xScale(d))
+      .attr("x1", d => newXScale(d))
+      .attr("x2", d => newXScale(d))
       .attr("y1", layout.height / 2)
-      .attr("y2", layout.height - layout.margin)
+      .attr("y2", layout.height - layout.margin + 10)
       .attr("stroke-dasharray", "5 5 2 5")
       .attr("stroke", "black")
+      .attr('stroke-width', 2)
+      .attr("stroke-linecap", "round")
 
     svgElement.select("#adjustedMean")
       .selectAll(".adjustedCMean")
       .data([adjustedCMean])
       .join("circle")
       .attr("class", "adjustedCMean")
-      .attr("cx", d => xScale(d))
-      .attr("cy", d => yScaleControl(0))
+      .attr("cx", d => newXScale(d))
+      .attr("cy", d => newYScaleControl(0))
       .attr("r", 3)
       .attr("fill", "black")
       .attr("stroke", "black")
@@ -276,8 +272,8 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       .data([adjustedTMean])
       .join("circle")
       .attr("class", "adjustedTMean")
-      .attr("cx", d => xScale(d))
-      .attr("cy", d => yScaleTreatment(0))
+      .attr("cx", d => newXScale(d))
+      .attr("cy", d => newYScaleTreatment(0))
       .attr("r", 3)
       .attr("fill", "black")
       .attr("stroke", "black")
@@ -292,50 +288,107 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
       .data([unadjustedCMean])
       .join("line")
       .attr("class", "unadjustedCMeanLine")
-      .attr("x1", d => xScale(d))
-      .attr("x2", d => xScale(d))
+      .attr("x1", d => newXScale(d))
+      .attr("x2", d => newXScale(d))
       .attr("y1", layout.height / 2)
-      .attr("y2", layout.margin)
+      .attr("y2", layout.margin - 10)
       .attr("stroke-dasharray", "5 5 2 5")
       .attr("stroke", "black")
       .attr("opacity", 0.75)
-      .attr("stroke-width", 0.5)
+      .attr("stroke-width", 1)
 
     svgElement.select("#unadjustedMean")
       .selectAll(".unadjustedTMeanLine")
       .data([unadjustedTMean])
       .join("line")
       .attr("class", "unadjustedTMeanLine")
-      .attr("x1", d => xScale(d))
-      .attr("x2", d => xScale(d))
+      .attr("x1", d => newXScale(d))
+      .attr("x2", d => newXScale(d))
       .attr("y1", layout.height / 2)
-      .attr("y2", layout.height - layout.margin)
+      .attr("y2", layout.height - layout.margin + 10)
       .attr("stroke-dasharray", "5 5 2 5")
       .attr("stroke", "black")
       .attr("opacity", 0.75)
-      .attr("stroke-width", 0.5)
+      .attr("stroke-width", 1)
 
     svgElement.select('#x-axis')
             .attr('transform', `translate(0, ${layout.height/2})`)
-            .call(d3.axisBottom(xScale).tickSize(3).tickValues([0, 1]))
+            .call(d3.axisBottom(newXScale).tickSize(3).tickValues([0, 1]))
 
     svgElement.select('#y-axistreatment')
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
-      .call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(2))
+      .call(d3.axisLeft(newYScaleTreatment).tickSize(3).ticks(2))
 
     svgElement.select('#y-axiscontrol')
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
-      .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(2))
+      .call(d3.axisLeft(newYScaleControl).tickSize(3).ticks(2))
 
-  }, [unadjustedTreatmentData, unadjustedControlData, selectedBins])
+  }, [unadjustedTreatmentData, unadjustedControlData])
 
   useEffect(() => {
 
-    var histogram = d3.histogram().domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).thresholds(bins);
-    var newSelectedBins = histogram(selectedAttribute);
+    var histogram = d3.histogram()
+                      .domain([-0.5, 1.5])
+                      .thresholds(bins);
 
-    setSelectedBins(newSelectedBins);
-    
+    var selectedBins = histogram(selectedAttribute);
+
+    let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2;
+
+    svgElement.select("#selected")
+      .selectAll(".selectedBars")
+      .data(selectedBins)
+      .join("rect")
+      .attr("class", "selectedBars")
+      .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
+      .attr("y", d => selectedTreatment ? yScaleTreatment(0) : yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("width", d => bandwidth)
+      .attr("height", function (d) {
+        if (selectedTreatment) {
+          return yScaleTreatment(d.length / unadjustedAttribute.length) - yScaleTreatment(0)
+        } else {
+          return yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length)
+        }
+      })
+      .attr("fill", "none")
+      .attr("stroke", "black");
+
+    let isSelected = selectedAttribute.length > 0;
+
+    if (isSelected) {
+      svgElement.select("#unadjusted")
+        .selectAll(".unadjustedCBars")
+        .attr("opacity", 0.2)
+
+      svgElement.select("#unadjusted")
+        .selectAll(".unadjustedTBars")
+        .attr("opacity", 0.2)
+
+      svgElement.select("#adjusted")
+        .selectAll(".adjustedCBars")
+        .attr("opacity", 0.2)
+
+      svgElement.select("#adjusted")
+        .selectAll(".adjustedTBars")
+        .attr("opacity", 0.2)
+    } else {
+      svgElement.select("#unadjusted")
+        .selectAll(".unadjustedCBars")
+        .attr("opacity", 1)
+
+      svgElement.select("#unadjusted")
+        .selectAll(".unadjustedTBars")
+        .attr("opacity", 1)
+
+      svgElement.select("#adjusted")
+        .selectAll(".adjustedCBars")
+        .attr("opacity", 1)
+
+      svgElement.select("#adjusted")
+        .selectAll(".adjustedTBars")
+        .attr("opacity", 1)
+    }
+
   }, [selectedAttribute])
 
   
@@ -346,9 +399,7 @@ export const CompareHistogramVis = ({layout = {"height": 120, "width": 500, "mar
     <div style={covStyle}>
       <p style={textStyle}>{attribute}</p>
       <svg width={layout.width} height={layout.height} ref={ref} id={`svgCompare${attribute}`}>
-        <g>
-          <g id="selectionBars" />
-          
+        <g>          
           <g id="adjusted" />
           <g id="unadjusted" />
           <g id="unadjustedMean" />
