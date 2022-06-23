@@ -29,7 +29,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
     var yScale = d3.scaleBand()
             .domain(SMDDataset.map(d => d.covariate))
-            .range([layout.height - layout.margin, layout.margin])
+            .range([layout.margin, layout.height - layout.margin])
 
       // Create a tooltip
     var tooltip = d3.select("#tooltip")

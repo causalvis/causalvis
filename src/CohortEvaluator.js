@@ -3,7 +3,6 @@ import crossfilter from 'crossfilter2';
 
 import { CovariateBalance } from './CovariateBalance';
 import { PropDistribution } from './PropDistribution';
-import { SMDMenu } from './SMDMenu'
 
 /*
 Props:
@@ -19,8 +18,6 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
   const [selected, setSelected] = React.useState({"selectedData":[], "treatment": false});
 
   const [unadjustedCohortData, setUnadjustedCohortData] = React.useState({"confounds":[], "propensity":[], "treatment":[]});
-
-  const [sort, setSort] = React.useState("Adjusted High to Low");
 
   let allData = JSON.parse(JSON.stringify(unadjustedCohort));
   let filteredData = crossfilter(allData);
@@ -71,8 +68,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
     <div>
       <div style={plotLayout}>
         <PropDistribution unadjustedCohortData={unadjustedCohortData} setSelected={setSelected} />
-        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} sort={sort} selected={selected} />
-        <SMDMenu setSort={setSort} />
+        <CovariateBalance unadjustedCohortData={unadjustedCohortData} attributes={attributes} updateFilter={updateFilter} selected={selected} />
       </div>
     </div>
   )

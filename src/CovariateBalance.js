@@ -5,6 +5,7 @@ import { min, max } from 'd3-array';
 
 import { CompareDistributionVis } from './CompareDistributionVis';
 import { CompareHistogramVis } from './CompareHistogramVis';
+import { SMDMenu } from './SMDMenu'
 
 import ViewHeadlineSharpIcon from '@mui/icons-material/ViewHeadlineSharp';
 import ViewStreamSharpIcon from '@mui/icons-material/ViewStreamSharp';
@@ -22,7 +23,7 @@ Props:
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
   - updateFilter: Function, updates filter functions when a covariate range is selected
 */
-export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter, sort, selected=[]}) => {
+export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, attributes=[], weights, updateFilter, selected=[]}) => {
 
   // Unique treatment levels
   const [treatmentLevels, setTreatmentLevels] = React.useState();
@@ -34,7 +35,23 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   const [expand, setExpand] = React.useState(false);
 
+  const [attributeDetails, setAttributeDetails] = React.useState([]);
+  const [customDetails, setCustomDetails] = React.useState(false);
+
+  const [sort, setSort] = React.useState("Adjusted High to Low");
+
   // const selected = [];
+
+  function hideCovariate(v) {
+    let cIndex = attributeDetails.indexOf(v);
+    attributeDetails.splice(cIndex, 1);
+
+    setAttributeDetails([...attributeDetails]);
+  }
+
+  function showCovariate(v) {
+    setAttributeDetails([...attributeDetails, v]);
+  }
 
   function handleExpand(e, v) {
     // console.log(v);
@@ -183,7 +200,11 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
       // setSMD(newSMD);
 
-      setSMD(newSMD.sort((a, b) => a.adjusted > b.adjusted));
+      let SMDSorted = newSMD.sort((a, b) => a.adjusted < b.adjusted);
+      setSMD(SMDSorted);
+      
+      let newAttributeDetails = SMDSorted.filter(s => s.adjusted > 0.1);
+      setAttributeDetails(newAttributeDetails.map(s => s.covariate));
 
       let newSMDExtent = [Math.min(min(newSMD, d => d.unadjusted), min(newSMD, d => d.adjusted)), Math.max(max(newSMD, d => d.unadjusted), max(newSMD, d => d.adjusted))];
       setSMDExtent(newSMDExtent);
@@ -193,15 +214,16 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   useEffect(() => {
     let newSMD;
+    // let newAttributeDetails;
 
     if (sort === "Adjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.adjusted > b.adjusted);
-    } else if (sort === "Adjusted Low to High") {
       newSMD = SMD.sort((a, b) => a.adjusted < b.adjusted);
+    } else if (sort === "Adjusted Low to High") {
+      newSMD = SMD.sort((a, b) => a.adjusted > b.adjusted);
     } else if (sort === "Unadjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.unadjusted > b.unadjusted);
-    } else if (sort === "Unadjusted Low to High") {
       newSMD = SMD.sort((a, b) => a.unadjusted < b.unadjusted);
+    } else if (sort === "Unadjusted Low to High") {
+      newSMD = SMD.sort((a, b) => a.unadjusted > b.unadjusted);
     } else if (sort === "Difference High to Low") {
       newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted));
     } else if (sort === "Difference Low to High") {
@@ -209,15 +231,19 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     }
 
     setSMD([...newSMD]);
+
+    // let newAttributeDetails = newSMD.filter(s => s.adjusted > 0.1);
+    // setAttributeDetails(newAttributeDetails.map(s => s.covariate));
   }, [sort])
 
-  let SMDContainer = {"height": !expand ? "auto" : "0px", "overflow": "hidden"};
+  let SMDContainer = {"height": !expand ? "auto" : "0px", "overflow": "hidden", "display": "flex"};
   let attributesContainer = {"minWidth":"600px",
                             "marginTop":"30px",
                             "flexDirection":"column",
                             "height": expand ? "420px" : "0px",
                             "overflow":"scroll"};
-
+  let detailsStyle = {"fontFamily":"sans-serif", "fontSize":"11px"};
+  let symbolStyle = {"verticalAlign":"sub"};
   let testAttribute = ["age", "cons.price.idx", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"];
 
   return (
@@ -235,34 +261,44 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
           <ViewStreamSharpIcon />
         </ToggleButton>
       </ToggleButtonGroup>
-      <div style={SMDContainer}>
-        <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
-      </div>
-      <div style={attributesContainer}>
-        {testAttribute.map((value, index) => {
-          if (attributeLevels[value] && attributeLevels[value].length === 2) {
-            return <CompareHistogramVis
-                    key={value}
-                    unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
-                    unadjustedTreatment={unadjustedCohortData.treatment}
-                    unadjustedPropensity={unadjustedCohortData.propensity}
-                    attribute={value}
-                    updateFilter={updateFilter}
-                    selectedAttribute={selected.selectedData.map(d => d[value])}
-                    selectedTreatment={selected.treatment} />
-          } else {
-            return <CompareDistributionVis
-                    key={value}
-                    unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
-                    unadjustedTreatment={unadjustedCohortData.treatment}
-                    unadjustedPropensity={unadjustedCohortData.propensity}
-                    attribute={value}
-                    updateFilter={updateFilter}
-                    selectedAttribute={selected.selectedData.map(d => d[value])}
-                    selectedTreatment={selected.treatment} />
+      <div>
+        <div style={SMDContainer}>
+          <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
+          <SMDMenu setSort={setSort} />
+        </div>
+        <div style={attributesContainer}>
+          {
+            customDetails
+              ? ''
+              : <p style={detailsStyle}><span style={symbolStyle}>*</span> only showing covariate details for SMD > 0.1</p>
           }
-        })}
-    </div>
+          {attributeDetails.map((value, index) => {
+            if (attributeLevels[value] && attributeLevels[value].length === 2) {
+              return <CompareHistogramVis
+                      key={value}
+                      unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      unadjustedTreatment={unadjustedCohortData.treatment}
+                      unadjustedPropensity={unadjustedCohortData.propensity}
+                      attribute={value}
+                      updateFilter={updateFilter}
+                      selectedAttribute={selected.selectedData.map(d => d[value])}
+                      selectedTreatment={selected.treatment}
+                      hideCovariate={hideCovariate} />
+            } else {
+              return <CompareDistributionVis
+                      key={value}
+                      unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      unadjustedTreatment={unadjustedCohortData.treatment}
+                      unadjustedPropensity={unadjustedCohortData.propensity}
+                      attribute={value}
+                      updateFilter={updateFilter}
+                      selectedAttribute={selected.selectedData.map(d => d[value])}
+                      selectedTreatment={selected.treatment}
+                      hideCovariate={hideCovariate} />
+            }
+          })}
+        </div>
+      </div>
       {/*<DistributionVis TDataset={TDataset} CDataset={CDataset} attribute="age" />*/}
     </div>
   )

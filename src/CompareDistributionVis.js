@@ -1,6 +1,9 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
+import IconButton from '@mui/material/IconButton';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
 export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "margin": 20, "marginLeft": 20},
                                         unadjustedAttribute=[],
                                         adjustedAttribute,
@@ -9,7 +12,8 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
                                         attribute="",
                                         updateFilter,
                                         selectedAttribute=[],
-                                        selectedTreatment=false}) => {
+                                        selectedTreatment=false,
+                                        hideCovariate}) => {
 
   const [unadjustedTreatmentData, setUnadjustedTreatmentData] = React.useState([]);
   const [unadjustedControlData, setUnadjustedControlData] = React.useState([]);
@@ -110,6 +114,10 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     }
 
     return total/totalWeight;
+  }
+
+  function handleHide() {
+    hideCovariate(attribute);
   }
 
   useEffect(() => {
@@ -461,6 +469,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   return (
     <div style={covStyle}>
+      <IconButton onClick={() => handleHide()} aria-label="delete">
+        <VisibilityOffIcon />
+      </IconButton>
       <p style={textStyle}>{attribute}</p>
       <svg width={layout.width} height={layout.height} ref={ref} id={`svgCompare${attribute}`}>
         <g>
