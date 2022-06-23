@@ -23,9 +23,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
   const bins = 30;
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#90b0d1"});
+                                                  "control": "#a1c5c0"});
 
   useEffect(() => {
 
@@ -171,8 +171,8 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     let endPoint = [d3.max(unadjustedAttribute), 0];
 
     // Get KDE of unadjusted data
-    let unadjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, xScale, yScaleControl);
-    let unadjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, xScale, yScaleTreatment);
+    let unadjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, newXScale, newYScaleControl);
+    let unadjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, newXScale, newYScaleTreatment);
 
     // Get mean of unadjusted data
     let unadjustedCMean = d3.mean(unadjustedControlData);

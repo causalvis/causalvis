@@ -21,9 +21,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
   const bins = 2;
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#90b0d1"});
+                                                  "control": "#a1c5c0"});
 
   useEffect(() => {
 
@@ -313,7 +313,7 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
 
     svgElement.select('#x-axis')
             .attr('transform', `translate(0, ${layout.height/2})`)
-            .call(d3.axisBottom(newXScale).tickSize(3).tickValues([0, 1]))
+            .call(d3.axisBottom(newXScale).tickSize(3).tickValues([0, 1]).tickFormat(d3.format('.0f')))
 
     svgElement.select('#y-axistreatment')
       .attr('transform', `translate(${layout.marginLeft}, 0)`)

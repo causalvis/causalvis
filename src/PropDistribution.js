@@ -7,6 +7,7 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
   // Track bins for treatment and control groups
   const [bins, setBins] = React.useState({"TBins":[], "CBins":[]});
+  const [binSize, setBinSize] = React.useState({"TBins":1, "CBins":1});
 
   const binCount = 20;
   const n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
@@ -35,7 +36,12 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
       var newTBins = h(newTAttribute);
       var newCBins = h(newCAttribute);
 
+      var TBinSize = newTBins.reduce((count, current) => count + current.length, 0);
+      var CBinSize = newCBins.reduce((count, current) => count + current.length, 0);
+
       setBins({"TBins": newTBins, "CBins": newCBins});
+      setBinSize({"TBins": TBinSize === 0 ? 1 : TBinSize, 
+                  "CBins": CBinSize === 0 ? 1 : CBinSize});
     }
 
   }, [unadjustedCohortData])
@@ -44,7 +50,7 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
   return (
     <div style={propContainer}>
-      <PropDistributionVis bins={bins} n={n} setSelected={setSelected}/> 
+      <PropDistributionVis bins={bins} n={binSize} setSelected={setSelected}/> 
     </div>
   )
 }

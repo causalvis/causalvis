@@ -1,21 +1,16 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n=1, maxPropensity=1, setSelected}) => {
-
-  // console.log(n);
+export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n={}, maxPropensity=1, setSelected}) => {
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#90b0d1"});
+                                                  "control": "#a1c5c0"});
 
   // Track previous bar heights
   const [prevCBins, setPrevCBins] = React.useState(null);
   const [prevTBins, setPrevTBins] = React.useState(null);
-
-  // Keep track of selection
-  // const [selectedID, setSelectedID] = React.useState(null);
   
   const ref = useRef('svgPropDistribution');
 
@@ -26,8 +21,6 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
   let svgElement = svg.select("g");
 
   useEffect(() => {
-    // let n = bins.TBins.reduce((currentCount, row) => currentCount + row.length, 0);
-
     let newCBins = [];
     let newTBins = [];
 
@@ -35,7 +28,10 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     .domain([0, maxPropensity])
     .range([layout.marginLeft, layout.width - layout.margin])
 
-    let yMax = d3.max([d3.max(bins.TBins.map(d => d.length)) / n, d3.max(bins.CBins.map(d => d.length)) / n]);
+    let controlCount = n.CBins;
+    let treatmentCount = n.TBins;
+
+    let yMax = d3.max([d3.max(bins.TBins.map(d => d.length)) / treatmentCount, d3.max(bins.CBins.map(d => d.length)) / controlCount]);
 
     // Some hardcoding to ensure proper scaling on initialization;
     if (yMax === 0) {yMax = 1};
@@ -76,11 +72,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .duration(transitionDuration)
       .ease(d3.easeLinear)
       .attr("y", (d, i) => {
-        newCBins[i] = {"y": yScaleControl(d.length / n)};
-        return yScaleControl(d.length / n)})
+        newCBins[i] = {"y": yScaleControl(d.length / controlCount)};
+        return yScaleControl(d.length / controlCount)})
       .attr("height", (d, i) => {
-        newCBins[i].height = yScaleControl(0) - yScaleControl(d.length / n);
-        return yScaleControl(0) - yScaleControl(d.length / n)
+        newCBins[i].height = yScaleControl(0) - yScaleControl(d.length / controlCount);
+        return yScaleControl(0) - yScaleControl(d.length / controlCount)
       })
 
     let treatmentBars = svgElement.select("#bars")
@@ -111,8 +107,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .duration(transitionDuration)
       .ease(d3.easeLinear)
       .attr("height", (d, i) => {
-        newTBins[i] = {"height":yScaleTreatment(d.length / n) - yScaleTreatment(0)};
-        return yScaleTreatment(d.length / n) - yScaleTreatment(0)
+        newTBins[i] = {"height":yScaleTreatment(d.length / treatmentCount) - yScaleTreatment(0)};
+        return yScaleTreatment(d.length / treatmentCount) - yScaleTreatment(0)
       })
 
     let xAxis = svgElement.select('#x-axis')
@@ -133,10 +129,10 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     //   .attr("y", d => yScaleControl(d.length / n))
     //   .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
 
-    treatmentBars.transition()
-      .duration(1000)
-      .ease(d3.easeLinear)
-      .attr("height", d =>  yScaleTreatment(d.length / n) - yScaleTreatment(0))
+    // treatmentBars.transition()
+    //   .duration(1000)
+    //   .ease(d3.easeLinear)
+    //   .attr("height", d =>  yScaleTreatment(d.length / n) - yScaleTreatment(0))
 
     svgElement.select("#legend")
       .selectAll(".legend")
@@ -163,6 +159,18 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("font-size", 12)
       .text(d => d)
 
+    svgElement.select("#title")
+      .selectAll(".title")
+      .data(["Propensity Score Plot"])
+      .join("text")
+      .attr("class", "title")
+      .attr("x", layout.width / 2)
+      .attr("y", layout.margin / 2)
+      .attr("text-anchor", "middle")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 12)
+      .text(d => d)
+
     xAxis.transition()
         .duration(1000)
         .ease(d3.easeLinear)
@@ -178,8 +186,6 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
         .ease(d3.easeLinear)
         .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
 
-    // console.log(bins.CBins);
-
     setPrevCBins([...newCBins]);
     setPrevTBins([...newTBins]);
   }, [bins])
@@ -193,6 +199,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
           <g id="y-axistreatment" />
           <g id="y-axiscontrol" />
           <g id="legend" />
+          <g id="title" />
         </g>
       </svg>
     </div>
