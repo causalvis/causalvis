@@ -84,7 +84,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   // Return svg path given data
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
-    let density = kdeWeighted(epanechnikov(5), thresholds, d, weights);
+    let density = kdeWeighted(epanechnikov(3.5), thresholds, d, weights);
 
     density = [startPoint].concat(density).concat([endPoint]);
 
@@ -147,7 +147,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     var TBins = histogram(unadjustedTreatmentData);
     var CBins = histogram(unadjustedControlData);
 
-    let maxProportion = d3.max([d3.max(TBins.map(d => d.length)) / unadjustedAttribute.length, d3.max(CBins.map(d => d.length)) / unadjustedAttribute.length]);
+    let maxProportion = d3.max([d3.max(TBins.map(d => d.length)) / unadjustedTreatmentData.length, d3.max(CBins.map(d => d.length)) / unadjustedControlData.length]);
 
     const newXScale = d3.scaleLinear()
       .domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)])
@@ -328,6 +328,32 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       .attr("opacity", 0.75)
       .attr("stroke-width", 1)
 
+    // let bandwidth = (layout.width - layout.margin * 2) / bins
+
+    // let unadjustedCBars = svgElement.select("#unadjusted")
+    //   .selectAll(".unadjustedCBars")
+    //   .data(CBins)
+    //   .join("rect")
+    //   .attr("class", "unadjustedCBars")
+    //   .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+    //   .attr("y", d => newYScaleControl(d.length / unadjustedControlData.length))
+    //   .attr("width", d => bandwidth)
+    //   .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / unadjustedControlData.length))
+    //   .attr("fill", "none")
+    //   .attr("stroke", "black");
+
+    // let unadjustedTBars = svgElement.select("#unadjusted")
+    //   .selectAll(".unadjustedTBars")
+    //   .data(TBins)
+    //   .join("rect")
+    //   .attr("class", "unadjustedTBars")
+    //   .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+    //   .attr("y", d => newYScaleTreatment(0))
+    //   .attr("width", bandwidth)
+    //   .attr("height", d => newYScaleTreatment(d.length / unadjustedTreatmentData.length) - newYScaleTreatment(0))
+    //   .attr("fill", "none")
+    //   .attr("stroke", "black");
+
     // svgElement.select("#unadjustedMean")
     //   .selectAll(".unadjustedCMean")
     //   .data([unadjustedCMean])
@@ -371,6 +397,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
                       .thresholds(bins);
     var selectedBins = histogram(selectedAttribute);
 
+    let unadjustedCCount = unadjustedControlData.length === 0 ? 1 : unadjustedControlData.length;
+    let unadjustedTCount = unadjustedTreatmentData.length === 0 ? 1 : unadjustedTreatmentData.length;
+
     /*
      *
     Indicate selected items
@@ -382,9 +411,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       .join("rect")
       .attr("class", "selectedBars")
       .attr("x", (d, i) => xScale(d.x0))
-      .attr("y", d => selectedTreatment ? yScaleTreatment(0) : yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("y", d => selectedTreatment ? yScaleTreatment(0) : yScaleControl(d.length / unadjustedCCount))
       .attr("width", d => xScale(d.x1) - xScale(d.x0))
-      .attr("height", d => selectedTreatment ? yScaleTreatment(d.length / unadjustedAttribute.length) - yScaleTreatment(0) : yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("height", d => selectedTreatment ? yScaleTreatment(d.length / unadjustedTCount) - yScaleTreatment(0) : yScaleControl(0) - yScaleControl(d.length / unadjustedCCount))
       .attr("fill", "none")
       .attr("stroke", "black")
 

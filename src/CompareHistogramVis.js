@@ -57,12 +57,12 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
   let svgElement = svg.select("g");
 
   // Get max values for yScale
-  function getMaxProportion(TBins, CBins, total, totalWeight) {
+  function getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount) {
     let currentMax = 0;
 
     for (let d of TBins) {
-      let proportion = d.length / total;
-      let weightedProportion = d3.sum(d, d => d[1]) / totalWeight;
+      let proportion = d.length / unadjustedTCount;
+      let weightedProportion = d3.sum(d, d => d[1]) / adjustedTCount;
 
       let max = d3.max([proportion, weightedProportion]) 
 
@@ -72,8 +72,8 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
     }
 
     for (let d of CBins) {
-      let proportion = d.length / total;
-      let weightedProportion = d3.sum(d, d => d[1]) / totalWeight;
+      let proportion = d.length / unadjustedCCount;
+      let weightedProportion = d3.sum(d, d => d[1]) / adjustedCCount;
 
       let max = d3.max([proportion, weightedProportion]) 
 
@@ -144,18 +144,28 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
     let unadjustedCMean = d3.mean(unadjustedControlData, d => d[0]);
     let unadjustedTMean = d3.mean(unadjustedTreatmentData, d => d[0]);
 
+    // Get count of unadjusted data
+    let unadjustedCCount = unadjustedControlData.length;
+    let unadjustedTCount = unadjustedTreatmentData.length;
+
     let adjustedCMean;
     let adjustedTMean;
 
-    // If adjusted data set not provided, calculate means using IPW and get weighted KDE
+    let adjustedCCount;
+    let adjustedTCount;
+
+    // If adjusted data set not provided, calculate means and counts using IPW
     if (!adjustedAttribute) {
       adjustedCMean = getWeightedMean(unadjustedControlData);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData);
+
+      adjustedCCount = d3.sum(unadjustedControlData, d => d[1]);
+      adjustedTCount = d3.sum(unadjustedTreatmentData, d => d[1]);
     }
 
     var totalWeight = d3.sum(unadjustedTreatmentData, d => d[1]) + d3.sum(unadjustedControlData, d => d[1]);
 
-    let maxProportion = getMaxProportion(TBins, CBins, unadjustedAttribute.length, totalWeight);
+    let maxProportion = getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
 
     const newXScale = d3.scaleLinear()
       .domain([-0.5, 1.5])
@@ -181,9 +191,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .join("rect")
       .attr("class", "unadjustedCBars")
       .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => newYScaleControl(d.length / unadjustedAttribute.length))
+      .attr("y", d => newYScaleControl(d.length / unadjustedCCount))
       .attr("width", d => bandwidth)
-      .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / unadjustedAttribute.length))
+      .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / unadjustedCCount))
       .attr("fill", "none")
       .attr("stroke", "black");
 
@@ -195,7 +205,7 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
       .attr("y", d => newYScaleTreatment(0))
       .attr("width", bandwidth)
-      .attr("height", d => newYScaleTreatment(d.length / unadjustedAttribute.length) - newYScaleTreatment(0))
+      .attr("height", d => newYScaleTreatment(d.length / unadjustedTCount) - newYScaleTreatment(0))
       .attr("fill", "none")
       .attr("stroke", "black");
 
@@ -205,9 +215,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .join("rect")
       .attr("class", "adjustedCBars")
       .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => newYScaleControl(d3.sum(d, v => v[1]) / totalWeight))
+      .attr("y", d => newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
       .attr("width", bandwidth)
-      .attr("height", d => newYScaleControl(0) - newYScaleControl(d3.sum(d, v => v[1]) / totalWeight))
+      .attr("height", d => newYScaleControl(0) - newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
       .attr("fill", colorMap.control)
       .attr("stroke", "none");
 
@@ -219,7 +229,7 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
       .attr("y", d => newYScaleTreatment(0))
       .attr("width", bandwidth)
-      .attr("height", d => newYScaleTreatment(d3.sum(d, v => v[1]) / totalWeight) - newYScaleTreatment(0))
+      .attr("height", d => newYScaleTreatment(d3.sum(d, v => v[1]) / adjustedTCount) - newYScaleTreatment(0))
       .attr("fill", colorMap.treatment)
       .attr("stroke", "none");
 
@@ -341,13 +351,13 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .join("rect")
       .attr("class", "selectedBars")
       .attr("x", (d, i) => xScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => selectedTreatment ? yScaleTreatment(0) : yScaleControl(d.length / unadjustedAttribute.length))
+      .attr("y", d => selectedTreatment ? yScaleTreatment(0) : yScaleControl(d.length / unadjustedControlData.length))
       .attr("width", d => bandwidth)
       .attr("height", function (d) {
         if (selectedTreatment) {
-          return yScaleTreatment(d.length / unadjustedAttribute.length) - yScaleTreatment(0)
+          return yScaleTreatment(d.length / unadjustedTreatmentData.length) - yScaleTreatment(0)
         } else {
-          return yScaleControl(0) - yScaleControl(d.length / unadjustedAttribute.length)
+          return yScaleControl(0) - yScaleControl(d.length / unadjustedControlData.length)
         }
       })
       .attr("fill", "none")

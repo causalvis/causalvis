@@ -57,10 +57,9 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
               .style("top", `${e.pageY - 25}px`)
               .text(`${Math.round(d.adjusted * 100) / 100}`);
       })
-      .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-      // .transition()
-      // .duration(transitionDuration)
-      // .ease(d3.easeLinear)
+      .on("mouseout", function() {
+        tooltip.style("visibility", "hidden");
+      });
       
 
     let unadjustedCircles = svgElement.select("#unadjusted")
@@ -80,6 +79,9 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
               .style("top", `${e.pageY - 25}px`)
               .text(`${Math.round(d.unadjusted * 100) / 100}`);
       })
+      .on("mouseout", function() {
+        tooltip.style("visibility", "hidden");
+      });
 
     let diffLine = svgElement.select("#diff")
       .selectAll(".diffLine")
