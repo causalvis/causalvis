@@ -13,7 +13,7 @@ export const SMDMenu = ({setSort}) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [selectedOption, setSelectedOption] = React.useState("Adjusted High to Low");
 
-  const sortOptions = ["Adjusted High to Low", "Adjusted Low to High", "Unadjusted High to Low", "Unadjusted Low to High", "Difference High to Low", "Difference Low to High"];
+  const sortOptions = ["Adjusted High to Low", "Adjusted Low to High", "Unadjusted High to Low", "Unadjusted Low to High", "A-Z Alphebatically", "Z-A Alphebatically", "Difference High to Low", "Difference Low to High"];
 
   function changeSort(e, s) {
     // console.log("changing sort...");

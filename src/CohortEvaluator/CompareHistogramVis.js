@@ -33,13 +33,11 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
 
   // Show icon on hover
   function show(el) {
-    console.log("hovering");
     setIconShow(true);
   }
 
   // Hide icon
   function hide(el) {
-    console.log("mouseout");
     setIconShow(false);
   }
 

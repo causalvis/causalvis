@@ -35,13 +35,11 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   // Show icon on hover
   function show(el) {
-    console.log("hovering");
     setIconShow(true);
   }
 
   // Hide icon
   function hide(el) {
-    console.log("mouseout");
     setIconShow(false);
   }
 
@@ -67,39 +65,6 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
   function kdeWeighted(kernel, thresholds, data, weights) {
     let density = [];
 
-    // for (let t of thresholds) {
-    //   let tValues = data.map(d => kernel(t - d));
-
-    //   // If weights are provided, return weighted density, otherwise assume constant weights
-    //   if (weights) {
-
-    //     let total = 0;
-    //     let total_weights = 0;
-
-    //     for (let i = 0; i < tValues.length; i++) {
-    //       let tValue = tValues[i];
-    //       let w = weights[i];
-
-    //       total += (tValue * w);
-    //       total_weights += w;
-    //     }
-
-    //     let weighted_mean = total_weights === 0 ? 0 : total / total_weights;
-    //     density.push([t, weighted_mean]);
-    //   } else {
-    //     // let mean = d3.sum(tValues) / d3.count(tValues, v => v != 0);
-    //     let mean = d3.mean(tValues);
-    //     // console.log(mean);
-
-    //     if (mean > 1) {
-    //       console.log(tValues, tValues.length, mean)
-    //     }
-    //     // console.log(mean, d3.mean(data, d => kernel(t - d)))
-    //     density.push([t, mean]);
-    //   }
-      
-    // } 
-
     if (weights) {
       for (let t of thresholds) {
         let tValues = data.map(d => kernel(t - d));
@@ -123,11 +88,6 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       density = thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
     }
 
-    // if (!weights) {
-    //   console.log(density, thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]))
-    // }
-    
-
     return density
   }
 
@@ -136,11 +96,32 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
   }
 
+  function getIQR(array) {
+    array.sort((a, b)  => a - b);
+
+    var q1 = array[Math.floor((array.length / 4))];
+    var q3 = array[Math.ceil((array.length * (3 / 4)))];
+
+    return q3 - q1;
+  }
+
+  // The following function from https://stackoverflow.com/questions/7343890/standard-deviation-javascript
+  function getStandardDeviation (array) {
+    const n = array.length
+    const mean = array.reduce((a, b) => a + b) / n
+    return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
+  }
+
   // Return svg path given data
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
-    let b = thresholds[1] - thresholds[0];
-    // console.log(b)
-    let density = kdeWeighted(epanechnikov(b * 3.5), thresholds, d, weights);
+    let std = getStandardDeviation(d);
+    // let IQRDivided = getIQR(d) / 1.34;
+    // let b = 0.9 * d3.min([std, IQRDivided]) * d.length ** (-1/5);
+    // let b = std * 1.06 * d.length ** (-1/5)
+    // console.log(std, b);
+
+    let b = (thresholds[1] - thresholds[0]) * 3.5
+    let density = kdeWeighted(epanechnikov(b), thresholds, d, weights);
 
     density = [startPoint].concat(density).concat([endPoint]);
 

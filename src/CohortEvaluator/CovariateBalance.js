@@ -34,17 +34,21 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   const [SMD, setSMD] = React.useState([]);
   const [SMDExtent, setSMDExtent] = React.useState([0, 1]);
 
+  // Toggles between summary view and details/expanded view
   const [expand, setExpand] = React.useState(false);
 
+  // Keeps track of which covariates have an expanded view
   const [attributeDetails, setAttributeDetails] = React.useState([]);
+  // True if list of expanded covariates is customized
   const [customDetails, setCustomDetails] = React.useState(false);
 
+  // Keeps track of the sorting used
   const [sort, setSort] = React.useState("Adjusted High to Low");
 
+  // Controls whether the covariate selector is open
   const [covariateOpen, setCovariateOpen] = React.useState(false);
 
-  // const selected = [];
-
+  // Hides covariate in the expanded view
   function hideCovariate(v) {
     let cIndex = attributeDetails.indexOf(v);
     attributeDetails.splice(cIndex, 1);
@@ -53,15 +57,22 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     setCustomDetails(true);
   }
 
-  function showCovariate(v) {
-    setAttributeDetails([...attributeDetails, v]);
+  // function showCovariate(v) {
+  //   setAttributeDetails([...attributeDetails, v]);
+  //   setCustomDetails(true);
+  // }
+
+  function groupEditCovariate(newDetails) {
+    setAttributeDetails(Array.from(newDetails));
     setCustomDetails(true);
   }
 
+  // Opens the covariate selector dialog menu
   function handleEdit() {
     setCovariateOpen(true);
   }
 
+  // Toggles between summary view and details/expanded view
   function handleExpand(e, v) {
     // console.log(v);
     if (v === "collapse") {
@@ -237,6 +248,10 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted));
     } else if (sort === "Difference Low to High") {
       newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) < Math.abs(b.unadjusted - b.adjusted));
+    } else if (sort === "A-Z Alphebatically") {
+      newSMD = SMD.sort((a, b) => a.covariate > b.covariate);
+    } else if (sort === "Z-A Alphebatically") {
+      newSMD = SMD.sort((a, b) => a.covariate < b.covariate);
     }
 
     setSMD([...newSMD]);
@@ -249,42 +264,52 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   let attributesContainer = {"minWidth":"600px",
                             "marginTop":"30px",
                             "flexDirection":"column",
-                            "height": expand ? "480px" : "0px",
+                            "height": expand ? "420px" : "0px",
                             "overflow":"scroll"};
-  let detailsStyle = {"fontFamily":"sans-serif", "fontSize":"11px"};
+  let detailsStyle = {"fontFamily":"sans-serif", "fontSize":"11px", "marginLeft":"auto"};
   let symbolStyle = {"verticalAlign":"sub"};
   let linkStyle = {"color":"steelblue", "cursor":"pointer"};
+  let expandMenu = {"display":"flex", "alignItems":"center"}
 
   // let testAttribute = ["age", "cons.price.idx", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"];
   let testAttribute = ["cons.price.idx"];
 
   return (
     <div>
-      <CovariateSelector open={covariateOpen} handleClose={() => setCovariateOpen(false)} attributes={attributes}/>
-      <ToggleButtonGroup
-        value={expand ? "expand" : "collapse"}
-        exclusive
-        onChange={(e, v) => handleExpand(e, v)}
-        aria-label="text alignment"
-      >
-        <ToggleButton value="collapse" aria-label="left aligned">
-          <ViewHeadlineSharpIcon />
-        </ToggleButton>
-        <ToggleButton value="expand" aria-label="centered">
-          <ViewStreamSharpIcon />
-        </ToggleButton>
-      </ToggleButtonGroup>
+      <div style={expandMenu}>
+        <CovariateSelector
+          open={covariateOpen}
+          handleClose={() => setCovariateOpen(false)}
+          attributes={attributes}
+          addedAttributes={attributeDetails}
+          groupEditCovariate={groupEditCovariate} />
+        <ToggleButtonGroup
+          value={expand ? "expand" : "collapse"}
+          exclusive
+          onChange={(e, v) => handleExpand(e, v)}
+          aria-label="text alignment"
+        >
+          <ToggleButton value="collapse" aria-label="left aligned">
+            <ViewHeadlineSharpIcon />
+          </ToggleButton>
+          <ToggleButton value="expand" aria-label="centered">
+            <ViewStreamSharpIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        {
+          (customDetails && expand)
+            ? <p style={detailsStyle}><span style={linkStyle} onClick={() => handleEdit()}><u>Show/Hide covariates.</u></span></p>
+            : (expand)
+              ? <p style={detailsStyle}><span style={symbolStyle}>*</span> only showing covariate details for SMD > 0.1. <span style={linkStyle} onClick={() => handleEdit()}><u>Show/Hide covariates.</u></span></p>
+              : <p />
+        }
+      </div>
       <div>
         <div style={SMDContainer}>
           <SMDVis SMDDataset={SMD} SMDExtent={SMDExtent} />
           <SMDMenu setSort={setSort} />
         </div>
         <div style={attributesContainer}>
-          {
-            customDetails
-              ? <p style={detailsStyle}><span style={linkStyle} onClick={() => handleEdit()}><u>Select covariates.</u></span></p>
-              : <p style={detailsStyle}><span style={symbolStyle}>*</span> only showing covariate details for SMD > 0.1. <span style={linkStyle} onClick={() => handleEdit()}><u>Select covariates.</u></span></p>
-          }
           {attributeDetails.map((value, index) => {
             if (attributeLevels[value] && attributeLevels[value].length === 2) {
               return <CompareHistogramVis
