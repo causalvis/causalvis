@@ -22,12 +22,26 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
   const [yScaleTreatment, setYScaleTreatment] = React.useState(() => y => y);
   const [yScaleControl, setYScaleControl] = React.useState(() => y => y);
 
+  const [iconShow, setIconShow] = React.useState(false);
+
   const bins = 2;
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
                                                   "outcome": "#f28e2c",
                                                   "control": "#a1c5c0"});
+
+  // Show icon on hover
+  function show(el) {
+    console.log("hovering");
+    setIconShow(true);
+  }
+
+  // Hide icon
+  function hide(el) {
+    console.log("mouseout");
+    setIconShow(false);
+  }
 
   useEffect(() => {
 
@@ -409,13 +423,13 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
 
   }, [selectedAttribute])
 
-  
+  let iconStyle = {"opacity": iconShow ? 1 : 0, "cursor":"pointer"};
   let covStyle = {"display":"flex", "alignItems":"center"};
   let textStyle = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily":"sans-serif", "fontSize":"11px"};
 
   return (
-    <div style={covStyle}>
-      <IconButton onClick={() => handleHide()} aria-label="delete">
+    <div style={covStyle} onMouseOver={(e) => show(e.target)} onMouseOut={(e) => hide(e.target)}>
+      <IconButton style={iconStyle} onClick={() => handleHide()} aria-label="delete">
         <VisibilityOffIcon />
       </IconButton>
       <p style={textStyle}>{attribute}</p>
