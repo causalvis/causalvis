@@ -53,11 +53,43 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
   function kdeWeighted(kernel, thresholds, data, weights) {
     let density = [];
 
-    for (let t of thresholds) {
-      let tValues = data.map(d => kernel(t - d));
+    // for (let t of thresholds) {
+    //   let tValues = data.map(d => kernel(t - d));
 
-      // If weights are provided, return weighted density, otherwise assume constant weights
-      if (weights) {
+    //   // If weights are provided, return weighted density, otherwise assume constant weights
+    //   if (weights) {
+
+    //     let total = 0;
+    //     let total_weights = 0;
+
+    //     for (let i = 0; i < tValues.length; i++) {
+    //       let tValue = tValues[i];
+    //       let w = weights[i];
+
+    //       total += (tValue * w);
+    //       total_weights += w;
+    //     }
+
+    //     let weighted_mean = total_weights === 0 ? 0 : total / total_weights;
+    //     density.push([t, weighted_mean]);
+    //   } else {
+    //     // let mean = d3.sum(tValues) / d3.count(tValues, v => v != 0);
+    //     let mean = d3.mean(tValues);
+    //     // console.log(mean);
+
+    //     if (mean > 1) {
+    //       console.log(tValues, tValues.length, mean)
+    //     }
+    //     // console.log(mean, d3.mean(data, d => kernel(t - d)))
+    //     density.push([t, mean]);
+    //   }
+      
+    // } 
+
+    if (weights) {
+      for (let t of thresholds) {
+        let tValues = data.map(d => kernel(t - d));
+
         let total = 0;
         let total_weights = 0;
 
@@ -71,12 +103,16 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
         let weighted_mean = total_weights === 0 ? 0 : total / total_weights;
         density.push([t, weighted_mean]);
-      } else {
-        let mean = d3.sum(tValues) / tValues.length;
-        density.push([t, mean]);
       }
       
+    } else {
+      density = thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]);
     }
+
+    // if (!weights) {
+    //   console.log(density, thresholds.map(t => [t, d3.mean(data, d => kernel(t - d))]))
+    // }
+    
 
     return density
   }
@@ -88,7 +124,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   // Return svg path given data
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
-    let density = kdeWeighted(epanechnikov(3.5), thresholds, d, weights);
+    let b = thresholds[1] - thresholds[0];
+    // console.log(b)
+    let density = kdeWeighted(epanechnikov(b * 3.5), thresholds, d, weights);
 
     density = [startPoint].concat(density).concat([endPoint]);
 
@@ -156,6 +194,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     var CBins = histogram(unadjustedControlData);
 
     let maxProportion = d3.max([d3.max(TBins.map(d => d.length)) / unadjustedTreatmentData.length, d3.max(CBins.map(d => d.length)) / unadjustedControlData.length]);
+    // let maxProportion = 1;
 
     const newXScale = d3.scaleLinear()
       .domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)])
@@ -173,7 +212,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     setYScaleTreatment(() => y => newYScaleTreatment(y));
     setYScaleControl(() => y => newYScaleControl(y));
 
-    let thresholds = newXScale.ticks(bins / 2);
+    let thresholds = newXScale.ticks(bins/2);
 
     let startPoint = [d3.min(unadjustedAttribute), 0];
     let endPoint = [d3.max(unadjustedAttribute), 0];
@@ -343,9 +382,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     //   .data(CBins)
     //   .join("rect")
     //   .attr("class", "unadjustedCBars")
-    //   .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+    //   .attr("x", (d, i) => newXScale(d.x0))
     //   .attr("y", d => newYScaleControl(d.length / unadjustedControlData.length))
-    //   .attr("width", d => bandwidth)
+    //   .attr("width", d => newXScale(d.x1) - newXScale(d.x0))
     //   .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / unadjustedControlData.length))
     //   .attr("fill", "none")
     //   .attr("stroke", "black");
@@ -355,9 +394,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     //   .data(TBins)
     //   .join("rect")
     //   .attr("class", "unadjustedTBars")
-    //   .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+    //   .attr("x", (d, i) => newXScale(d.x0))
     //   .attr("y", d => newYScaleTreatment(0))
-    //   .attr("width", bandwidth)
+    //   .attr("width", d => newXScale(d.x1) - newXScale(d.x0))
     //   .attr("height", d => newYScaleTreatment(d.length / unadjustedTreatmentData.length) - newYScaleTreatment(0))
     //   .attr("fill", "none")
     //   .attr("stroke", "black");

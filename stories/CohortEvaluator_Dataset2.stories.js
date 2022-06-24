@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CohortEvaluator } from '../src/CohortEvaluator.js'
+import { CohortEvaluator } from '../src/CohortEvaluator/CohortEvaluator.js'
 import CohortPropensity from '../public/cohort2_propensity.json'
 import CohortConfounds from '../public/cohort2_confounds.json'
 import CohortTreatments from '../public/cohort2_treatment.json'

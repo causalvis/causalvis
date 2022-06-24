@@ -5,6 +5,7 @@ import { min, max } from 'd3-array';
 
 import { CompareDistributionVis } from './CompareDistributionVis';
 import { CompareHistogramVis } from './CompareHistogramVis';
+import { CovariateSelector } from './CovariateSelector';
 import { SMDMenu } from './SMDMenu'
 
 import ViewHeadlineSharpIcon from '@mui/icons-material/ViewHeadlineSharp';
@@ -40,6 +41,8 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
   const [sort, setSort] = React.useState("Adjusted High to Low");
 
+  const [covariateOpen, setCovariateOpen] = React.useState(false);
+
   // const selected = [];
 
   function hideCovariate(v) {
@@ -47,10 +50,16 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     attributeDetails.splice(cIndex, 1);
 
     setAttributeDetails([...attributeDetails]);
+    setCustomDetails(true);
   }
 
   function showCovariate(v) {
     setAttributeDetails([...attributeDetails, v]);
+    setCustomDetails(true);
+  }
+
+  function handleEdit() {
+    setCovariateOpen(true);
   }
 
   function handleExpand(e, v) {
@@ -240,14 +249,18 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
   let attributesContainer = {"minWidth":"600px",
                             "marginTop":"30px",
                             "flexDirection":"column",
-                            "height": expand ? "420px" : "0px",
+                            "height": expand ? "480px" : "0px",
                             "overflow":"scroll"};
   let detailsStyle = {"fontFamily":"sans-serif", "fontSize":"11px"};
   let symbolStyle = {"verticalAlign":"sub"};
-  let testAttribute = ["age", "cons.price.idx", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"];
+  let linkStyle = {"color":"steelblue", "cursor":"pointer"};
+
+  // let testAttribute = ["age", "cons.price.idx", "emp.var.rate", "euribor3m", "job=blue-collar", "month=aug"];
+  let testAttribute = ["cons.price.idx"];
 
   return (
     <div>
+      <CovariateSelector open={covariateOpen} handleClose={() => setCovariateOpen(false)} attributes={attributes}/>
       <ToggleButtonGroup
         value={expand ? "expand" : "collapse"}
         exclusive
@@ -269,8 +282,8 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
         <div style={attributesContainer}>
           {
             customDetails
-              ? ''
-              : <p style={detailsStyle}><span style={symbolStyle}>*</span> only showing covariate details for SMD > 0.1</p>
+              ? <p style={detailsStyle}><span style={linkStyle} onClick={() => handleEdit()}><u>Select covariates.</u></span></p>
+              : <p style={detailsStyle}><span style={symbolStyle}>*</span> only showing covariate details for SMD > 0.1. <span style={linkStyle} onClick={() => handleEdit()}><u>Select covariates.</u></span></p>
           }
           {attributeDetails.map((value, index) => {
             if (attributeLevels[value] && attributeLevels[value].length === 2) {

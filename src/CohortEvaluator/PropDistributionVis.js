@@ -161,7 +161,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
     svgElement.select("#title")
       .selectAll(".title")
-      .data(["Propensity Score Plot"])
+      .data(["Propensity Score Distribution Plot"])
       .join("text")
       .attr("class", "title")
       .attr("x", layout.width / 2)
