@@ -3,24 +3,12 @@ import * as d3 from 'd3';
 
 export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "marginLeft": 150}, SMDDataset=[], SMDExtent=[]}) => {
 
-  // console.log(SMDDataset);
-
-  // const [SMD, setSMD] = React.useState(SMDDataset);
-
   const ref = useRef('svgSMD');
-  const transitionDuration = 750
+  const transitionDuration = 750;
 
   let svg = d3.select(ref.current);
 
   let svgElement = svg.select("g");
-
-  // console.log("SMD changed")
-
-  // useEffect(() => {
-
-  //   setSMD(SMDDataset);
-
-  // }, [SMDDataset])
 
   useEffect(() => {
     var xScale = d3.scaleLinear()
