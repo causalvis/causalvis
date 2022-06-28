@@ -166,7 +166,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .text(d => d)
       .attr("alignment-baseline", "middle")
       .attr("font-family", "sans-serif")
-      .attr("font-size", 10)
+      .attr("font-size", 12)
 
     xAxis.transition()
         .duration(transitionDuration)
@@ -185,6 +185,11 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("font-family", "sans-serif")
       .attr("font-size", 12)
       .text(d => d)
+
+    d3.selectAll("#x-axis>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
 
   }, [SMDDataset])
 

@@ -100,11 +100,21 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
     	.join("text")
     	.attr("id", "axis-title")
     	.attr("x", layout.width / 2)
-    	.attr("y", 25)
+    	.attr("y", 30)
     	.attr("text-anchor", "middle")
     	.attr("fill", "black")
-    	.attr("font-size", "12px")
+    	.attr("font-size", "15px")
     	.text(d => d)
+
+    d3.selectAll("#x-axis>.tick>text")
+		  .each(function(d, i){
+		    d3.select(this).style("font-size","12px");
+		  });
+
+		d3.selectAll("#y-axis>.tick>text")
+		  .each(function(d, i){
+		    d3.select(this).style("font-size","12px");
+		  });
 
     // let title = svgElement.select('#title')
     // 				.selectAll("text")
@@ -120,7 +130,7 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
   }, [cohortData, stratifyBy, layout])
 
   let subplotStyle = {"display": "flex", "flexDirection":"column", "alignItems":"center"};
-  let subplotTitle = {"fontFamily": "sans-serif", "marginTop": "15px", "marginBottom": "0px", "fontSize":"13px"};
+  let subplotTitle = {"fontFamily": "sans-serif", "marginTop": "15px", "marginBottom": "0px", "fontSize":"15px"};
 
   return (
     <div style={subplotStyle}>

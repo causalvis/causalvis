@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import IconButton from '@mui/material/IconButton';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "margin": 20, "marginLeft": 20},
+export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "margin": 20, "marginLeft": 30},
                                         unadjustedAttribute=[],
                                         adjustedAttribute,
                                         unadjustedTreatment=[],
@@ -430,6 +430,22 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       .attr('transform', `translate(${layout.marginLeft}, 0)`)
       .call(d3.axisLeft(newYScaleControl).tickSize(3).ticks(2))
 
+    d3.selectAll("#x-axis>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
+    d3.selectAll("#y-axistreatment>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
+    d3.selectAll("#y-axiscontrol>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
+
   }, [unadjustedTreatmentData, unadjustedControlData])
 
   useEffect(() => {
@@ -499,7 +515,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   let iconStyle = {"opacity": iconShow ? 1 : 0, "cursor":"pointer"};
   let covStyle = {"display":"flex", "alignItems":"center"};
-  let textStyle = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily":"sans-serif", "fontSize":"11px"};
+  let textStyle = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily":"sans-serif", "fontSize":"12px"};
 
   return (
     <div style={covStyle} onMouseOver={(e) => show(e.target)} onMouseOut={(e) => hide(e.target)}>

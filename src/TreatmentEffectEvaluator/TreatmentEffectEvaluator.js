@@ -58,7 +58,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": JSON.parse(JSON.stringify(cohortData)),
                               "stratifyBy": stratify[0],
                               "title": ``,
-                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
     } else if (stratify.length === 2) {
       let covMean = mean(cohortData, d => d[stratify[1]]);
@@ -70,11 +70,11 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": underMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} < ${covMean}`,
-                              "layout": {"height": 500, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 500, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       newStratifiedData.push({"data": overMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} >= ${covMean}`,
-                              "layout": {"height": 500, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 500, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
 
       setStratifiedData([...newStratifiedData]);
     } else if (stratify.length === 3) {
@@ -96,27 +96,27 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": underUnderMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} < ${covMean1}, ${stratify[2]} < ${covMean2}`,
-                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       newStratifiedData.push({"data": underOverMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} < ${covMean1}, ${stratify[2]} >= ${covMean2}`,
-                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
 
       newStratifiedData.push({"data": overUnderMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} > ${covMean1}, ${stratify[2]} < ${covMean2}`,
-                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       newStratifiedData.push({"data": overOverMean,
                               "stratifyBy": stratify[0],
                               "title": `${stratify[1]} >= ${covMean1}, ${stratify[2]} >= ${covMean2}`,
-                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 250, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
 
       setStratifiedData([...newStratifiedData]);
     } else if (stratify.length === 0) {
       newStratifiedData.push({"data": [],
                               "stratifyBy": "",
                               "title": ``,
-                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 30}});
+                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
     }
 

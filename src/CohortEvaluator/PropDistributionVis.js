@@ -186,6 +186,21 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
         .ease(d3.easeLinear)
         .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
 
+    d3.selectAll("#x-axis>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
+    d3.selectAll("#y-axistreatment>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
+    d3.selectAll("#y-axiscontrol>.tick>text")
+      .each(function(d, i){
+        d3.select(this).style("font-size","12px");
+      });
+
     setPrevCBins([...newCBins]);
     setPrevTBins([...newTBins]);
   }, [bins])

@@ -18,7 +18,7 @@ export const LegendVis = ({layout={"height": 20, "width": 600, "margin": 20, "ma
     .attr("class", "legendCircle")
     .attr("cx", (d, i) => layout.width / 2 - 80 + 115 * i)
     .attr("cy", d => layout.height / 2)
-    .attr("r", 3)
+    .attr("r", 5)
     .attr("fill", d => colorMap[d])
 
   let legendText = svgElement.select("#legend")
