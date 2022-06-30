@@ -47,10 +47,9 @@ export const CovariatesManager = ({attributes=[], changeStratify, stratify=[]}) 
   //   }
   // }
 
-  const buttonStyle = {"width":"100%", "marginBottom":"5px", "width": "150px",};
+  const buttonStyle = {"width":"100%", "marginBottom":"5px"};
   let attrStyle = {"display": "flex",
                    "flexDirection": "column",
-                   "width": "150px",
                    "marginTop": "110px",
                    "marginRight": "20px",
                    "height": "500px",

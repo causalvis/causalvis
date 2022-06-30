@@ -5,7 +5,7 @@ export const LegendVis = ({layout={"height": 20, "width": 600, "margin": 20, "ma
 
 	const ref = useRef('svgLegendVis');
 
-  let svgElement = d3.select(`#svgLegendVis`);
+  let svgElement = d3.select(ref.current)
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
@@ -37,7 +37,7 @@ export const LegendVis = ({layout={"height": 20, "width": 600, "margin": 20, "ma
 
   return (
     <div>
-      <svg width={layout.width} height={layout.height} id={`svgLegendVis`}>
+      <svg width={layout.width} height={layout.height} ref={ref} id={`svgLegendVis`}>
         <g id="legend">
         </g>
       </svg>
