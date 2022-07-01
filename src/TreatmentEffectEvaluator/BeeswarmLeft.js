@@ -4,9 +4,9 @@ import * as d3 from 'd3';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 
-export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "marginLeft": 20}, data=[], stratify="", thresholdValue=0, updateTopThreshold}) => {
+export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, "marginLeft": 10, "marginBottom": 30}, data=[], stratify="", thresholdValue=0, updateLeftThreshold}) => {
 
-	const ref = useRef('svgBeeswarmTop');
+	const ref = useRef('svgBeeswarmLeft');
 
   let svgElement = d3.select(ref.current);
 
@@ -30,8 +30,6 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
     // let stratify=beeswarm.stratify;
     // let thresholdValue=beeswarm.thresholdValue;
 
-    // console.log(beeswarm)
-
     const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
 
     // const bins = 50;
@@ -43,7 +41,7 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
 
     function handleChange(e, v) {
       // console.log(e, v);
-      updateTopThreshold(v);
+      updateLeftThreshold(v);
     }
 
     // var histogram = d3.histogram()
@@ -52,9 +50,9 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
     //                   .thresholds(bins);
     // var binned = histogram(data);
 
-    let xScale = d3.scaleLinear()
+    let yScale = d3.scaleLinear()
                     .domain(extent)
-                    .range([layout.marginLeft, layout.width - layout.margin])
+                    .range([layout.height - layout.marginBottom, layout.margin])
     // let yScale = d3.scaleLinear()
     //                 .domain([0, d3.max(binned, d => d.length)])
     //                 .range([layout.height - layout.margin, layout.margin])
@@ -84,13 +82,13 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
       .data(data)
       .join("circle")
       .attr("class", "dataPoint")
-      .attr("transform", d => `translate(${xScale(d[stratify])},${layout.height / 2 + (Math.random() - 0.5) * jitter})`)
+      .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
       .attr("r", 3)
       .attr("fill", "none")
       .attr("stroke", d => colorMap[d.treatment])
 
     let thresholdStroke = svgElement.select("#threshold")
-      .attr("transform", `translate(${xScale(thresholdValue)}, 0)`)
+      .attr("transform", `translate(0, ${yScale(thresholdValue)})`)
       .attr("stroke", isBinary ? "none" : "black")
       .attr("stroke-dasharray", "5 5 2 5")
     //   .attr("cursor", "pointer")
@@ -124,9 +122,9 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
     //   .attr("font-family", "sans-serif")
     //   .attr("font-size", 12)
 
-    svgElement.select('#x-axis')
-              .attr('transform', `translate(0, ${layout.height - layout.margin})`)
-              .call(d3.axisBottom(xScale).tickSize(3))
+    svgElement.select('#y-axis')
+              .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
+              .call(d3.axisRight(yScale).tickSize(3))
 
     // svgElement.select("#title")
     //   .selectAll(".attributeName")
@@ -144,25 +142,32 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
 
   // }, [data, stratify, thresholdValue])
 
-  let subplotStyle = {"display": "flex", "flexDirection":"column", "alignItems":"center"};
-  let subplotTitle = {"fontFamily": "sans-serif", "marginTop": "15px", "marginBottom": "0px", "fontSize":"15px"};
-  let thresholdValueIndicator = {"display":"flex", "width":"100%", "justifyContent":"space-around", "fontFamily": "sans-serif",};
+  let subplotStyle = {"display": "flex", "alignItems":"center"};
+  let subplotTitle = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily": "sans-serif", "marginTop": "15px", "marginBottom": "0px", "fontSize":"15px"};
+  let thresholdValueIndicator = {"display":"flex", "flexDirection":"column", "height":"600px", "justifyContent":"space-around"};
+  let thresholdText = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily": "sans-serif",}
 
   return (
     <div style={subplotStyle}>
       <p style={subplotTitle}>{stratify}</p>
-      <svg width={layout.width} height={layout.height} ref={ref} id={`svgBeeswarmTop`}>
-        <g id="x-axis" />
+      <svg width={layout.width} height={layout.height} ref={ref} id={`svgBeeswarmLeft`}>
+        <g id="y-axis" />
         <g id="brush" />
         <g id="points" />
-        <line id="threshold" x1={0} x2={0} y1={layout.height - layout.margin} y2={0} />
+        <line id="threshold" y1={0} y2={0} x1={layout.width - layout.margin} x2={0} />
         <g id="distribution" />
         <g id="title" />
       </svg>
       {isBinary
         ? <div />
-          :<Box width={layout.width - layout.marginLeft - layout.margin}>
+          :<Box height={layout.height - layout.margin * 2}>
             <Slider
+              sx={{
+                '& input[type="range"]': {
+                  WebkitAppearance: 'slider-vertical',
+                },
+              }}
+              orientation="vertical"
               size="small"
               min={d3.min(data, d => d[stratify])}
               max={d3.max(data, d => d[stratify])}
@@ -175,8 +180,8 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
           </Box>
       }
       <div style={thresholdValueIndicator}>
-        <p>{isBinary ? 0 : `< ${thresholdValue}`}</p>
-        <p>{isBinary ? 1 : `>= ${thresholdValue}`}</p>
+        <p style={thresholdText}>{isBinary ? 0 : `< ${thresholdValue}`}</p>
+        <p style={thresholdText}>{isBinary ? 1 : `>= ${thresholdValue}`}</p>
       </div>
     </div>
   )

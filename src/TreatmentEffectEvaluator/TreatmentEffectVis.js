@@ -356,7 +356,7 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
 
   return (
     <div style={subplotStyle}>
-    	<p style={subplotTitle}>{plotTitle}</p>
+    	{/*<p style={subplotTitle}>{plotTitle}</p>*/}
       <svg width={layout.width} height={layout.height} id={`svgTreatmentEffect${index}`}>
         <g>
         	<g id="x-axis" />
