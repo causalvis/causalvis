@@ -11,8 +11,8 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
   let svgElement = d3.select(ref.current);
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({0: "#6c8496",
-                                                  1: "#a1c5c0"});
+  const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
+                                                  0: "#f28e2b"});
   // const [data, setData] = React.useState([]);
   // const [stratify, setStratify] = React.useState("");
   // const [thresholdValue, setThresholdValue] = React.useState(0);

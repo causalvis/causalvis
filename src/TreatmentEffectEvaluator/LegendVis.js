@@ -8,8 +8,8 @@ export const LegendVis = ({layout={"height": 20, "width": 600, "margin": 20, "ma
   let svgElement = d3.select(ref.current)
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
-                                                  "control": "#a1c5c0"});
+  const [colorMap, setColorMap] = React.useState({"treatment": "#4e79a7",
+                                                  "control": "#f28e2b"});
 
   let legend = svgElement.select("#legend")
     .selectAll(".legendCircle")

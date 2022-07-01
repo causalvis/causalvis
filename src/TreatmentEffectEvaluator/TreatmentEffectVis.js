@@ -11,8 +11,8 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
   let svgElement = svg.select("g");
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({1: "#6c8496",
-                                                  0: "#a1c5c0"});
+  const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
+                                                  0: "#f28e2b"});
   // const transitionDuration = 750;
 
   const [cohortData, setCohortData] = React.useState([]);

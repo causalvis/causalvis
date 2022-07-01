@@ -7,6 +7,7 @@ import { BeeswarmTop } from './BeeswarmTop';
 import { CovariatesManager } from './CovariatesManager';
 import { LegendVis } from './LegendVis';
 import { TreatmentEffectVis } from './TreatmentEffectVis';
+import { TreatmentEffectVisViolin } from './TreatmentEffectVis_withViolin';
 
 /*
 Props:
@@ -106,7 +107,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": JSON.parse(JSON.stringify(cohortData)),
                               "stratifyBy": stratify[0].attribute,
                               "title": ``,
-                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     } else if (stratify.length === 2) {
@@ -114,7 +115,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       let newStratifiedData = splitDataset(cohortData, stratify[1].attribute, stratify[1].threshold);
       newStratifiedData = newStratifiedData.map(function(s) {
         s.stratifyBy = stratify[0].attribute;
-        s.layout = {"height": 500, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35};
+        s.layout = {"height": 600, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35};
         return s;
       })
       setStratifiedData([...newStratifiedData]);
@@ -145,25 +146,26 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": [],
                               "stratifyBy": "",
                               "title": ``,
-                              "layout": {"height": 550, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     }
 
   }, [stratify])
 
-  let mainLayout = {"display":"flex"};
-  let plotsWrapper = {"display": "flex", "flexDirection":"column", "alignItems":"center", "width":"800px"};
+  let mainLayout = {"display":"grid",
+                    "grid-template-columns":"auto auto 1fr",
+                    "grid-template-rows":"auto auto 1fr",
+                    "grid-gap":"20px"};
+  let covariateStyle = {"grid-column": "1/2", "grid-row": "3/4", "display":"flex", "alignItems":"center"};
+  let headerStyle = {"grid-column":"3/4", "grid-row": "1/2", "display":"flex", "flexDirection":"column", "alignItems":"center", "width":"600px"};
+
   let plotsTitle = {"fontSize":"16px", "fontFamily":"sans-serif"};
-  let plotsLayout = {"display":"grid",
-                    "grid-template-columns":"auto 1fr",
-                    "grid-template-rows":"auto 1fr",
-                    "grid-template-areas":"empty btop bleft vis",
-                    "grid-gap": "20px"};
-  let btopStyle = {"grid-column": "2/3", "grid-row":"1/2"};
-  let bleftStyle = {"grid-column": "1/2", "grid-row":"2/3"};
-  let allVis = {"grid-column": "2/3",
-                "grid-row":"2/3",
+
+  let btopStyle = {"grid-column": "3/4", "grid-row":"2/3", "width":"600px"};
+  let bleftStyle = {"grid-column": "2/3", "grid-row":"3/4"};
+  let allVis = {"grid-column": "3/4",
+                "grid-row":"3/4",
                 "width":"600px",
                 "height":"600px",
                 "display":"grid", 
@@ -172,33 +174,33 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
   return (
     <div style={mainLayout}>
-      <CovariatesManager
-        attributes={attributes}
-        changeStratify={changeStratify}
-        stratify={stratify.map(d => d.attribute)} />
-      <div style={plotsWrapper}>
+      <div style={covariateStyle}>
+        <CovariatesManager
+          attributes={attributes}
+          changeStratify={changeStratify}
+          stratify={stratify.map(d => d.attribute)} />
+      </div>
+      <div style={headerStyle}>
         <p style={plotsTitle}>Treatment Effect Plot</p>
         <LegendVis />
-        <div style={plotsLayout}>
-          <div style={btopStyle}>
-            {stratify[1] 
-              ? <BeeswarmTop  data={cohortData} stratify={stratify[1].attribute} thresholdValue={stratify[1].threshold} updateTopThreshold={updateTopThreshold} />
-              : <div />
-            }
-          </div>
-          <div style={bleftStyle}>
-            {stratify[2] 
-              ? <BeeswarmLeft data={cohortData} stratify={stratify[2].attribute} thresholdValue={stratify[2].threshold} updateLeftThreshold={updateLeftThreshold} />
-              : <div />
-            }
-          </div>
-          <div style={allVis}>
-            {stratifiedData.map((value, index) => {
-                return <TreatmentEffectVis key={`vis${value.stratifyBy}${index}`} index={index} allData={value} />
-              })
-            }
-          </div>
-        </div>
+      </div>
+      <div style={btopStyle}>
+        {stratify[1] 
+          ? <BeeswarmTop  data={cohortData} stratify={stratify[1].attribute} thresholdValue={stratify[1].threshold} updateTopThreshold={updateTopThreshold} />
+          : <div />
+        }
+      </div>
+      <div style={bleftStyle}>
+        {stratify[2] 
+          ? <BeeswarmLeft data={cohortData} stratify={stratify[2].attribute} thresholdValue={stratify[2].threshold} updateLeftThreshold={updateLeftThreshold} />
+          : <div />
+        }
+      </div>
+      <div style={allVis}>
+        {stratifiedData.map((value, index) => {
+            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} />
+          })
+        }
       </div>
     </div>
   )
