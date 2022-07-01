@@ -17,7 +17,9 @@ Start the app with:
 npm run storybook
 ```
 
-This should open a new browser window. On the left hand menu, navigate to the `DAG` tab to access the DAGEditor tool.
+This should open a new browser window.
+
+Each module is listed separately in the left hand menu. Some modules may have multiple examples.
 
 ### Data Sets
 

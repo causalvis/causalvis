@@ -11,10 +11,9 @@ import { TreatmentEffectVisViolin } from './TreatmentEffectVis_withViolin';
 
 /*
 Props:
-  - cohort: Array, data set before adjustment
+  - data: Array, data set before adjustment
   - treatment: String, name of treatment variable
   - outcome: String, name of outcome variable
-  - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
 */
 export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcome="outcome"}) => {
 
@@ -49,6 +48,8 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
   }, [data])
 
+  // Add a new attribute to facet by
+  // For each new attribute, also add the faceting threshold
   function changeStratify(v) {
     let indexV = stratify.map(d => d.attribute).indexOf(v);
 
@@ -57,6 +58,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
         return;
       }
 
+      // For continuous variables, set the default faceting threshold to be the mean
       let vThreshold = attributeLevels[v].length === 2 ? null : mean(data, d => d[v]).toPrecision(2);
 
       stratify.push({"attribute":v, "threshold":vThreshold});
@@ -77,9 +79,8 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
     setStratify([...stratify]);
   }
 
+  // Divide dataset based on faceting attributes and thresholds
   function splitDataset(dataset, attribute, threshold) {
-    // let isBinary = attributeLevels[attribute].length === 2;
-
     let underMean;
     let overMean;
 
@@ -89,9 +90,6 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
       return [{"data": underMean, "title": `${attribute} = 0`}, {"data": overMean, "title": `${attribute} = 1`}];
     } else {
-      // let attributeMean = mean(dataset, d => d[attribute]);
-      // attributeMean = attributeMean.toPrecision(2);
-
       underMean = dataset.filter(d => d[attribute] < threshold);
       overMean = dataset.filter(d => d[attribute] > threshold);
 

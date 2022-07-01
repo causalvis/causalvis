@@ -41,6 +41,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	  let controlData = cohortData.filter(d => d[treatment] === 0);
 
   	if (isBinary) {
+  		// If the variable is binary, perform binning for violin plot
 	  	var histogram = d3.histogram()
 	                      .value(d => d[outcome])
 	                      .domain(d3.extent(cohortData, d => d[outcome]))
@@ -54,11 +55,12 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   		let newTreatmentBins = [histogram(treatmentStratify0), histogram(treatmentStratify1)];
   		let newControlBins = [histogram(controlStratify0), histogram(controlStratify1)];
 
-  		console.log(newTreatmentBins, newControlBins)
+  		// console.log(newTreatmentBins, newControlBins)
 
   		setTreatmentBins(newTreatmentBins);
   		setControlBins(newControlBins);
   	} else {
+  		// If variable is continous, calculate the regression line for treatment and control groups separately
 	  	let treatmentLine = regression.linear(treatmentData.map(d => [d[stratifyBy], d[outcome]]));
 	  	let controlLine = regression.linear(controlData.map(d => [d[stratifyBy], d[outcome]]));
 
@@ -78,9 +80,10 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   useEffect(() => {
 
-  	let jitter = 15
+  	let jitter = 15;
 
   	if (isBinary) {
+  		// If variable is binary, visualize violin plots of distribution
   		var xScale = d3.scaleBand()
   				.domain([0, 1])
   				.range([layout.marginLeft, layout.width - layout.margin])
@@ -94,6 +97,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   		let treatmentScales = [];
 
+  		// Define scales separately to normalize the violin plots by size of the subgroup
   		for (let tb of treatmentBins) {
   			let totalLength = tb.reduce((count, current) => count + current.length, 0);
 
@@ -165,6 +169,8 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
   	} else {
+  		// If variable is not binary, visualize each data instance and outcome with regression line
+
   		var xScale = d3.scaleLinear()
           .domain(d3.extent(cohortData, d => d[stratifyBy]))
           .range([layout.marginLeft, layout.width - layout.margin])
