@@ -125,6 +125,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       let newStratifiedData = [];
 
       let firstStratify = splitDataset(cohortData, stratify[2].attribute, stratify[2].threshold);
+      firstStratify = firstStratify.reverse();
 
       for (let sub of firstStratify) {
         let subTitle = sub.title;

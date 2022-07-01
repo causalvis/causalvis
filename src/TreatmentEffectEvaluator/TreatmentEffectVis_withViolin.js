@@ -13,7 +13,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   // Track color map
   const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
                                                   0: "#f28e2b"});
-  // const transitionDuration = 750;
 
   const [cohortData, setCohortData] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
@@ -26,29 +25,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   const [controlBins, setControlBins] = React.useState([]);
 
   const bins = 20;
-
-  // function getIQR(dataset, tr, st) {
-
-  // 	let Q1 = d3.quantile(dataset, 0.25, d => d[outcome]);
-  // 	let Q2 = d3.quantile(dataset, 0.5, d => d[outcome]);
-  // 	let Q3 = d3.quantile(dataset, 0.75, d => d[outcome]);
-
-  // 	let IQR = Q3 - Q1;
-  // 	let IQRMin = Q1 - 1.5 * IQR;
-  // 	let IQRMax = Q3 + 1.5 * IQR;
-
-  // 	let outliers = dataset.filter(d => d[outcome] < IQRMin || d[outcome] > IQRMax)
-
-  // 	return {"treatment": tr,
-  // 					"stratify": st,
-  // 					"Q1": Q1,
-  // 					"Q2": Q2,
-  // 					"Q3": Q3,
-  // 					"IQR": IQR,
-  // 					"IQRMin": IQRMin,
-  // 					"IQRMax": IQRMax,
-  // 					"outliers": outliers}
-  // }
 
   useEffect(() => {
   	let cohortData = allData["data"];
@@ -109,17 +85,12 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   				.domain([0, 1])
   				.range([layout.marginLeft, layout.width - layout.margin])
 
-  		// let yMin = d3.min([d3.min(treatmentIQR, d => d.IQRMin), d3.min(controlIQR, d => d.IQRMin), d3.min(cohortData, d => d[outcome])]);
-
   		var yScale = d3.scaleLinear()
           .domain(d3.extent(cohortData, d => d[outcome]))
           .range([layout.height - layout.marginBottom, layout.margin])
 
   		let computedBandwidth = xScale.bandwidth();
   		let customBandwidth = layout.width / 8;
-
-  		// let allBins = treatmentBins.concat(controlBins);
-  		// let maxNum = 0;
 
   		let treatmentScales = [];
 
@@ -132,15 +103,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 								    			.domain([-maxNum, maxNum])
 				treatmentScales.push({"scale": newScale, "len":totalLength});
   		}
-
-  		// for (let b of allBins) {
-  		// 	let currentMax = d3.max(b, d => d.length);
-  		// 	if (currentMax > maxNum) { maxNum = currentMax };
-  		// }
-
-  		// var violinScale = d3.scaleLinear()
-  		// 		.range([0, computedBandwidth / 2])
-    // 			.domain([-maxNum,maxNum])
 
     	for (let i = 0; i < treatmentBins.length; i++) {
     		let binData = treatmentBins[i];
@@ -197,63 +159,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 		            .curve(d3.curveCatmullRom)
 		        )
     	}
-
-    	// svgElement.selectAll("violin")
-		   //  .data(treatmentBins)
-		   //  .join("g")
-		   //    .attr("transform", function(d, i){ return(`translate(${xScale(i)}, 0)`) } )
-		   //  .append("path")
-		   //      .datum(function(d){ return(d)})
-		   //      .style("stroke", "none")
-		   //      .style("fill", colorMap[1])
-		   //      .attr("d", d3.area()
-		   //          .x0(function(d){ return(violinScale(0)) } )
-		   //          .x1(function(d){ return(violinScale(d.length)) } )
-		   //          .y(function(d){ return(yScale(d.x0)) } )
-		   //          .curve(d3.curveCatmullRom)
-		   //      )
-
-		  // svgElement.selectAll("violin")
-		  //   .data(controlBins)
-		  //   .join("g")
-		  //     .attr("transform", function(d, i){ return(`translate(${xScale(i) + computedBandwidth / 2}, 0)`) } )
-		  //   .append("path")
-		  //       .datum(function(d){ return(d)})
-		  //       .style("stroke", "none")
-		  //       .style("fill", colorMap[0])
-		  //       .attr("d", d3.area()
-		  //           .x0(function(d){ return(violinScale(0)) } )
-		  //           .x1(function(d){ return(violinScale(d.length)) } )
-		  //           .y(function(d){ return(yScale(d.x0)) } )
-		  //           .curve(d3.curveCatmullRom)
-		  //       )
-
-		  // let treatmentData = cohortData.filter(d => d[treatment] === 1);
-	  	// let controlData = cohortData.filter(d => d[treatment] === 0);
-
-		  // let treatmentOutcomes = svgElement.select("#outcomes")
-	   //    .selectAll(".treatmentCircles")
-	   //    .data(treatmentData)
-	   //    .join("circle")
-	   //    .attr("class", "treatmentCircles")
-	   //    .attr("cx", function (d, i) {return xScale(d[stratifyBy]) + computedBandwidth / 8 + (Math.random() - 0.5) * jitter})
-	   //    .attr("cy", d => yScale(d[outcome]))
-	   //    .attr("r", 3)
-	   //    .attr("fill", "none")
-	   //    .attr("stroke", d => colorMap[1])
-	   //    .attr("cursor", "pointer")
-
-	   //  let controlOutcomes = svgElement.select("#outcomes")
-	   //    .selectAll(".controlCircles")
-	   //    .data(controlData)
-	   //    .join("circle")
-	   //    .attr("class", "controlCircles")
-	   //    .attr("cx", function (d, i) {return xScale(d[stratifyBy]) + computedBandwidth / 8 * 5 + (Math.random() - 0.5) * jitter})
-	   //    .attr("cy", d => yScale(d[outcome]))
-	   //    .attr("r", 3)
-	   //    .attr("fill", "none")
-	   //    .attr("stroke", d => colorMap[0])
-	   //    .attr("cursor", "pointer")
 
   		let xAxis = svgElement.select('#x-axis')
 	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)

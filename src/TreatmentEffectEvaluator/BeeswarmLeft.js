@@ -180,8 +180,8 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
           </Box>
       }
       <div style={thresholdValueIndicator}>
-        <p style={thresholdText}>{isBinary ? 0 : `< ${thresholdValue}`}</p>
         <p style={thresholdText}>{isBinary ? 1 : `>= ${thresholdValue}`}</p>
+        <p style={thresholdText}>{isBinary ? 0 : `< ${thresholdValue}`}</p>
       </div>
     </div>
   )
