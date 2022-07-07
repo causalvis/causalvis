@@ -13,30 +13,30 @@ import MenuItem from '@mui/material/MenuItem';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export const AttributesManager = ({attributes=[], added=[], treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag, handleNodeOpen}) => {
-  // console.log(attributes);
+  // console.log(grey, blue, orange);
 
-  const theme = createTheme({
-    palette: {
-      grey: {
-        light: grey[300],
-        main: grey[500],
-        dark: grey[700],
-        contrastText: '#fff',
-      },
-      treatment: {
-        light: blue[500],
-        main: "#4e79a7",
-        dark: blue[900],
-        contrastText: '#fff',
-      },
-      outcome: {
-        light: orange[500],
-        main: "#f28e2c",
-        dark: orange[900],
-        contrastText: '#fff',
-      }
-    },
-  });
+  // const theme = createTheme({
+  //   palette: {
+  //     grey: {
+  //       light: grey[300],
+  //       main: grey[500],
+  //       dark: grey[700],
+  //       contrastText: '#fff',
+  //     },
+  //     treatment: {
+  //       light: blue[500],
+  //       main: "#4e79a7",
+  //       dark: blue[900],
+  //       contrastText: '#fff',
+  //     },
+  //     outcome: {
+  //       light: orange[500],
+  //       main: "#f28e2c",
+  //       dark: orange[900],
+  //       contrastText: '#fff',
+  //     }
+  //   },
+  // });
 
   // Get color of attribute
   function getColor(value) {
@@ -45,7 +45,7 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
     } else if (outcome === value) {
       return "outcome"
     } else if (added.indexOf(value) >= 0) {
-      return "inherit"
+      return "black"
     } else {
       return "grey"
     }
@@ -62,7 +62,6 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
         variant="contained"
         onClick={() => handleNodeOpen()}><a title="click to add">Add Node</a></Button>
       {/* <CardHeader title="Attributes" /> */}
-      <ThemeProvider theme={theme}>
 
         <div style={attrStyle}>
 
@@ -80,7 +79,6 @@ export const AttributesManager = ({attributes=[], added=[], treatment, outcome, 
                 handleAddTag={handleAddTag} />
           })}
         </div>
-      </ThemeProvider>
     </div>
   )
 }
