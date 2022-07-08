@@ -31,7 +31,9 @@
     "regression": "^2.0.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.18.6",
     "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-react-jsx": "^7.18.6",
     "@storybook/addon-actions": "^6.4.19",
     "@storybook/addon-essentials": "^6.4.19",
     "@storybook/addon-interactions": "^6.4.19",
