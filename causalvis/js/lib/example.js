@@ -5,7 +5,11 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 const e = React.createElement;
 
-var lib = require('../../../lib/DAG.js')
+var dag = require('../../../lib/DAG.js');
+var cohort = require('../../../lib/CohortEvaluator.js');
+var teffect = require('../../../lib/TreatmentEffectEvaluator.js');
+
+var lib = {...dag, ...cohort, ...teffect};
 
 // See example.py for the kernel counterpart to this file.
 

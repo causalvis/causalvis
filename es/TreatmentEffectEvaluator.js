@@ -1,41 +1,25 @@
-"use strict";
-
-exports.__esModule = true;
-exports.TreatmentEffectEvaluator = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _d3Array = require("d3-array");
-
-var _BeeswarmLeft = require("./BeeswarmLeft");
-
-var _BeeswarmTop = require("./BeeswarmTop");
-
-var _CovariatesManager = require("./CovariatesManager");
-
-var _LegendVis = require("./LegendVis");
-
-var _TreatmentEffectVis = require("./TreatmentEffectVis");
-
-var _TreatmentEffectVis_withViolin = require("./TreatmentEffectVis_withViolin");
-
-function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
-
-function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
+import React, { useState, useEffect } from 'react';
+import { extent, mean } from "d3-array";
+import { BeeswarmLeft } from './TreatmentEffectEvaluator/BeeswarmLeft';
+import { BeeswarmTop } from './TreatmentEffectEvaluator/BeeswarmTop';
+import { CovariatesManager } from './TreatmentEffectEvaluator/CovariatesManager';
+import { LegendVis } from './TreatmentEffectEvaluator/LegendVis';
+import { TreatmentEffectVis } from './TreatmentEffectEvaluator/TreatmentEffectVis';
+import { TreatmentEffectVisViolin } from './TreatmentEffectEvaluator/TreatmentEffectVis_withViolin';
 /*
 Props:
   - data: Array, data set before adjustment
   - treatment: String, name of treatment variable
   - outcome: String, name of outcome variable
 */
-var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
+
+export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
   var _ref$data = _ref.data,
       data = _ref$data === void 0 ? [] : _ref$data,
       _ref$treatment = _ref.treatment,
@@ -43,27 +27,27 @@ var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       _ref$outcome = _ref.outcome,
       outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome;
 
-  var _React$useState = _react["default"].useState([]),
+  var _React$useState = React.useState([]),
       attributes = _React$useState[0],
       setAttributes = _React$useState[1];
 
-  var _React$useState2 = _react["default"].useState({}),
+  var _React$useState2 = React.useState({}),
       attributeLevels = _React$useState2[0],
       setAttributeLevels = _React$useState2[1];
 
-  var _React$useState3 = _react["default"].useState([]),
+  var _React$useState3 = React.useState([]),
       cohortData = _React$useState3[0],
       setCohortData = _React$useState3[1];
 
-  var _React$useState4 = _react["default"].useState([]),
+  var _React$useState4 = React.useState([]),
       stratify = _React$useState4[0],
       setStratify = _React$useState4[1];
 
-  var _React$useState5 = _react["default"].useState([]),
+  var _React$useState5 = React.useState([]),
       stratifiedData = _React$useState5[0],
       setStratifiedData = _React$useState5[1];
 
-  (0, _react.useEffect)(function () {
+  useEffect(function () {
     // Get all the confounding attributes, excluding treatment and propensity score
     var allAttributes = new Set(Object.keys(data[0]));
     allAttributes["delete"](treatment);
@@ -104,7 +88,7 @@ var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       } // For continuous variables, set the default faceting threshold to be the mean
 
 
-      var vThreshold = attributeLevels[v].length === 2 ? null : (0, _d3Array.mean)(data, function (d) {
+      var vThreshold = attributeLevels[v].length === 2 ? null : mean(data, function (d) {
         return d[v];
       }).toPrecision(2);
       stratify.push({
@@ -164,7 +148,7 @@ var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     }
   }
 
-  (0, _react.useEffect)(function () {
+  useEffect(function () {
     var newStratifiedData = [];
 
     if (stratify.length === 1) {
@@ -283,43 +267,41 @@ var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     "grid-template-columns": "1fr 1fr",
     "grid-template-rows": "1fr 1fr"
   };
-  return /*#__PURE__*/_react["default"].createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     style: mainLayout
-  }, /*#__PURE__*/_react["default"].createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", {
     style: covariateStyle
-  }, /*#__PURE__*/_react["default"].createElement(_CovariatesManager.CovariatesManager, {
+  }, /*#__PURE__*/React.createElement(CovariatesManager, {
     attributes: attributes,
     changeStratify: changeStratify,
     stratify: stratify.map(function (d) {
       return d.attribute;
     })
-  })), /*#__PURE__*/_react["default"].createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
     style: headerStyle
-  }, /*#__PURE__*/_react["default"].createElement("p", {
+  }, /*#__PURE__*/React.createElement("p", {
     style: plotsTitle
-  }, "Treatment Effect Plot"), /*#__PURE__*/_react["default"].createElement(_LegendVis.LegendVis, null)), /*#__PURE__*/_react["default"].createElement("div", {
+  }, "Treatment Effect Plot"), /*#__PURE__*/React.createElement(LegendVis, null)), /*#__PURE__*/React.createElement("div", {
     style: btopStyle
-  }, stratify[1] ? /*#__PURE__*/_react["default"].createElement(_BeeswarmTop.BeeswarmTop, {
+  }, stratify[1] ? /*#__PURE__*/React.createElement(BeeswarmTop, {
     data: cohortData,
     stratify: stratify[1].attribute,
     thresholdValue: stratify[1].threshold,
     updateTopThreshold: updateTopThreshold
-  }) : /*#__PURE__*/_react["default"].createElement("div", null)), /*#__PURE__*/_react["default"].createElement("div", {
+  }) : /*#__PURE__*/React.createElement("div", null)), /*#__PURE__*/React.createElement("div", {
     style: bleftStyle
-  }, stratify[2] ? /*#__PURE__*/_react["default"].createElement(_BeeswarmLeft.BeeswarmLeft, {
+  }, stratify[2] ? /*#__PURE__*/React.createElement(BeeswarmLeft, {
     data: cohortData,
     stratify: stratify[2].attribute,
     thresholdValue: stratify[2].threshold,
     updateLeftThreshold: updateLeftThreshold
-  }) : /*#__PURE__*/_react["default"].createElement("div", null)), /*#__PURE__*/_react["default"].createElement("div", {
+  }) : /*#__PURE__*/React.createElement("div", null)), /*#__PURE__*/React.createElement("div", {
     style: allVis
   }, stratifiedData.map(function (value, index) {
-    return /*#__PURE__*/_react["default"].createElement(_TreatmentEffectVis_withViolin.TreatmentEffectVisViolin, {
+    return /*#__PURE__*/React.createElement(TreatmentEffectVisViolin, {
       key: "vis" + value.stratifyBy + index,
       index: index,
       allData: value
     });
   })));
 };
-
-exports.TreatmentEffectEvaluator = TreatmentEffectEvaluator;

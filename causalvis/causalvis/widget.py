@@ -33,3 +33,39 @@ class DAG(BaseWidget):
             attributes=attributes,
             **kwargs
         )
+
+@widgets.register
+class CohortEvaluator(BaseWidget):
+    def __init__(self, unadjustedCohort, adjustedCohort=[], treatment="treatment", propensity="propensity", **kwargs):
+        
+        self.unadjustedCohort = unadjustedCohort
+        self.adjustedCohort = adjustedCohort
+        self.treatment = treatment
+        self.propensity = propensity
+
+        # print("here", self.data)
+        
+        super().__init__(
+            unadjustedCohort=self.unadjustedCohort,
+            adjustedCohort=self.adjustedCohort,
+            treatment=self.treatment,
+            propensity=self.propensity,
+            **kwargs
+        )
+
+@widgets.register
+class TreatmentEffectEvaluator(BaseWidget):
+    def __init__(self, data=[], treatment="treatment", outcome="outcome", **kwargs):
+        
+        self.data = data
+        self.treatment = treatment
+        self.outcome = outcome
+
+        # print("here", self.data)
+        
+        super().__init__(
+            data=self.data,
+            treatment=self.treatment,
+            outcome=self.outcome,
+            **kwargs
+        )
