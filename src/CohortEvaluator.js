@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import crossfilter from 'crossfilter2';
 
-import { CovariateBalance } from './CovariateBalance';
-import { PropDistribution } from './PropDistribution';
+import { CovariateBalance } from './CohortEvaluator/CovariateBalance';
+import { PropDistribution } from './CohortEvaluator/PropDistribution';
 
 /*
 Props:

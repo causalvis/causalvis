@@ -2,12 +2,12 @@ import React, {useState, useEffect} from 'react';
 
 import { extent, mean } from "d3-array";
 
-import { BeeswarmLeft } from './BeeswarmLeft';
-import { BeeswarmTop } from './BeeswarmTop';
-import { CovariatesManager } from './CovariatesManager';
-import { LegendVis } from './LegendVis';
-import { TreatmentEffectVis } from './TreatmentEffectVis';
-import { TreatmentEffectVisViolin } from './TreatmentEffectVis_withViolin';
+import { BeeswarmLeft } from './TreatmentEffectEvaluator/BeeswarmLeft';
+import { BeeswarmTop } from './TreatmentEffectEvaluator/BeeswarmTop';
+import { CovariatesManager } from './TreatmentEffectEvaluator/CovariatesManager';
+import { LegendVis } from './TreatmentEffectEvaluator/LegendVis';
+import { TreatmentEffectVis } from './TreatmentEffectEvaluator/TreatmentEffectVis';
+import { TreatmentEffectVisViolin } from './TreatmentEffectEvaluator/TreatmentEffectVis_withViolin';
 
 /*
 Props:

@@ -7,11 +7,11 @@ import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { extent } from 'd3-array';
 
-import { AttributesManager } from './AttributesManager';
-import { DAGEditor } from './DAGEditor';
-import { DownloadDialog } from './DownloadDialog';
-import { TagDialog } from './TagDialog'
-import { NodeDialog } from './NodeDialog';
+import { AttributesManager } from './CausalStructure/AttributesManager';
+import { DAGEditor } from './CausalStructure/DAGEditor';
+import { DownloadDialog } from './CausalStructure/DownloadDialog';
+import { TagDialog } from './CausalStructure/TagDialog'
+import { NodeDialog } from './CausalStructure/NodeDialog';
 
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';

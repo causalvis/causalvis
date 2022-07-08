@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TreatmentEffectEvaluator } from '../src/TreatmentEffectEvaluator/TreatmentEffectEvaluator.js'
+import { TreatmentEffectEvaluator } from '../src/TreatmentEffectEvaluator.js'
 import CohortOutcomes from '../public/cohort2_outcome.json'
 import CohortConfounds from '../public/cohort2_confounds.json'
 import CohortTreatments from '../public/cohort2_treatment.json'

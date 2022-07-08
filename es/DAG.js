@@ -1,4 +1,4 @@
-function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _createForOfIteratorHelperLoose(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (it) return (it = it.call(o)).next.bind(it); if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; return function () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
@@ -12,11 +12,11 @@ import { grey, blue, orange } from '@mui/material/colors';
 import { select } from 'd3-selection';
 import { scaleLinear } from 'd3-scale';
 import { extent } from 'd3-array';
-import { AttributesManager } from './AttributesManager';
-import { DAGEditor } from './DAGEditor';
-import { DownloadDialog } from './DownloadDialog';
-import { TagDialog } from './TagDialog';
-import { NodeDialog } from './NodeDialog';
+import { AttributesManager } from './CausalStructure/AttributesManager';
+import { DAGEditor } from './CausalStructure/DAGEditor';
+import { DownloadDialog } from './CausalStructure/DownloadDialog';
+import { TagDialog } from './CausalStructure/TagDialog';
+import { NodeDialog } from './CausalStructure/NodeDialog';
 import Autocomplete from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
