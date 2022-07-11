@@ -15,7 +15,7 @@ Props:
   - treatment: String, name of treatment variable
   - outcome: String, name of outcome variable
 */
-export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcome="outcome"}) => {
+export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcome="outcome", effect="effect"}) => {
 
   const [attributes, setAttributes] = React.useState([]);
   const [attributeLevels, setAttributeLevels] = React.useState({});
@@ -105,7 +105,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": JSON.parse(JSON.stringify(cohortData)),
                               "stratifyBy": stratify[0].attribute,
                               "title": ``,
-                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 30, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     } else if (stratify.length === 2) {
@@ -113,7 +113,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       let newStratifiedData = splitDataset(cohortData, stratify[1].attribute, stratify[1].threshold);
       newStratifiedData = newStratifiedData.map(function(s) {
         s.stratifyBy = stratify[0].attribute;
-        s.layout = {"height": 600, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35};
+        s.layout = {"height": 600, "width": 300, "margin": 20, "marginLeft": 30, "marginBottom": 35};
         return s;
       })
       setStratifiedData([...newStratifiedData]);
@@ -131,7 +131,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
         subStratify = subStratify.map(function(s) {
           s.stratifyBy = stratify[0].attribute;
-          s.layout = {"height": 300, "width": 300, "margin": 20, "marginLeft": 20, "marginBottom": 35};
+          s.layout = {"height": 300, "width": 300, "margin": 20, "marginLeft": 30, "marginBottom": 35};
           s.title = `${subTitle}, ${s.title}`;
           return s;
         })
@@ -145,7 +145,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newStratifiedData.push({"data": [],
                               "stratifyBy": "",
                               "title": ``,
-                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 20, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 30, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     }

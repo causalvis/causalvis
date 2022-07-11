@@ -6,8 +6,19 @@ import CohortConfounds from '../public/cohort2_confounds.json'
 import CohortTreatments from '../public/cohort2_treatment.json'
 import CohortPropensity from '../public/cohort2_propensity.json'
 import CohortPredictions from '../public/standardized_predictions.json'
+import IndividualEffects from '../public/individual_treatment_effect.json'
 
-let data = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d.treatment = CohortTreatments[i]; d.outcome = CohortOutcomes[i]; d.weight = 1/CohortPropensity[i][CohortTreatments[i]]; return d});
+// console.log(CohortConfounds.length, IndividualEffects.length);
+
+let data = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {
+  d.treatment = CohortTreatments[i];
+  d.outcome = CohortOutcomes[i];
+  d.weight = 1/CohortPropensity[i][CohortTreatments[i]];
+  d.effect = IndividualEffects[i]["('ratio', 0)"];
+  return d
+});
+
+console.log(data);
 
 // let data2 = JSON.parse(JSON.stringify(CohortConfounds));
 

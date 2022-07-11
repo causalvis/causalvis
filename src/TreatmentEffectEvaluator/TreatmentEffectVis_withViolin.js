@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import regression from 'regression';
 import * as d3 from 'd3';
 
-export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome"}) => {
+export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect"}) => {
 
 	const ref = useRef('svgTreatmentEffect');
 
@@ -23,13 +23,14 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   const [controlReg, setControlReg] = React.useState([[0, 0], [0, 0]]);
   const [treatmentBins, setTreatmentBins] = React.useState([]);
   const [controlBins, setControlBins] = React.useState([]);
+  const [stratifiedBins, setStratifiedBins] = React.useState([]);
 
   const bins = 20;
 
   useEffect(() => {
   	let cohortData = allData["data"];
   	let stratifyBy = allData["stratifyBy"];
-  	let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size === 2;
+  	let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size <= 2;
 
   	setCohortData(cohortData);
   	setStratifyBy(stratifyBy);
@@ -43,9 +44,14 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   	if (isBinary) {
   		// If the variable is binary, perform binning for violin plot
 	  	var histogram = d3.histogram()
-	                      .value(d => d[outcome])
-	                      .domain(d3.extent(cohortData, d => d[outcome]))
+	                      .value(d => d[effect])
+	                      .domain(d3.extent(cohortData, d => d[effect]))
 	                      .thresholds(bins);
+
+	    let stratify0 = cohortData.filter(d => d[stratifyBy] === 0);
+	    let stratify1 = cohortData.filter(d => d[stratifyBy] === 1);
+
+	    setStratifiedBins([histogram(stratify0), histogram(stratify1)]);
 
   		let treatmentStratify0 = treatmentData.filter(d => d[stratifyBy] === 0);
   		let treatmentStratify1 = treatmentData.filter(d => d[stratifyBy] === 1);
@@ -61,8 +67,8 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   		setControlBins(newControlBins);
   	} else {
   		// If variable is continous, calculate the regression line for treatment and control groups separately
-	  	let treatmentLine = regression.linear(treatmentData.map(d => [d[stratifyBy], d[outcome]]));
-	  	let controlLine = regression.linear(controlData.map(d => [d[stratifyBy], d[outcome]]));
+	  	let treatmentLine = regression.linear(treatmentData.map(d => [d[stratifyBy], d[effect]]));
+	  	let controlLine = regression.linear(controlData.map(d => [d[stratifyBy], d[effect]]));
 
 	  	let extent = d3.extent(cohortData, d => d[stratifyBy]);
 
@@ -89,35 +95,35 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   				.range([layout.marginLeft, layout.width - layout.margin])
 
   		var yScale = d3.scaleLinear()
-          .domain(d3.extent(cohortData, d => d[outcome]))
+          .domain(d3.extent(cohortData, d => d[effect]))
           .range([layout.height - layout.marginBottom, layout.margin])
 
   		let computedBandwidth = xScale.bandwidth();
   		let customBandwidth = layout.width / 8;
 
-  		let treatmentScales = [];
+  		let binScales = [];
 
   		// Define scales separately to normalize the violin plots by size of the subgroup
-  		for (let tb of treatmentBins) {
-  			let totalLength = tb.reduce((count, current) => count + current.length, 0);
+  		for (let b of stratifiedBins) {
+  			let totalLength = b.reduce((count, current) => count + current.length, 0);
 
-  			let maxNum = d3.max(tb.map(d => d.length / totalLength));
+  			let maxNum = d3.max(b.map(d => d.length / totalLength));
   			let newScale = d3.scaleLinear()
-								  				.range([0, computedBandwidth / 2])
+								  				.range([0, computedBandwidth])
 								    			.domain([-maxNum, maxNum])
-				treatmentScales.push({"scale": newScale, "len":totalLength});
+				binScales.push({"scale": newScale, "len":totalLength});
   		}
 
-    	for (let i = 0; i < treatmentBins.length; i++) {
-    		let binData = treatmentBins[i];
-    		let binScale = treatmentScales[i].scale;
-    		let binSize = treatmentScales[i].len;
+    	for (let i = 0; i < stratifiedBins.length; i++) {
+    		let binData = stratifiedBins[i];
+    		let binScale = binScales[i].scale;
+    		let binSize = binScales[i].len;
 
     		svgElement.select("#violin")
-    			.selectAll(`.treatmentArea${i}`)
+    			.selectAll(`.area${i}`)
 			    .data([binData])
 			    .join("path")
-			    .attr("class", `treatmentArea${i}`)
+			    .attr("class", `area${i}`)
 			    .attr("transform", `translate(${xScale(i)}, 0)`)
 			    .datum(function(d){ return(d)})
 			    .style("stroke", "none")
@@ -130,39 +136,39 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 		        )
     	}
 
-    	let controlScales = [];
+    // 	let controlScales = [];
 
-  		for (let cb of controlBins) {
-  			let totalLength = cb.reduce((count, current) => count + current.length, 0);
+  		// for (let cb of controlBins) {
+  		// 	let totalLength = cb.reduce((count, current) => count + current.length, 0);
 
-  			let maxNum = d3.max(cb.map(d => d.length / totalLength));
-  			let newScale = d3.scaleLinear()
-								  				.range([0, computedBandwidth / 2])
-								    			.domain([-maxNum, maxNum])
-				controlScales.push({"scale": newScale, "len":totalLength});
-  		}
+  		// 	let maxNum = d3.max(cb.map(d => d.length / totalLength));
+  		// 	let newScale = d3.scaleLinear()
+				// 				  				.range([0, computedBandwidth / 2])
+				// 				    			.domain([-maxNum, maxNum])
+				// controlScales.push({"scale": newScale, "len":totalLength});
+  		// }
 
-    	for (let i = 0; i < controlBins.length; i++) {
-    		let binData = controlBins[i];
-    		let binScale = controlScales[i].scale;
-    		let binSize = controlScales[i].len;
+    // 	for (let i = 0; i < controlBins.length; i++) {
+    // 		let binData = controlBins[i];
+    // 		let binScale = controlScales[i].scale;
+    // 		let binSize = controlScales[i].len;
 
-    		svgElement.select("#violin")
-    			.selectAll(`.controlArea${i}`)
-			    .data([binData])
-			    .join("path")
-			    .attr("class", `controlArea${i}`)
-			    .attr("transform", `translate(${xScale(i) + computedBandwidth / 2}, 0)`)
-			    .datum(function(d){ return(d)})
-			    .style("stroke", "none")
-		        .style("fill", colorMap[0])
-		        .attr("d", d3.area()
-		            .x0(function(d){ return(binScale(-d.length / binSize)) } )
-		            .x1(function(d){ return(binScale(d.length / binSize)) } )
-		            .y(function(d){ return(yScale(d.x0)) } )
-		            .curve(d3.curveCatmullRom)
-		        )
-    	}
+    // 		svgElement.select("#violin")
+    // 			.selectAll(`.controlArea${i}`)
+			 //    .data([binData])
+			 //    .join("path")
+			 //    .attr("class", `controlArea${i}`)
+			 //    .attr("transform", `translate(${xScale(i) + computedBandwidth / 2}, 0)`)
+			 //    .datum(function(d){ return(d)})
+			 //    .style("stroke", "none")
+		  //       .style("fill", colorMap[0])
+		  //       .attr("d", d3.area()
+		  //           .x0(function(d){ return(binScale(-d.length / binSize)) } )
+		  //           .x1(function(d){ return(binScale(d.length / binSize)) } )
+		  //           .y(function(d){ return(yScale(d.x0)) } )
+		  //           .curve(d3.curveCatmullRom)
+		  //       )
+    // 	}
 
   		let xAxis = svgElement.select('#x-axis')
 	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)
@@ -176,31 +182,31 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
           .range([layout.marginLeft, layout.width - layout.margin])
 
       var yScale = d3.scaleLinear()
-          .domain(d3.extent(cohortData, d => d[outcome]))
+          .domain(d3.extent(cohortData, d => d[effect]))
           .range([layout.height - layout.marginBottom, layout.margin])
 
-	    let outcomes = svgElement.select("#outcomes")
-	      .selectAll(".outcomeCircles")
+	    let effects = svgElement.select("#effects")
+	      .selectAll(".effectCircles")
 	      .data(cohortData)
 	      .join("circle")
-	      .attr("class", "outcomeCircles")
+	      .attr("class", "effectCircles")
 	      .attr("cx", d => xScale(d[stratifyBy]) + (Math.random() - 0.5) * jitter)
-	      .attr("cy", d => yScale(d[outcome]))
+	      .attr("cy", d => yScale(d[effect]))
 	      .attr("r", 3)
-	      .attr("fill", "none")
-	      .attr("stroke", d => colorMap[d[treatment]])
+	      .attr("fill", "steelblue")
+	      // .attr("stroke", d => colorMap[d[treatment]])
 	      .attr("cursor", "pointer")
 
-	    let regressionLines = svgElement.select("#regression")
-	      .selectAll(".regressionLine")
-	      .data([treatmentReg, controlReg])
-	      .join("line")
-	      .attr("class", "regressionLine")
-	      .attr("x1", d => xScale(d[0][0]))
-	      .attr("y1", d => yScale(d[0][1]))
-	      .attr("x2", d => xScale(d[1][0]))
-	      .attr("y2", d => yScale(d[1][1]))
-	      .attr("stroke", "black")
+	    // let regressionLines = svgElement.select("#regression")
+	    //   .selectAll(".regressionLine")
+	    //   .data([treatmentReg, controlReg])
+	    //   .join("line")
+	    //   .attr("class", "regressionLine")
+	    //   .attr("x1", d => xScale(d[0][0]))
+	    //   .attr("y1", d => yScale(d[0][1]))
+	    //   .attr("x2", d => xScale(d[1][0]))
+	    //   .attr("y2", d => yScale(d[1][1]))
+	    //   .attr("stroke", "black")
 
 	    let xAxis = svgElement.select('#x-axis')
 	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)
@@ -221,7 +227,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
 		  svgElement.select('#y-axis')
 		    	.selectAll("#axis-title")
-		    	.data(["outcome"])
+		    	.data(["effect"])
 		    	.join("text")
 		    	.attr("id", "axis-title")
 		    	.attr("text-anchor", "middle")
@@ -256,7 +262,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
         <g>
         	<g id="x-axis" />
           <g id="y-axis" />
-          <g id="outcomes" />
+          <g id="effects" />
           <g id="regression" />
           <g id="violin" />
           <g id="title" />

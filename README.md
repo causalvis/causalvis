@@ -19,18 +19,15 @@ npm run build
 
 This should automatically create a `lib` folder that includes all the components for the visualization modules in `.js` format.
 
-### Installing for JupyterLab and Jupyter Notebook
+### Installing for JupyterLab
 
 ```bash
 cd causalvis/js
 npm install
 npm run build:labextension # This line builds the widget for use with JupyterLab.
-npm run prepublish # This line builds the widget for use with Jupyter Notebook.
 cd ..
 pip install -e .
 cd ..
-jupyter nbextension install --py --symlink --sys-prefix causalvis # Skip this line if you are NOT using the widget with Jupyter Notebook
-jupyter nbextension enable causalvis --py --sys-prefix # Skip this line if you are NOT using the widget with Jupyter Notebook
 ```
 
 If the causalvis widget has been successfully installed, you should see it when running:
