@@ -78,6 +78,9 @@ export const DAG = ({attributes = [], graph}) => {
   // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
 
+  // Tracks all descendants for a node
+  const [allDescendants, setAllDescendants] = React.useState({});
+
   // All IDs used
   const [ID, setID] = React.useState(new Set());
 
@@ -343,6 +346,18 @@ export const DAG = ({attributes = [], graph}) => {
     setnodelinks(newnodelinks);
   }
 
+  // Returns true of acyclic
+  function checkAcyclic(source, target) {
+    let targetDesc = new Set(getDescendents(target));
+
+    if (targetDesc.has(source.id)) {
+      alert("This link cannot be added. The DAG must be acyclic.");
+      return false
+    } else {
+      return true
+    }
+  }
+
   // Add new links between nodes
   function updateLinks(newLink) {
 
@@ -351,6 +366,10 @@ export const DAG = ({attributes = [], graph}) => {
       if ((l.source.id === newLink[0].id && l.target.id === newLink[1].id) || (l.target.id === newLink[0].id && l.source.id === newLink[1].id)) {
         return;
       }
+    }
+
+    if (!checkAcyclic(newLink[0], newLink[1])) {
+      return;
     }
 
     // Update parent and child relationships
