@@ -96,11 +96,11 @@ export var DAGEditor = function DAGEditor(_ref) {
 
   function handleContextMenu(e, d) {
     e.preventDefault();
-    setOpen(!open);
     setAnchorPos({
       "left": e.clientX + 2,
       "top": e.clientY - 6
     });
+    setOpen(!open);
     setContextItem(d.name);
   }
 

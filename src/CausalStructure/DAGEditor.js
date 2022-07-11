@@ -65,8 +65,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   function handleContextMenu(e, d) {
     e.preventDefault();
-    setOpen(!open);
     setAnchorPos({"left": e.clientX + 2, "top": e.clientY - 6})
+    setOpen(!open);
     setContextItem(d.name);
   }
 
