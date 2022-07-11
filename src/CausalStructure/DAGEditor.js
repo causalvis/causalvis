@@ -415,18 +415,19 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       return colorMap.treatment
     } else if (d.name === outcome) {
       return colorMap.outcome
-    } else if (d.$custom) {
-      // return "#9e9e9e"
-      return "black"
     } else if (mediators.indexOf(d.name) >= 0) {
       return colorMap.mediators
     } else if (colliders.indexOf(d.name) >= 0) {
       return colorMap.colliders
     } else if (confounds.indexOf(d.name) >= 0) {
       return colorMap.confounds
-    } else {
-      return "black"
-    }
+    } 
+
+    // else if (d.$custom) {
+    //   // return "#9e9e9e"
+    //   return "black"
+    // }
+    return "black"
   }
 
   var text = svgElement
