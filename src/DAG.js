@@ -182,7 +182,7 @@ export const DAG = ({attributes = [], graph}) => {
   useEffect(() => {
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
-      let newColliders = getColliders(treatment, outcome);
+      let newColliders = Array.from(getColliders(treatment, outcome));
       let colliderNames = []
 
       for (let c of newColliders) {
@@ -190,7 +190,7 @@ export const DAG = ({attributes = [], graph}) => {
       }
 
       let newMediators = getMediators(treatment, outcome);
-      console.log(newMediators);
+      // console.log(newColliders);
 
       setColliders(colliderNames);
       setMediators(Array.from(newMediators).map(m => m.name));
@@ -552,8 +552,10 @@ export const DAG = ({attributes = [], graph}) => {
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let o = nodelinks.nodes.filter(n => n.name === outcome)[0];
 
-    let treatmentChildren = new Set(getDescendents(t));
+    let treatmentChildren = getDescendents(t);
     let outcomeChildren = new Set(getDescendents(o));
+
+    // console.log(treatmentChildren, outcomeChildren)
 
     let colliders = new Set([...treatmentChildren].filter(x => outcomeChildren.has(x)))
 

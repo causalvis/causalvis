@@ -241,22 +241,22 @@ export var DAG = function DAG(_ref) {
   useEffect(function () {
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
-      var newColliders = getColliders(treatment, outcome);
+      var newColliders = Array.from(getColliders(treatment, outcome));
       var colliderNames = [];
 
       var _loop2 = function _loop2() {
-        var c = _step4.value;
+        var c = _newColliders[_i];
         colliderNames.push(nodelinks.nodes.filter(function (n) {
           return n.id === c;
         })[0].name);
       };
 
-      for (var _iterator4 = _createForOfIteratorHelperLoose(newColliders), _step4; !(_step4 = _iterator4()).done;) {
+      for (var _i = 0, _newColliders = newColliders; _i < _newColliders.length; _i++) {
         _loop2();
       }
 
       var newMediators = getMediators(treatment, outcome);
-      console.log(newMediators);
+      console.log(newColliders);
       setColliders(colliderNames);
       setMediators(Array.from(newMediators).map(function (m) {
         return m.name;
@@ -413,8 +413,8 @@ export var DAG = function DAG(_ref) {
   function updateNodePos(id, newX, newY) {
     var newnodelinks = _extends({}, nodelinks);
 
-    for (var _iterator5 = _createForOfIteratorHelperLoose(newnodelinks.nodes), _step5; !(_step5 = _iterator5()).done;) {
-      var n = _step5.value;
+    for (var _iterator4 = _createForOfIteratorHelperLoose(newnodelinks.nodes), _step4; !(_step4 = _iterator4()).done;) {
+      var n = _step4.value;
 
       if (n.id === id) {
         n.x = newX;
@@ -423,8 +423,8 @@ export var DAG = function DAG(_ref) {
       }
     }
 
-    for (var _iterator6 = _createForOfIteratorHelperLoose(newnodelinks.links), _step6; !(_step6 = _iterator6()).done;) {
-      var l = _step6.value;
+    for (var _iterator5 = _createForOfIteratorHelperLoose(newnodelinks.links), _step5; !(_step5 = _iterator5()).done;) {
+      var l = _step5.value;
 
       if (l.source.id === id) {
         l.source.x = newX;
@@ -455,8 +455,8 @@ export var DAG = function DAG(_ref) {
 
   function updateLinks(newLink) {
     // Ensure that there is only one link between any 2 nodes
-    for (var _iterator7 = _createForOfIteratorHelperLoose(nodelinks.links), _step7; !(_step7 = _iterator7()).done;) {
-      var l = _step7.value;
+    for (var _iterator6 = _createForOfIteratorHelperLoose(nodelinks.links), _step6; !(_step6 = _iterator6()).done;) {
+      var l = _step6.value;
 
       if (l.source.id === newLink[0].id && l.target.id === newLink[1].id || l.target.id === newLink[0].id && l.source.id === newLink[1].id) {
         return;
@@ -468,8 +468,8 @@ export var DAG = function DAG(_ref) {
     } // Update parent and child relationships
 
 
-    for (var _iterator8 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step8; !(_step8 = _iterator8()).done;) {
-      var n = _step8.value;
+    for (var _iterator7 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step7; !(_step7 = _iterator7()).done;) {
+      var n = _step7.value;
 
       if (n.id === newLink[0].id) {
         n.children.add(newLink[1].id);
@@ -500,8 +500,8 @@ export var DAG = function DAG(_ref) {
       return !(l.source.id === link.source.id && l.target.id === link.target.id);
     }); // Update parent and child relationships
 
-    for (var _iterator9 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step9; !(_step9 = _iterator9()).done;) {
-      var n = _step9.value;
+    for (var _iterator8 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step8; !(_step8 = _iterator8()).done;) {
+      var n = _step8.value;
 
       if (n.id === link.source.id) {
         n.children["delete"](link.target.id);
@@ -529,13 +529,13 @@ export var DAG = function DAG(_ref) {
     var colliderNames = [];
 
     var _loop3 = function _loop3() {
-      var c = _step10.value;
+      var c = _step9.value;
       colliderNames.push(nodelinks.nodes.filter(function (n) {
         return n.id === c;
       })[0].name);
     };
 
-    for (var _iterator10 = _createForOfIteratorHelperLoose(newColliders), _step10; !(_step10 = _iterator10()).done;) {
+    for (var _iterator9 = _createForOfIteratorHelperLoose(newColliders), _step9; !(_step9 = _iterator9()).done;) {
       _loop3();
     }
 
@@ -637,14 +637,14 @@ export var DAG = function DAG(_ref) {
     var result = Array.from(node.children);
 
     var _loop4 = function _loop4() {
-      var c = _step11.value;
+      var c = _step10.value;
       var nodeC = nodelinks.nodes.filter(function (n) {
         return n.id === c;
       })[0];
       result = result.concat(getDescendents(nodeC));
     };
 
-    for (var _iterator11 = _createForOfIteratorHelperLoose(node.children), _step11; !(_step11 = _iterator11()).done;) {
+    for (var _iterator10 = _createForOfIteratorHelperLoose(node.children), _step10; !(_step10 = _iterator10()).done;) {
       _loop4();
     }
 
@@ -670,8 +670,9 @@ export var DAG = function DAG(_ref) {
     var o = nodelinks.nodes.filter(function (n) {
       return n.name === outcome;
     })[0];
-    var treatmentChildren = new Set(getDescendents(t));
-    var outcomeChildren = new Set(getDescendents(o));
+    var treatmentChildren = getDescendents(t);
+    var outcomeChildren = new Set(getDescendents(o)); // console.log(treatmentChildren, outcomeChildren)
+
     var colliders = new Set([].concat(treatmentChildren).filter(function (x) {
       return outcomeChildren.has(x);
     }));
@@ -692,7 +693,7 @@ export var DAG = function DAG(_ref) {
     var result = [];
 
     var _loop5 = function _loop5() {
-      var c = _step12.value;
+      var c = _step11.value;
       var nodeC = nodelinks.nodes.filter(function (n) {
         return n.id === c;
       })[0];
@@ -703,7 +704,7 @@ export var DAG = function DAG(_ref) {
       }
     };
 
-    for (var _iterator12 = _createForOfIteratorHelperLoose(node.children), _step12; !(_step12 = _iterator12()).done;) {
+    for (var _iterator11 = _createForOfIteratorHelperLoose(node.children), _step11; !(_step11 = _iterator11()).done;) {
       _loop5();
     }
 
@@ -739,8 +740,8 @@ export var DAG = function DAG(_ref) {
 
     var mediators = [];
 
-    for (var _iterator13 = _createForOfIteratorHelperLoose(paths), _step13; !(_step13 = _iterator13()).done;) {
-      var p = _step13.value;
+    for (var _iterator12 = _createForOfIteratorHelperLoose(paths), _step12; !(_step12 = _iterator12()).done;) {
+      var p = _step12.value;
       var med = p.filter(function (n) {
         return n.id !== t.id && n.id !== oID;
       });
@@ -768,7 +769,7 @@ export var DAG = function DAG(_ref) {
     var confounds = [];
 
     var _loop6 = function _loop6() {
-      var n = _step14.value;
+      var n = _step13.value;
       var nDescendents = new Set(getDescendents(n));
       var nodeDescendents = new Set(nodelinks.nodes.filter(function (nd) {
         return nDescendents.has(nd.id);
@@ -781,7 +782,7 @@ export var DAG = function DAG(_ref) {
       }
     };
 
-    for (var _iterator14 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step14; !(_step14 = _iterator14()).done;) {
+    for (var _iterator13 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step13; !(_step13 = _iterator13()).done;) {
       _loop6();
     } // console.log('c3', confounds);
 
