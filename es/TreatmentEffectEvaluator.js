@@ -25,7 +25,9 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       _ref$treatment = _ref.treatment,
       treatment = _ref$treatment === void 0 ? "treatment" : _ref$treatment,
       _ref$outcome = _ref.outcome,
-      outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome;
+      outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome,
+      _ref$effect = _ref.effect,
+      effect = _ref$effect === void 0 ? "effect" : _ref$effect;
 
   var _React$useState = React.useState([]),
       attributes = _React$useState[0],
@@ -160,7 +162,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
           "height": 600,
           "width": 600,
           "margin": 20,
-          "marginLeft": 20,
+          "marginLeft": 30,
           "marginBottom": 35
         }
       });
@@ -174,7 +176,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
           "height": 600,
           "width": 300,
           "margin": 20,
-          "marginLeft": 20,
+          "marginLeft": 30,
           "marginBottom": 35
         };
         return s;
@@ -195,7 +197,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
             "height": 300,
             "width": 300,
             "margin": 20,
-            "marginLeft": 20,
+            "marginLeft": 30,
             "marginBottom": 35
           };
           s.title = subTitle + ", " + s.title;
@@ -218,7 +220,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
           "height": 600,
           "width": 600,
           "margin": 20,
-          "marginLeft": 20,
+          "marginLeft": 30,
           "marginBottom": 35
         }
       });

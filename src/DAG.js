@@ -166,7 +166,7 @@ export const DAG = ({attributes = [], graph}) => {
 
   // If attributes are provided without an accompanying graph set attributes only
   useEffect(() => {
-    if (attributes.length > 0 && !graph) {
+    if (attributes && attributes.length > 0 && !graph) {
       let newAllAttributes = {}
       for (let a of attributes) {
         newAllAttributes[a] = {"$custom": false, "tags": []}

@@ -60,14 +60,6 @@ var ReactView = widgets.DOMWidgetView.extend({
 
         var props = this.model.get("props");
 
-        console.log("in pip", this.model.attributes.component);
-
-        // console.log(props);
-
-        // console.log(this.model);
-
-        // console.log(lib);
-
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
     }

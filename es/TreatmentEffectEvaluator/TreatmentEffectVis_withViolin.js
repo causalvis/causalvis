@@ -15,7 +15,9 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       _ref$treatment = _ref.treatment,
       treatment = _ref$treatment === void 0 ? "treatment" : _ref$treatment,
       _ref$outcome = _ref.outcome,
-      outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome;
+      outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome,
+      _ref$effect = _ref.effect,
+      effect = _ref$effect === void 0 ? "effect" : _ref$effect;
   var ref = useRef('svgTreatmentEffect');
   var svg = d3.select("#svgTreatmentEffect" + index);
   var svgElement = svg.select("g"); // Track color map
@@ -68,13 +70,17 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       controlBins = _React$useState10[0],
       setControlBins = _React$useState10[1];
 
+  var _React$useState11 = React.useState([]),
+      stratifiedBins = _React$useState11[0],
+      setStratifiedBins = _React$useState11[1];
+
   var bins = 20;
   useEffect(function () {
     var cohortData = allData["data"];
     var stratifyBy = allData["stratifyBy"];
     var isBinary = new Set(cohortData.map(function (d) {
       return d[stratifyBy];
-    })).size === 2;
+    })).size <= 2;
     setCohortData(cohortData);
     setStratifyBy(stratifyBy);
     setIsBinary(isBinary);
@@ -90,10 +96,17 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     if (isBinary) {
       // If the variable is binary, perform binning for violin plot
       var histogram = d3.histogram().value(function (d) {
-        return d[outcome];
+        return d[effect];
       }).domain(d3.extent(cohortData, function (d) {
-        return d[outcome];
+        return d[effect];
       })).thresholds(bins);
+      var stratify0 = cohortData.filter(function (d) {
+        return d[stratifyBy] === 0;
+      });
+      var stratify1 = cohortData.filter(function (d) {
+        return d[stratifyBy] === 1;
+      });
+      setStratifiedBins([histogram(stratify0), histogram(stratify1)]);
       var treatmentStratify0 = treatmentData.filter(function (d) {
         return d[stratifyBy] === 0;
       });
@@ -114,10 +127,10 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     } else {
       // If variable is continous, calculate the regression line for treatment and control groups separately
       var treatmentLine = regression.linear(treatmentData.map(function (d) {
-        return [d[stratifyBy], d[outcome]];
+        return [d[stratifyBy], d[effect]];
       }));
       var controlLine = regression.linear(controlData.map(function (d) {
-        return [d[stratifyBy], d[outcome]];
+        return [d[stratifyBy], d[effect]];
       }));
       var extent = d3.extent(cohortData, function (d) {
         return d[stratifyBy];
@@ -137,36 +150,36 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       // If variable is binary, visualize violin plots of distribution
       var xScale = d3.scaleBand().domain([0, 1]).range([layout.marginLeft, layout.width - layout.margin]);
       var yScale = d3.scaleLinear().domain(d3.extent(cohortData, function (d) {
-        return d[outcome];
+        return d[effect];
       })).range([layout.height - layout.marginBottom, layout.margin]);
       var computedBandwidth = xScale.bandwidth();
       var customBandwidth = layout.width / 8;
-      var treatmentScales = []; // Define scales separately to normalize the violin plots by size of the subgroup
+      var binScales = []; // Define scales separately to normalize the violin plots by size of the subgroup
 
-      var _loop3 = function _loop3() {
-        var tb = _step.value;
-        var totalLength = tb.reduce(function (count, current) {
+      var _loop2 = function _loop2() {
+        var b = _step.value;
+        var totalLength = b.reduce(function (count, current) {
           return count + current.length;
         }, 0);
-        var maxNum = d3.max(tb.map(function (d) {
+        var maxNum = d3.max(b.map(function (d) {
           return d.length / totalLength;
         }));
-        var newScale = d3.scaleLinear().range([0, computedBandwidth / 2]).domain([-maxNum, maxNum]);
-        treatmentScales.push({
+        var newScale = d3.scaleLinear().range([0, computedBandwidth]).domain([-maxNum, maxNum]);
+        binScales.push({
           "scale": newScale,
           "len": totalLength
         });
       };
 
-      for (var _iterator = _createForOfIteratorHelperLoose(treatmentBins), _step; !(_step = _iterator()).done;) {
-        _loop3();
+      for (var _iterator = _createForOfIteratorHelperLoose(stratifiedBins), _step; !(_step = _iterator()).done;) {
+        _loop2();
       }
 
       var _loop = function _loop(i) {
-        var binData = treatmentBins[i];
-        var binScale = treatmentScales[i].scale;
-        var binSize = treatmentScales[i].len;
-        svgElement.select("#violin").selectAll(".treatmentArea" + i).data([binData]).join("path").attr("class", "treatmentArea" + i).attr("transform", "translate(" + xScale(i) + ", 0)").datum(function (d) {
+        var binData = stratifiedBins[i];
+        var binScale = binScales[i].scale;
+        var binSize = binScales[i].len;
+        svgElement.select("#violin").selectAll(".area" + i).data([binData]).join("path").attr("class", "area" + i).attr("transform", "translate(" + xScale(i) + ", 0)").datum(function (d) {
           return d;
         }).style("stroke", "none").style("fill", colorMap[1]).attr("d", d3.area().x0(function (d) {
           return binScale(-d.length / binSize);
@@ -177,49 +190,38 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
         }).curve(d3.curveCatmullRom));
       };
 
-      for (var i = 0; i < treatmentBins.length; i++) {
+      for (var i = 0; i < stratifiedBins.length; i++) {
         _loop(i);
-      }
+      } // 	let controlScales = [];
+      // for (let cb of controlBins) {
+      // 	let totalLength = cb.reduce((count, current) => count + current.length, 0);
+      // 	let maxNum = d3.max(cb.map(d => d.length / totalLength));
+      // 	let newScale = d3.scaleLinear()
+      // 				  				.range([0, computedBandwidth / 2])
+      // 				    			.domain([-maxNum, maxNum])
+      // controlScales.push({"scale": newScale, "len":totalLength});
+      // }
+      // 	for (let i = 0; i < controlBins.length; i++) {
+      // 		let binData = controlBins[i];
+      // 		let binScale = controlScales[i].scale;
+      // 		let binSize = controlScales[i].len;
+      // 		svgElement.select("#violin")
+      // 			.selectAll(`.controlArea${i}`)
+      //    .data([binData])
+      //    .join("path")
+      //    .attr("class", `controlArea${i}`)
+      //    .attr("transform", `translate(${xScale(i) + computedBandwidth / 2}, 0)`)
+      //    .datum(function(d){ return(d)})
+      //    .style("stroke", "none")
+      //       .style("fill", colorMap[0])
+      //       .attr("d", d3.area()
+      //           .x0(function(d){ return(binScale(-d.length / binSize)) } )
+      //           .x1(function(d){ return(binScale(d.length / binSize)) } )
+      //           .y(function(d){ return(yScale(d.x0)) } )
+      //           .curve(d3.curveCatmullRom)
+      //       )
+      // 	}
 
-      var controlScales = [];
-
-      var _loop4 = function _loop4() {
-        var cb = _step2.value;
-        var totalLength = cb.reduce(function (count, current) {
-          return count + current.length;
-        }, 0);
-        var maxNum = d3.max(cb.map(function (d) {
-          return d.length / totalLength;
-        }));
-        var newScale = d3.scaleLinear().range([0, computedBandwidth / 2]).domain([-maxNum, maxNum]);
-        controlScales.push({
-          "scale": newScale,
-          "len": totalLength
-        });
-      };
-
-      for (var _iterator2 = _createForOfIteratorHelperLoose(controlBins), _step2; !(_step2 = _iterator2()).done;) {
-        _loop4();
-      }
-
-      var _loop2 = function _loop2(_i) {
-        var binData = controlBins[_i];
-        var binScale = controlScales[_i].scale;
-        var binSize = controlScales[_i].len;
-        svgElement.select("#violin").selectAll(".controlArea" + _i).data([binData]).join("path").attr("class", "controlArea" + _i).attr("transform", "translate(" + (xScale(_i) + computedBandwidth / 2) + ", 0)").datum(function (d) {
-          return d;
-        }).style("stroke", "none").style("fill", colorMap[0]).attr("d", d3.area().x0(function (d) {
-          return binScale(-d.length / binSize);
-        }).x1(function (d) {
-          return binScale(d.length / binSize);
-        }).y(function (d) {
-          return yScale(d.x0);
-        }).curve(d3.curveCatmullRom));
-      };
-
-      for (var _i = 0; _i < controlBins.length; _i++) {
-        _loop2(_i);
-      }
 
       var xAxis = svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.marginBottom) + ")").call(d3.axisBottom(xScale).tickSize(3).ticks(5));
     } else {
@@ -228,24 +230,23 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
         return d[stratifyBy];
       })).range([layout.marginLeft, layout.width - layout.margin]);
       var yScale = d3.scaleLinear().domain(d3.extent(cohortData, function (d) {
-        return d[outcome];
+        return d[effect];
       })).range([layout.height - layout.marginBottom, layout.margin]);
-      var outcomes = svgElement.select("#outcomes").selectAll(".outcomeCircles").data(cohortData).join("circle").attr("class", "outcomeCircles").attr("cx", function (d) {
+      var effects = svgElement.select("#effects").selectAll(".effectCircles").data(cohortData).join("circle").attr("class", "effectCircles").attr("cx", function (d) {
         return xScale(d[stratifyBy]) + (Math.random() - 0.5) * jitter;
       }).attr("cy", function (d) {
-        return yScale(d[outcome]);
-      }).attr("r", 3).attr("fill", "none").attr("stroke", function (d) {
-        return colorMap[d[treatment]];
-      }).attr("cursor", "pointer");
-      var regressionLines = svgElement.select("#regression").selectAll(".regressionLine").data([treatmentReg, controlReg]).join("line").attr("class", "regressionLine").attr("x1", function (d) {
-        return xScale(d[0][0]);
-      }).attr("y1", function (d) {
-        return yScale(d[0][1]);
-      }).attr("x2", function (d) {
-        return xScale(d[1][0]);
-      }).attr("y2", function (d) {
-        return yScale(d[1][1]);
-      }).attr("stroke", "black");
+        return yScale(d[effect]);
+      }).attr("r", 3).attr("fill", "steelblue") // .attr("stroke", d => colorMap[d[treatment]])
+      .attr("cursor", "pointer"); // let regressionLines = svgElement.select("#regression")
+      //   .selectAll(".regressionLine")
+      //   .data([treatmentReg, controlReg])
+      //   .join("line")
+      //   .attr("class", "regressionLine")
+      //   .attr("x1", d => xScale(d[0][0]))
+      //   .attr("y1", d => yScale(d[0][1]))
+      //   .attr("x2", d => xScale(d[1][0]))
+      //   .attr("y2", d => yScale(d[1][1]))
+      //   .attr("stroke", "black")
 
       var _xAxis = svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.marginBottom) + ")").call(d3.axisBottom(xScale).tickSize(3).ticks(5));
     }
@@ -253,7 +254,7 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     svgElement.select('#x-axis').selectAll("#axis-title").data([stratifyBy]).join("text").attr("id", "axis-title").attr("x", layout.width / 2).attr("y", 30).attr("text-anchor", "middle").attr("fill", "black").attr("font-size", "15px").text(function (d) {
       return d;
     });
-    svgElement.select('#y-axis').selectAll("#axis-title").data(["outcome"]).join("text").attr("id", "axis-title").attr("text-anchor", "middle").attr("transform", "translate(" + (layout.marginLeft - 5) + ", " + layout.height / 2 + ") rotate(-90)").attr("fill", "black").attr("font-size", "15px").text(function (d) {
+    svgElement.select('#y-axis').selectAll("#axis-title").data(["effect"]).join("text").attr("id", "axis-title").attr("text-anchor", "middle").attr("transform", "translate(" + (layout.marginLeft - 5) + ", " + layout.height / 2 + ") rotate(-90)").attr("fill", "black").attr("font-size", "15px").text(function (d) {
       return d;
     });
     d3.selectAll("#x-axis>.tick>text").each(function (d, i) {
@@ -286,7 +287,7 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
   }), /*#__PURE__*/React.createElement("g", {
     id: "y-axis"
   }), /*#__PURE__*/React.createElement("g", {
-    id: "outcomes"
+    id: "effects"
   }), /*#__PURE__*/React.createElement("g", {
     id: "regression"
   }), /*#__PURE__*/React.createElement("g", {

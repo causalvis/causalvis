@@ -119,12 +119,17 @@ export var DAG = function DAG(_ref) {
       outcome = _React$useState15[0],
       setOutcome = _React$useState15[1]; // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
-  // All IDs used
+  // Tracks all descendants for a node
 
 
-  var _React$useState16 = React.useState(new Set()),
-      ID = _React$useState16[0],
-      setID = _React$useState16[1];
+  var _React$useState16 = React.useState({}),
+      allDescendants = _React$useState16[0],
+      setAllDescendants = _React$useState16[1]; // All IDs used
+
+
+  var _React$useState17 = React.useState(new Set()),
+      ID = _React$useState17[0],
+      setID = _React$useState17[1];
 
   var layout = {
     "height": 500,
@@ -216,7 +221,7 @@ export var DAG = function DAG(_ref) {
   }, [graph]); // If attributes are provided without an accompanying graph set attributes only
 
   useEffect(function () {
-    if (attributes.length > 0 && !graph) {
+    if (attributes && attributes.length > 0 && !graph) {
       var newAllAttributes = {};
 
       for (var _iterator3 = _createForOfIteratorHelperLoose(attributes), _step3; !(_step3 = _iterator3()).done;) {
@@ -431,6 +436,18 @@ export var DAG = function DAG(_ref) {
     }
 
     setnodelinks(newnodelinks);
+  } // Returns true of acyclic
+
+
+  function checkAcyclic(source, target) {
+    var targetDesc = new Set(getDescendents(target));
+
+    if (targetDesc.has(source.id)) {
+      alert("This link cannot be added. The DAG must be acyclic.");
+      return false;
+    } else {
+      return true;
+    }
   } // Add new links between nodes
 
 
@@ -442,6 +459,10 @@ export var DAG = function DAG(_ref) {
       if (l.source.id === newLink[0].id && l.target.id === newLink[1].id || l.target.id === newLink[0].id && l.source.id === newLink[1].id) {
         return;
       }
+    }
+
+    if (!checkAcyclic(newLink[0], newLink[1])) {
+      return;
     } // Update parent and child relationships
 
 
