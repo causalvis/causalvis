@@ -189,8 +189,11 @@ export const DAG = ({attributes = [], graph}) => {
         colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name)
       }
 
+      let newMediators = getMediators(treatment, outcome);
+      console.log(newMediators);
+
       setColliders(colliderNames);
-      setMediators(Array.from(getMediators(treatment, outcome)).map(m => m.name));
+      setMediators(Array.from(newMediators).map(m => m.name));
       setConfounds(getConfounds(treatment, outcome).map(m => m.name));
     } else {
       // If either treatment or outcome is missing,
@@ -601,21 +604,21 @@ export const DAG = ({attributes = [], graph}) => {
 
     // console.log(paths)
 
-    if (paths.length === 0) {
-      alert("There are no causal pathways from treatment to outcome.");
-      return [];
-    }
+    // if (paths.length === 0) {
+    //   alert("There are no causal pathways from treatment to outcome.");
+    //   return [];
+    // }
 
-    let mediators = new Set()
+    let mediators = []
 
     for (let p of paths) {
-      let med = new Set(p.filter(n => n.id !== t.id && n.id !== oID))
-      mediators = new Set([...mediators, ...med])
+      let med = p.filter(n => n.id !== t.id && n.id !== oID);
+      mediators = mediators.concat(med);
     }
 
     // console.log(mediators);
 
-    return mediators;
+    return new Set(mediators);
   }
 
   // Get confounds that affect both treatments and outcomes

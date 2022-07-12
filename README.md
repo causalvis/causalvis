@@ -24,7 +24,7 @@ This should automatically create a `lib` folder that includes all the components
 ```bash
 cd causalvis/js
 npm install
-npm run build:labextension # This line builds the widget for use with JupyterLab.
+npm run build:labextension
 cd ..
 pip install -e .
 cd ..
@@ -38,11 +38,10 @@ jupyter labextension list
 
 ### Running the widget
 
-Open JupyterLab or Jupyter Notebook using one of the following commands
+Open JupyterLab
 
 ```bash
 jupyter lab
-jupyter notebook
 ```
 
 Create a new notebook in python 3, then import the widget and pass it the relevant props.

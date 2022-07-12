@@ -255,8 +255,10 @@ export var DAG = function DAG(_ref) {
         _loop2();
       }
 
+      var newMediators = getMediators(treatment, outcome);
+      console.log(newMediators);
       setColliders(colliderNames);
-      setMediators(Array.from(getMediators(treatment, outcome)).map(function (m) {
+      setMediators(Array.from(newMediators).map(function (m) {
         return m.name;
       }));
       setConfounds(getConfounds(treatment, outcome).map(function (m) {
@@ -730,24 +732,23 @@ export var DAG = function DAG(_ref) {
       return n.name === outcome;
     })[0].id;
     var paths = hasOutcome(t, oID); // console.log(paths)
+    // if (paths.length === 0) {
+    //   alert("There are no causal pathways from treatment to outcome.");
+    //   return [];
+    // }
 
-    if (paths.length === 0) {
-      alert("There are no causal pathways from treatment to outcome.");
-      return [];
-    }
-
-    var mediators = new Set();
+    var mediators = [];
 
     for (var _iterator13 = _createForOfIteratorHelperLoose(paths), _step13; !(_step13 = _iterator13()).done;) {
       var p = _step13.value;
-      var med = new Set(p.filter(function (n) {
+      var med = p.filter(function (n) {
         return n.id !== t.id && n.id !== oID;
-      }));
-      mediators = new Set([].concat(mediators, med));
+      });
+      mediators = mediators.concat(med);
     } // console.log(mediators);
 
 
-    return mediators;
+    return new Set(mediators);
   } // Get confounds that affect both treatments and outcomes
 
 
