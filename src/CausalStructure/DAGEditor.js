@@ -565,7 +565,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           d3.select(this).attr("stroke-width", 1);
         }
       })
-      .on("contextmenu", (e, d) => handleContextMenu(e, d));
+      // .on("contextmenu", (e, d) => handleContextMenu(e, d));
 
   var legend = svg.select("#legend")
     .selectAll(".legendRect")

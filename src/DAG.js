@@ -525,12 +525,16 @@ export const DAG = ({attributes = [], graph}) => {
   // Gets all descendents of a particular node
   // The same descendent may be included twice if there are multiple causal pathways
   // For unique descendents, apply Set() to the result
-  function getDescendents(node) {
-    // console.log(node);
+  function getDescendents(node, outcomeID = null) {
+    // console.log(node.id, outcomeID);
+    if (node.id === outcomeID) {
+      return [];
+    }
+
     let result = Array.from(node.children);
     for (let c of node.children) {
       let nodeC = nodelinks.nodes.filter(n => n.id === c)[0];
-      result = result.concat(getDescendents(nodeC));
+      result = result.concat(getDescendents(nodeC, outcomeID));
     }
 
     return result;
@@ -552,7 +556,9 @@ export const DAG = ({attributes = [], graph}) => {
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let o = nodelinks.nodes.filter(n => n.name === outcome)[0];
 
-    let treatmentChildren = getDescendents(t);
+    console.log(o.id);
+
+    let treatmentChildren = getDescendents(t, o.id);
     let outcomeChildren = new Set(getDescendents(o));
 
     // console.log(treatmentChildren, outcomeChildren)
