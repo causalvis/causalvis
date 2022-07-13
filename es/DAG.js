@@ -255,8 +255,9 @@ export var DAG = function DAG(_ref) {
         _loop2();
       }
 
-      var newMediators = getMediators(treatment, outcome);
-      console.log(newColliders);
+      var newMediators = getMediators(treatment, outcome); // console.log(newColliders);
+
+      var newPrognostic = getPrognostic(treatment, outcome);
       setColliders(colliderNames);
       setMediators(Array.from(newMediators).map(function (m) {
         return m.name;
@@ -632,8 +633,16 @@ export var DAG = function DAG(_ref) {
   // For unique descendents, apply Set() to the result
 
 
-  function getDescendents(node) {
-    // console.log(node);
+  function getDescendents(node, outcomeID) {
+    if (outcomeID === void 0) {
+      outcomeID = null;
+    }
+
+    // console.log(node.id, outcomeID);
+    if (node.id === outcomeID) {
+      return [];
+    }
+
     var result = Array.from(node.children);
 
     var _loop4 = function _loop4() {
@@ -641,7 +650,7 @@ export var DAG = function DAG(_ref) {
       var nodeC = nodelinks.nodes.filter(function (n) {
         return n.id === c;
       })[0];
-      result = result.concat(getDescendents(nodeC));
+      result = result.concat(getDescendents(nodeC, outcomeID));
     };
 
     for (var _iterator10 = _createForOfIteratorHelperLoose(node.children), _step10; !(_step10 = _iterator10()).done;) {
@@ -649,6 +658,42 @@ export var DAG = function DAG(_ref) {
     }
 
     return result;
+  } // Gets prognostic factors, i.e. covariates that influence the outcome but not the treatment
+
+
+  function getPrognostic(treatment, outcome) {
+    // Return if no nodes or links
+    if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
+      return [];
+    } // Return if no treatment and outcome variables indicated
+
+
+    if (treatment === "" || outcome === "") {
+      return [];
+    }
+
+    var treatmentID = nodelinks.nodes.filter(function (n) {
+      return n.name === treatment;
+    })[0].id;
+    var outcomeID = nodelinks.nodes.filter(function (n) {
+      return n.name === outcome;
+    })[0].id;
+    console.log(treatmentID, outcomeID);
+    var allPrognostic = [];
+
+    for (var _iterator11 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step11; !(_step11 = _iterator11()).done;) {
+      var n = _step11.value;
+      var childrenHasOutcome = n.children.has(outcomeID);
+      var childrenHasTreatment = n.children.has(treatmentID);
+      console.log(treatment, childrenHasTreatment, outcome, childrenHasOutcome);
+
+      if (childrenHasOutcome && !childrenHasTreatment) {
+        allPrognostic.push(n);
+      }
+    }
+
+    console.log(allPrognostic);
+    return allPrognostic;
   } // Gets the collider attributes between treatment and outcome
 
 
@@ -669,8 +714,9 @@ export var DAG = function DAG(_ref) {
     })[0];
     var o = nodelinks.nodes.filter(function (n) {
       return n.name === outcome;
-    })[0];
-    var treatmentChildren = getDescendents(t);
+    })[0]; // console.log(o.id);
+
+    var treatmentChildren = getDescendents(t, o.id);
     var outcomeChildren = new Set(getDescendents(o)); // console.log(treatmentChildren, outcomeChildren)
 
     var colliders = new Set([].concat(treatmentChildren).filter(function (x) {
@@ -693,7 +739,7 @@ export var DAG = function DAG(_ref) {
     var result = [];
 
     var _loop5 = function _loop5() {
-      var c = _step11.value;
+      var c = _step12.value;
       var nodeC = nodelinks.nodes.filter(function (n) {
         return n.id === c;
       })[0];
@@ -704,7 +750,7 @@ export var DAG = function DAG(_ref) {
       }
     };
 
-    for (var _iterator11 = _createForOfIteratorHelperLoose(node.children), _step11; !(_step11 = _iterator11()).done;) {
+    for (var _iterator12 = _createForOfIteratorHelperLoose(node.children), _step12; !(_step12 = _iterator12()).done;) {
       _loop5();
     }
 
@@ -740,8 +786,8 @@ export var DAG = function DAG(_ref) {
 
     var mediators = [];
 
-    for (var _iterator12 = _createForOfIteratorHelperLoose(paths), _step12; !(_step12 = _iterator12()).done;) {
-      var p = _step12.value;
+    for (var _iterator13 = _createForOfIteratorHelperLoose(paths), _step13; !(_step13 = _iterator13()).done;) {
+      var p = _step13.value;
       var med = p.filter(function (n) {
         return n.id !== t.id && n.id !== oID;
       });
@@ -769,7 +815,7 @@ export var DAG = function DAG(_ref) {
     var confounds = [];
 
     var _loop6 = function _loop6() {
-      var n = _step13.value;
+      var n = _step14.value;
       var nDescendents = new Set(getDescendents(n));
       var nodeDescendents = new Set(nodelinks.nodes.filter(function (nd) {
         return nDescendents.has(nd.id);
@@ -782,7 +828,7 @@ export var DAG = function DAG(_ref) {
       }
     };
 
-    for (var _iterator13 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step13; !(_step13 = _iterator13()).done;) {
+    for (var _iterator14 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step14; !(_step14 = _iterator14()).done;) {
       _loop6();
     } // console.log('c3', confounds);
 

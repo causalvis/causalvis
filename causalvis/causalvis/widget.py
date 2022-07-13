@@ -74,7 +74,7 @@ class DAG(BaseWidget):
         elif attributes:
           self.attributes = attributes
           self.graph = None
-        elif data:
+        elif data is not None:
           self.attributes = list(data)
           self.graph = None
         else:

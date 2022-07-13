@@ -192,6 +192,8 @@ export const DAG = ({attributes = [], graph}) => {
       let newMediators = getMediators(treatment, outcome);
       // console.log(newColliders);
 
+      let newPrognostic = getPrognostic(treatment, outcome);
+
       setColliders(colliderNames);
       setMediators(Array.from(newMediators).map(m => m.name));
       setConfounds(getConfounds(treatment, outcome).map(m => m.name));
@@ -540,6 +542,40 @@ export const DAG = ({attributes = [], graph}) => {
     return result;
   }
 
+  // Gets prognostic factors, i.e. covariates that influence the outcome but not the treatment
+  function getPrognostic(treatment, outcome) {
+    // Return if no nodes or links
+    if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
+      return [];
+    }
+
+    // Return if no treatment and outcome variables indicated
+    if (treatment === "" || outcome === "") {
+      return [];
+    }
+
+    let treatmentID = nodelinks.nodes.filter(n => n.name === treatment)[0].id;
+    let outcomeID = nodelinks.nodes.filter(n => n.name === outcome)[0].id;
+
+    console.log(treatmentID, outcomeID)
+
+    let allPrognostic = [];
+
+    for (let n of nodelinks.nodes) {
+      let childrenHasOutcome = n.children.has(outcomeID);
+      let childrenHasTreatment = n.children.has(treatmentID);
+
+      console.log(treatment, childrenHasTreatment, outcome, childrenHasOutcome)
+      if (childrenHasOutcome && !childrenHasTreatment) {
+        allPrognostic.push(n);
+      }
+    }
+
+    console.log(allPrognostic);
+
+    return allPrognostic;
+  }
+
   // Gets the collider attributes between treatment and outcome
   function getColliders(treatment, outcome) {
     // Return if no nodes or links
@@ -556,7 +592,7 @@ export const DAG = ({attributes = [], graph}) => {
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let o = nodelinks.nodes.filter(n => n.name === outcome)[0];
 
-    console.log(o.id);
+    // console.log(o.id);
 
     let treatmentChildren = getDescendents(t, o.id);
     let outcomeChildren = new Set(getDescendents(o));

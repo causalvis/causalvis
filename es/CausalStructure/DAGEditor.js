@@ -529,9 +529,8 @@ export var DAGEditor = function DAGEditor(_ref) {
       // console.log('mouseout');
       d3.select(this).attr("stroke-width", 1);
     }
-  }).on("contextmenu", function (e, d) {
-    return handleContextMenu(e, d);
-  });
+  }); // .on("contextmenu", (e, d) => handleContextMenu(e, d));
+
   var legend = svg.select("#legend").selectAll(".legendRect").data(["treatment", "outcome", "confounds", "colliders", "mediators"]).join("rect").attr("class", "legendRect").attr("x", layout.width - layout.margin * 2).attr("y", function (d, i) {
     return layout.height - layout.margin * 2 + 18 * i;
   }).attr("width", 15).attr("height", 15).attr("fill", function (d) {

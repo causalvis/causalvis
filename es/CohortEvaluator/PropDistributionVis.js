@@ -56,7 +56,26 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
 
     ;
     var yScaleTreatment = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.height - layout.margin]);
-    var yScaleControl = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.margin]);
+    var yScaleControl = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.margin]); // function onBrush(e) {
+    //   // let brushSelection = e.selection;
+    //   console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+    // }
+    // function brushEnd(e) {
+    //   let brushSelection = e.selection;
+    //   let brushExtent;
+    //   if (brushSelection) {
+    //     brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
+    //   } else {
+    //     brushExtent = null;
+    //   }
+    //   // updateFilter(refIndex, brushExtent);
+    // }
+    // var brush = d3.brushX()
+    //             .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
+    //             // .on("brush", (e) => onBrush(e))
+    //             .on("end", (e) => brushEnd(e))
+    // svgElement.call(brush)
+
     var controlBars = svgElement.select("#bars").selectAll(".controlBars").data(bins.CBins).join("rect").attr("class", "controlBars").attr("x", function (d, i) {
       return xScale(d.x0);
     }).attr("y", function (d, i) {
