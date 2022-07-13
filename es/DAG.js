@@ -85,7 +85,7 @@ export var DAG = function DAG(_ref) {
 
   var _React$useState8 = React.useState(""),
       search = _React$useState8[0],
-      setSearch = _React$useState8[1]; // Tracks colliders, mediators and confounds in DAG
+      setSearch = _React$useState8[1]; // Tracks colliders, mediators, confounds, and prognostic factors in DAG
 
 
   var _React$useState9 = React.useState([]),
@@ -98,38 +98,42 @@ export var DAG = function DAG(_ref) {
 
   var _React$useState11 = React.useState([]),
       confounds = _React$useState11[0],
-      setConfounds = _React$useState11[1]; // Track attributes
+      setConfounds = _React$useState11[1];
+
+  var _React$useState12 = React.useState([]),
+      prognostics = _React$useState12[0],
+      setPrognostics = _React$useState12[1]; // Track attributes
 
 
-  var _React$useState12 = React.useState({}),
-      allAttributes = _React$useState12[0],
-      setAllAttributes = _React$useState12[1]; // Tracks attributes added to DAG
+  var _React$useState13 = React.useState({}),
+      allAttributes = _React$useState13[0],
+      setAllAttributes = _React$useState13[1]; // Tracks attributes added to DAG
 
 
-  var _React$useState13 = React.useState([]),
-      added = _React$useState13[0],
-      setAdded = _React$useState13[1]; // Tracks treatment and outcome attributes
+  var _React$useState14 = React.useState([]),
+      added = _React$useState14[0],
+      setAdded = _React$useState14[1]; // Tracks treatment and outcome attributes
 
-
-  var _React$useState14 = React.useState(""),
-      treatment = _React$useState14[0],
-      setTreatment = _React$useState14[1];
 
   var _React$useState15 = React.useState(""),
-      outcome = _React$useState15[0],
-      setOutcome = _React$useState15[1]; // const [attr, setAttr] = React.useState(attributes);
+      treatment = _React$useState15[0],
+      setTreatment = _React$useState15[1];
+
+  var _React$useState16 = React.useState(""),
+      outcome = _React$useState16[0],
+      setOutcome = _React$useState16[1]; // const [attr, setAttr] = React.useState(attributes);
   // const [index, setIndex] = React.useState(0);
   // Tracks all descendants for a node
 
 
-  var _React$useState16 = React.useState({}),
-      allDescendants = _React$useState16[0],
-      setAllDescendants = _React$useState16[1]; // All IDs used
+  var _React$useState17 = React.useState({}),
+      allDescendants = _React$useState17[0],
+      setAllDescendants = _React$useState17[1]; // All IDs used
 
 
-  var _React$useState17 = React.useState(new Set()),
-      ID = _React$useState17[0],
-      setID = _React$useState17[1];
+  var _React$useState18 = React.useState(new Set()),
+      ID = _React$useState18[0],
+      setID = _React$useState18[1];
 
   var layout = {
     "height": 500,
@@ -255,15 +259,22 @@ export var DAG = function DAG(_ref) {
         _loop2();
       }
 
-      var newMediators = getMediators(treatment, outcome); // console.log(newColliders);
-
-      var newPrognostic = getPrognostic(treatment, outcome);
+      var newMediators = Array.from(getMediators(treatment, outcome));
+      var newConfounds = getConfounds(treatment, outcome);
+      var newPrognostics = getPrognostics(treatment, outcome, newMediators.map(function (m) {
+        return m.id;
+      }), newConfounds.map(function (c) {
+        return c.id;
+      }));
       setColliders(colliderNames);
-      setMediators(Array.from(newMediators).map(function (m) {
+      setMediators(newMediators.map(function (m) {
         return m.name;
       }));
-      setConfounds(getConfounds(treatment, outcome).map(function (m) {
-        return m.name;
+      setConfounds(newConfounds.map(function (c) {
+        return c.name;
+      }));
+      setPrognostics(newPrognostics.map(function (p) {
+        return p.name;
       }));
     } else {
       // If either treatment or outcome is missing,
@@ -271,6 +282,7 @@ export var DAG = function DAG(_ref) {
       setColliders([]);
       setMediators([]);
       setConfounds([]);
+      setPrognostics([]);
     }
   }, [treatment, outcome, nodelinks]); // Add new attribute to the DAG
 
@@ -540,14 +552,23 @@ export var DAG = function DAG(_ref) {
       _loop3();
     }
 
+    var newMediators = Array.from(getMediators(treatment, outcome));
+    var newConfounds = getConfounds(treatment, outcome);
+    var newPrognostics = getPrognostics(treatment, outcome, newMediators.map(function (m) {
+      return m.id;
+    }), newConfounds.map(function (c) {
+      return c.id;
+    }));
     setColliders(colliderNames);
-    setMediators(Array.from(getMediators(treatment, outcome)).map(function (m) {
+    setMediators(newMediators.map(function (m) {
       return m.name;
     }));
-    setConfounds(getConfounds(treatment, outcome).map(function (m) {
-      return m.name;
-    })); // console.log(getMediators('age', 're78'))
-
+    setConfounds(newConfounds.map(function (c) {
+      return c.name;
+    }));
+    setPrognostics(newPrognostics.map(function (p) {
+      return p.name;
+    }));
     setOpen(true);
   }; // Close download dialog
 
@@ -661,7 +682,15 @@ export var DAG = function DAG(_ref) {
   } // Gets prognostic factors, i.e. covariates that influence the outcome but not the treatment
 
 
-  function getPrognostic(treatment, outcome) {
+  function getPrognostics(treatment, outcome, mediators, confounds) {
+    if (mediators === void 0) {
+      mediators = [];
+    }
+
+    if (confounds === void 0) {
+      confounds = [];
+    }
+
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
       return [];
@@ -678,21 +707,20 @@ export var DAG = function DAG(_ref) {
     var outcomeID = nodelinks.nodes.filter(function (n) {
       return n.name === outcome;
     })[0].id;
-    console.log(treatmentID, outcomeID);
     var allPrognostic = [];
 
     for (var _iterator11 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step11; !(_step11 = _iterator11()).done;) {
       var n = _step11.value;
+      var isMediator = mediators.indexOf(n.id) >= 0;
+      var isConfound = confounds.indexOf(n.id) >= 0;
       var childrenHasOutcome = n.children.has(outcomeID);
       var childrenHasTreatment = n.children.has(treatmentID);
-      console.log(treatment, childrenHasTreatment, outcome, childrenHasOutcome);
 
-      if (childrenHasOutcome && !childrenHasTreatment) {
+      if (childrenHasOutcome && !childrenHasTreatment && !isMediator && !isConfound) {
         allPrognostic.push(n);
       }
     }
 
-    console.log(allPrognostic);
     return allPrognostic;
   } // Gets the collider attributes between treatment and outcome
 
@@ -1007,6 +1035,7 @@ export var DAG = function DAG(_ref) {
     mediators: mediators,
     colliders: colliders,
     confounds: confounds,
+    prognostics: prognostics,
     search: search,
     updateNodePos: updateNodePos,
     deleteAttribute: deleteAttribute,

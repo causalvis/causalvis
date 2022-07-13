@@ -72,10 +72,10 @@ class DAG(BaseWidget):
           self.graph = load_nx(nx_graph)
           self.attributes = None
         elif attributes:
-          self.attributes = attributes
+          self.attributes = sorted(attributes, key=str.lower)
           self.graph = None
         elif data is not None:
-          self.attributes = list(data)
+          self.attributes = sorted(list(data), key=str.lower)
           self.graph = None
         else:
           self.attributes = []

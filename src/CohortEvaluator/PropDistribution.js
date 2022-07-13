@@ -3,14 +3,50 @@ import { histogram } from 'd3-array';
 
 import { PropDistributionVis } from './PropDistributionVis';
 
+import { saveAs } from 'file-saver';
+
 export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
   // Track bins for treatment and control groups
   const [bins, setBins] = React.useState({"TBins":[], "CBins":[]});
   const [binSize, setBinSize] = React.useState({"TBins":1, "CBins":1});
 
+  const [selectRange, setSelectRange] = React.useState(null);
+  const [selectedItems, setSelectedItems] = React.useState({"data":[], "propensity":[], "treatment":[]});
+
   const binCount = 20;
   const n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
+
+  function downloadSelected() {
+    let fileContent = new Blob([JSON.stringify(selectedItems, null, 4)], {
+      type: 'application/json',
+      name: 'selected.json'
+    });
+
+    saveAs(fileContent, 'selected.json');
+  }
+
+  useEffect(() => {
+    if (!selectRange) { return; }
+
+    let newSelectedItems = {"data":[], "propensity":[], "treatment":[]};
+
+    for (let i = 0; i < unadjustedCohortData.propensity.length; i++) {
+      let treatment = unadjustedCohortData.treatment[i]
+      let propensity = unadjustedCohortData.propensity[i][treatment];
+      // console.log(propensity);
+
+      if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
+        newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
+        newSelectedItems.propensity.push(propensity);
+        newSelectedItems.treatment.push(unadjustedCohortData.treatment[i]);
+      }
+    }
+
+    // console.log(newSelectedItems);
+    setSelectedItems(newSelectedItems);
+
+  }, [selectRange])
 
   useEffect(() => {
     if (unadjustedCohortData.confounds) {
@@ -46,11 +82,19 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
 
   }, [unadjustedCohortData])
 
-  let propContainer = {"marginTop":"48px"}
+  let linkStyle = {"color":"steelblue", "cursor":"pointer"};
+  let propContainer = {"marginTop":"0px"};
+  let selectContainer = {"height":"48px",
+                         "margin":"0px",
+                         "display":"flex",
+                         "alignItems":"center",
+                         "fontFamily":"sans-serif",
+                         "fontSize":"11px",};
 
   return (
     <div style={propContainer}>
-      <PropDistributionVis bins={bins} n={binSize} setSelected={setSelected}/> 
+      <p style={selectContainer}>{`${selectedItems.data.length}`} selected.&nbsp;<span style={linkStyle} onClick={() => downloadSelected()}><u>Download.</u></span></p>
+      <PropDistributionVis bins={bins} n={binSize} setSelectRange={setSelectRange}/> 
     </div>
   )
 }

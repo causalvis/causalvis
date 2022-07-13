@@ -14,7 +14,7 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
       n = _ref$n === void 0 ? {} : _ref$n,
       _ref$maxPropensity = _ref.maxPropensity,
       maxPropensity = _ref$maxPropensity === void 0 ? 1 : _ref$maxPropensity,
-      setSelected = _ref.setSelected;
+      setSelectRange = _ref.setSelectRange;
 
   // Track color map
   var _React$useState = React.useState({
@@ -56,26 +56,33 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
 
     ;
     var yScaleTreatment = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.height - layout.margin]);
-    var yScaleControl = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.margin]); // function onBrush(e) {
-    //   // let brushSelection = e.selection;
-    //   console.log(brushSelection[1], xScale.invert(brushSelection[1]));
-    // }
-    // function brushEnd(e) {
-    //   let brushSelection = e.selection;
-    //   let brushExtent;
-    //   if (brushSelection) {
-    //     brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
-    //   } else {
-    //     brushExtent = null;
-    //   }
-    //   // updateFilter(refIndex, brushExtent);
-    // }
-    // var brush = d3.brushX()
-    //             .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
-    //             // .on("brush", (e) => onBrush(e))
-    //             .on("end", (e) => brushEnd(e))
-    // svgElement.call(brush)
+    var yScaleControl = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.margin]);
 
+    function onBrush(e) {
+      // let brushSelection = e.selection;
+      console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+    }
+
+    function brushEnd(e) {
+      var brushSelection = e.selection;
+      var brushExtent;
+
+      if (brushSelection) {
+        brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
+        console.log(brushExtent);
+        setSelectRange(brushExtent);
+      } else {
+        brushExtent = null;
+        setSelectRange(null);
+      } // updateFilter(refIndex, brushExtent);
+
+    }
+
+    var brush = d3.brushX().extent([[layout.marginLeft, layout.margin], [layout.width - layout.margin, layout.height - layout.margin, layout.margin]]) // .on("brush", (e) => onBrush(e))
+    .on("end", function (e) {
+      return brushEnd(e);
+    });
+    svgElement.call(brush);
     var controlBars = svgElement.select("#bars").selectAll(".controlBars").data(bins.CBins).join("rect").attr("class", "controlBars").attr("x", function (d, i) {
       return xScale(d.x0);
     }).attr("y", function (d, i) {
@@ -86,17 +93,11 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
       return prevCBins[i] ? prevCBins[i].height : 0;
     }).attr("fill", colorMap.control).attr("cursor", "pointer").on("click", function (e, d) {
       if (d3.select(this).attr("opacity") === "1") {
-        setSelected({
-          "selectedData": [],
-          "treatment": false
-        });
+        // setSelected({"selectedData":[], "treatment":false});
         controlBars.attr("opacity", null);
         treatmentBars.attr("opacity", null);
       } else {
-        setSelected({
-          "selectedData": d,
-          "treatment": false
-        });
+        // setSelected({"selectedData":d, "treatment":false});
         controlBars.attr("opacity", 0.5);
         treatmentBars.attr("opacity", 0.5);
         d3.select(this).attr("opacity", 1);
@@ -121,17 +122,11 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
       return prevTBins[i] ? prevTBins[i].height : 0;
     }).attr("fill", colorMap.treatment).attr("cursor", "pointer").on("click", function (e, d) {
       if (d3.select(this).attr("opacity") === "1") {
-        setSelected({
-          "selectedData": [],
-          "treatment": false
-        });
+        // setSelected({"selectedData":[], "treatment":false});
         controlBars.attr("opacity", null);
         treatmentBars.attr("opacity", null);
       } else {
-        setSelected({
-          "selectedData": d,
-          "treatment": true
-        });
+        // setSelected({"selectedData":d, "treatment":true});
         controlBars.attr("opacity", 0.5);
         treatmentBars.attr("opacity", 0.5);
         d3.select(this).attr("opacity", 1);

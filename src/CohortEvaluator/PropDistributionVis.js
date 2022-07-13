@@ -1,7 +1,11 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n={}, maxPropensity=1, setSelected}) => {
+export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50},
+                                     bins={},
+                                     n={},
+                                     maxPropensity=1,
+                                     setSelectRange}) => {
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
@@ -44,30 +48,33 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .domain([0, yMax])
       .range([layout.height / 2, layout.margin])
 
-    // function onBrush(e) {
-    //   // let brushSelection = e.selection;
-    //   console.log(brushSelection[1], xScale.invert(brushSelection[1]));
-    // }
+    function onBrush(e) {
+      // let brushSelection = e.selection;
+      console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+    }
 
-    // function brushEnd(e) {
-    //   let brushSelection = e.selection;
-    //   let brushExtent;
+    function brushEnd(e) {
+      let brushSelection = e.selection;
+      let brushExtent;
 
-    //   if (brushSelection) {
-    //     brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
-    //   } else {
-    //     brushExtent = null;
-    //   }
+      if (brushSelection) {
+        brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
+        console.log(brushExtent)
+        setSelectRange(brushExtent);
+      } else {
+        brushExtent = null;
+        setSelectRange(null);
+      }
       
-    //   // updateFilter(refIndex, brushExtent);
-    // }
+      // updateFilter(refIndex, brushExtent);
+    }
 
-    // var brush = d3.brushX()
-    //             .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
-    //             // .on("brush", (e) => onBrush(e))
-    //             .on("end", (e) => brushEnd(e))
+    var brush = d3.brushX()
+                .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
+                // .on("brush", (e) => onBrush(e))
+                .on("end", (e) => brushEnd(e))
 
-    // svgElement.call(brush)
+    svgElement.call(brush)
 
     let controlBars = svgElement.select("#bars")
       .selectAll(".controlBars")
@@ -82,11 +89,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          setSelected({"selectedData":[], "treatment":false});
+          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          setSelected({"selectedData":d, "treatment":false});
+          // setSelected({"selectedData":d, "treatment":false});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
@@ -117,11 +124,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          setSelected({"selectedData":[], "treatment":false});
+          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          setSelected({"selectedData":d, "treatment":true});
+          // setSelected({"selectedData":d, "treatment":true});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
