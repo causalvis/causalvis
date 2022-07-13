@@ -62,10 +62,11 @@ export const DAG = ({attributes = [], graph}) => {
   // Tracks search item
   const [search, setSearch] = React.useState("");
 
-  // Tracks colliders, mediators and confounds in DAG
+  // Tracks colliders, mediators, confounds, and prognostic factors in DAG
   const [colliders, setColliders] = React.useState([]);
   const [mediators, setMediators] = React.useState([]);
   const [confounds, setConfounds] = React.useState([]);
+  const [prognostics, setPrognostics] = React.useState([]);
 
   // Track attributes
   const [allAttributes, setAllAttributes] = React.useState({});
@@ -189,20 +190,22 @@ export const DAG = ({attributes = [], graph}) => {
         colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name)
       }
 
-      let newMediators = getMediators(treatment, outcome);
-      // console.log(newColliders);
-
-      let newPrognostic = getPrognostic(treatment, outcome);
+      let newMediators = Array.from(getMediators(treatment, outcome));
+      let newConfounds = getConfounds(treatment, outcome);
+      let newPrognostics = getPrognostics(treatment, outcome, newMediators.map(m => m.id), newConfounds.map(c => c.id));
 
       setColliders(colliderNames);
-      setMediators(Array.from(newMediators).map(m => m.name));
-      setConfounds(getConfounds(treatment, outcome).map(m => m.name));
+      setMediators(newMediators.map(m => m.name));
+      setConfounds(newConfounds.map(c => c.name));
+      setPrognostics(newPrognostics.map(p => p.name));
+      
     } else {
       // If either treatment or outcome is missing,
       // Set all variable types to empty
       setColliders([]);
       setMediators([]);
       setConfounds([]);
+      setPrognostics([]);
     }
   }, [treatment, outcome, nodelinks]);
 
@@ -432,10 +435,15 @@ export const DAG = ({attributes = [], graph}) => {
       colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name)
     }
 
+    let newMediators = Array.from(getMediators(treatment, outcome));
+    let newConfounds = getConfounds(treatment, outcome);
+    let newPrognostics = getPrognostics(treatment, outcome, newMediators.map(m => m.id), newConfounds.map(c => c.id));
+
     setColliders(colliderNames);
-    setMediators(Array.from(getMediators(treatment, outcome)).map(m => m.name));
-    setConfounds(getConfounds(treatment, outcome).map(m => m.name));
-    // console.log(getMediators('age', 're78'))
+    setMediators(newMediators.map(m => m.name));
+    setConfounds(newConfounds.map(c => c.name));
+    setPrognostics(newPrognostics.map(p => p.name));
+
     setOpen(true);
   };
 
@@ -543,7 +551,7 @@ export const DAG = ({attributes = [], graph}) => {
   }
 
   // Gets prognostic factors, i.e. covariates that influence the outcome but not the treatment
-  function getPrognostic(treatment, outcome) {
+  function getPrognostics(treatment, outcome, mediators=[], confounds=[]) {
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
       return [];
@@ -557,21 +565,20 @@ export const DAG = ({attributes = [], graph}) => {
     let treatmentID = nodelinks.nodes.filter(n => n.name === treatment)[0].id;
     let outcomeID = nodelinks.nodes.filter(n => n.name === outcome)[0].id;
 
-    console.log(treatmentID, outcomeID)
-
     let allPrognostic = [];
 
     for (let n of nodelinks.nodes) {
+
+      let isMediator = mediators.indexOf(n.id) >= 0;
+      let isConfound = confounds.indexOf(n.id) >= 0;
+
       let childrenHasOutcome = n.children.has(outcomeID);
       let childrenHasTreatment = n.children.has(treatmentID);
 
-      console.log(treatment, childrenHasTreatment, outcome, childrenHasOutcome)
-      if (childrenHasOutcome && !childrenHasTreatment) {
+      if (childrenHasOutcome && !childrenHasTreatment && !isMediator && !isConfound) {
         allPrognostic.push(n);
       }
     }
-
-    console.log(allPrognostic);
 
     return allPrognostic;
   }
@@ -854,6 +861,7 @@ export const DAG = ({attributes = [], graph}) => {
             mediators={mediators}
             colliders={colliders}
             confounds={confounds}
+            prognostics={prognostics}
             search={search}
             updateNodePos={updateNodePos}
             deleteAttribute={deleteAttribute}
