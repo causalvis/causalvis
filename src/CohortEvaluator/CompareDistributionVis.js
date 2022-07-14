@@ -48,6 +48,17 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     let treatment = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 1);
     let control = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 0);
 
+    let allPropensity = unadjustedPropensity.map((p, i) => p[unadjustedTreatment[i]]);
+    let controlPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 0);
+    let treatmentPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 1);
+
+    let controlIPW = controlPropensity.map(p => 1/p);
+    let treatmentIPW = treatmentPropensity.map(p => 1/p);
+
+    // Zip attribute values with weight for each data instance
+    treatment = treatment.map((t, i) => [t, treatmentIPW[i]]);
+    control = control.map((c, i) => [c, controlIPW[i]]);
+
     setUnadjustedTreatmentData([...treatment]);
     setUnadjustedControlData([...control]);
 
@@ -133,13 +144,44 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     return line(density);
   }
 
+  function getArea(bins, binRange, xScale) {
+    let totalLength = bins.reduce((count, current) => count + current.length, 0);
+    let totalWeight = bins.reduce((count, current) => count + d3.sum(current, d => d[1]), 0);
+
+    let maxNum = d3.max(bins.map(d => d.length / totalLength));
+    let maxWeight = d3.max(bins.map(d => d3.sum(d, i => i[1]) / totalWeight));
+
+    let unadjustedBinScale = d3.scaleLinear()
+                      .range(binRange)
+                      .domain([0, maxNum])
+    let adjustedBinScale = d3.scaleLinear()
+                      .range(binRange)
+                      .domain([0, maxWeight])
+
+    let unadjustedArea = d3.area()
+                .y0(function(d){ return(unadjustedBinScale(0)) } )
+                .y1(function(d){ return(unadjustedBinScale(d.length / totalLength)) } )
+                .x(function(d){ return(xScale(d.x0)) } )
+                .curve(d3.curveCatmullRom)
+
+    let adjustedArea = d3.area()
+                .y0(function(d){ return(adjustedBinScale(0)) } )
+                .y1(function(d){ return(adjustedBinScale(d3.sum(d, i => i[1]) / totalWeight)) } )
+                .x(function(d){ return(xScale(d.x0)) } )
+                .curve(d3.curveCatmullRom)
+
+    // console.log(typeof unadjustedArea(bins))
+
+    return {"unadjusted": unadjustedArea(bins), "adjusted":adjustedArea(bins)}
+  }
+
   // Get weighted mean of data
   function getWeightedMean(x, w) {
     let total = 0;
     let totalWeight = 0;
 
     for (let i = 0; i < x.length; i++) {
-      let xValue = x[i];
+      let xValue = x[i][0];
       let wValue = w[i];
 
       total += xValue * wValue;
@@ -184,7 +226,10 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     // svgElement.call(brush)
 
     // Unfortunately, binning seems to be the most effective way of estimating the max values of the yScale
-    var histogram = d3.histogram().domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).thresholds(bins);
+    var histogram = d3.histogram()
+                      .value(d => d[0])
+                      .domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)])
+                      .thresholds(bins);
     var TBins = histogram(unadjustedTreatmentData);
     var CBins = histogram(unadjustedControlData);
 
@@ -212,16 +257,25 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     let startPoint = [d3.min(unadjustedAttribute), 0];
     let endPoint = [d3.max(unadjustedAttribute), 0];
 
+    // let unadjustedCArea = getArea(CBins, [layout.height / 2, layout.margin], newXScale);
+    // let unadjustedTArea = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale);
+
     // Get KDE of unadjusted data
     let unadjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, newXScale, newYScaleControl);
     let unadjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, newXScale, newYScaleTreatment);
 
     // Get mean of unadjusted data
-    let unadjustedCMean = d3.mean(unadjustedControlData);
-    let unadjustedTMean = d3.mean(unadjustedTreatmentData);
+    let unadjustedCMean = d3.mean(unadjustedControlData, d => d[0]);
+    let unadjustedTMean = d3.mean(unadjustedTreatmentData, d => d[0]);
 
     let adjustedCLine;
     let adjustedTLine;
+
+    let unadjustedCArea;
+    let unadjustedTArea;
+
+    let adjustedCArea;
+    let adjustedTArea;
 
     let adjustedCMean;
     let adjustedTMean;
@@ -238,13 +292,27 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       adjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, newXScale, newYScaleControl, controlIPW);
       adjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, newXScale, newYScaleTreatment, treatmentIPW);
 
+      let CAreas = getArea(CBins, [layout.height / 2, layout.margin], newXScale);
+      let TAreas = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale);
+
+      // console.log(CAreas, TAreas);
+
+      unadjustedCArea = CAreas.unadjusted;
+      adjustedCArea = CAreas.adjusted;
+
+      unadjustedTArea = TAreas.unadjusted;
+      adjustedTArea = TAreas.adjusted;
+
+      // [unadjustedCArea, adjustedCArea] = getArea(CBins, [layout.height / 2, layout.margin], newXScale)[0];
+      // [unadjustedTArea, adjustedTArea] = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale)[0];
+
       adjustedCMean = getWeightedMean(unadjustedControlData, controlIPW);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData, treatmentIPW);
     }
 
     svgElement.select("#unadjusted")
       .selectAll(".unadjustedCLine")
-      .data([unadjustedCLine])
+      .data([unadjustedCArea])
       .join("path")
       .attr("class", "unadjustedCLine")
       .attr("fill", "none")
@@ -255,7 +323,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
     svgElement.select("#adjusted")
       .selectAll(".adjustedCLine")
-      .data([adjustedCLine])
+      .data([adjustedCArea])
       .join("path")
       .attr("class", "adjustedCLine")
       .attr("fill", colorMap.control)
@@ -264,7 +332,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
     svgElement.select("#unadjusted")
       .selectAll(".unadjustedTLine")
-      .data([unadjustedTLine])
+      .data([unadjustedTArea])
       .join("path")
       .attr("class", "unadjustedTLine")
       .attr("fill", "none")
@@ -275,7 +343,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
     svgElement.select("#adjusted")
       .selectAll(".adjustedTLine")
-      .data([adjustedTLine])
+      .data([adjustedTArea])
       .join("path")
       .attr("class", "adjustedTLine")
       .attr("fill", colorMap.treatment)

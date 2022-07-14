@@ -5,6 +5,7 @@ import { min, max } from 'd3-array';
 
 import { CompareDistributionVis } from './CompareDistributionVis';
 import { CompareHistogramVis } from './CompareHistogramVis';
+import { CompareHistogramContinuousVis } from './CompareHistogramContinuousVis';
 import { CovariateSelector } from './CovariateSelector';
 import { SMDMenu } from './SMDMenu'
 
