@@ -221,7 +221,10 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
       // setSMD(newSMD);
 
-      let SMDSorted = newSMD.sort((a, b) => a.adjusted < b.adjusted);
+      let SMDSorted = newSMD.sort((a, b) => b.adjusted - a.adjusted);
+
+      // console.log("init sorted", newSMD, SMDSorted);
+
       setSMD(SMDSorted);
       
       let newAttributeDetails = SMDSorted.filter(s => s.adjusted > 0.1);
@@ -237,23 +240,28 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     let newSMD;
     // let newAttributeDetails;
 
+    // console.log("new sort...", sort);
+
     if (sort === "Adjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.adjusted < b.adjusted);
+      newSMD = SMD.sort((a, b) => b.adjusted - a.adjusted);
     } else if (sort === "Adjusted Low to High") {
-      newSMD = SMD.sort((a, b) => a.adjusted > b.adjusted);
+      console.log("here...")
+      newSMD = SMD.sort((a, b) => a.adjusted - b.adjusted);
     } else if (sort === "Unadjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.unadjusted < b.unadjusted);
+      newSMD = SMD.sort((a, b) => b.unadjusted - a.unadjusted);
     } else if (sort === "Unadjusted Low to High") {
-      newSMD = SMD.sort((a, b) => a.unadjusted > b.unadjusted);
+      newSMD = SMD.sort((a, b) => a.unadjusted - b.unadjusted);
     } else if (sort === "Difference High to Low") {
-      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted));
+      newSMD = SMD.sort((a, b) => Math.abs(b.unadjusted - b.adjusted) - Math.abs(a.unadjusted - a.adjusted));
     } else if (sort === "Difference Low to High") {
-      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) < Math.abs(b.unadjusted - b.adjusted));
+      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) - Math.abs(b.unadjusted - b.adjusted));
     } else if (sort === "A-Z Alphebatically") {
-      newSMD = SMD.sort((a, b) => a.covariate > b.covariate);
+      newSMD = SMD.sort((a, b) => a.covariate > b.covariate ? 1 : -1);
     } else if (sort === "Z-A Alphebatically") {
-      newSMD = SMD.sort((a, b) => a.covariate < b.covariate);
+      newSMD = SMD.sort((a, b) => b.covariate > a.covariate ? 1 : -1);
     }
+
+    // console.log("sorting...", newSMD);
 
     setSMD([...newSMD]);
 
