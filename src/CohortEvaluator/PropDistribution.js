@@ -51,6 +51,8 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
   }, [selectRange])
 
   useEffect(() => {
+    // console.log(adjustedCohortData);
+
     if (!adjustedCohortData && unadjustedCohortData.confounds) {
       let newTAttribute = [];
       let newCAttribute = [];
@@ -98,14 +100,10 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
         }
       }
 
-      console.log(newTAttribute, newCAttribute);
-
       // Get histogram for treatment and control data sets
       var h = histogram().value(d => d.propensity).domain([0, 1]).thresholds(binCount);
       var newTBins = h(newTAttribute);
       var newCBins = h(newCAttribute);
-
-      console.log(newTBins, newCBins);
 
       var TBinSize = newTBins.reduce((count, current) => count + current.length, 0);
       var CBinSize = newCBins.reduce((count, current) => count + current.length, 0);

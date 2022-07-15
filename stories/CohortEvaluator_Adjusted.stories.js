@@ -9,7 +9,11 @@ import CohortPropensityAdjusted from '../public/cohort_propensity_matched2.json'
 import CohortConfoundsAdjusted from '../public/cohort_confounds_matched.json'
 import CohortTreatmentsAdjusted from '../public/cohort_treatments_matched.json'
 
-let unadjustedData = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {d.treatment = CohortTreatments[i]; d.propensity = CohortPropensity[i]; return d})
+import CohortPropensityUnadjusted from '../public/cohort_propensity_matched_unadjusted2.json'
+import CohortConfoundsUnadjusted from '../public/cohort_confounds_matched_unadjusted.json'
+import CohortTreatmentsUnadjusted from '../public/cohort_treatment_matched_unadjusted.json'
+
+let unadjustedData = JSON.parse(JSON.stringify(CohortConfoundsUnadjusted)).map((d, i) => {d.treatment = CohortTreatmentsUnadjusted[i]; d.propensity = CohortPropensityUnadjusted[i]; return d})
 let adjustedData = JSON.parse(JSON.stringify(CohortConfoundsAdjusted)).map((d, i) => {d.treatment = CohortTreatmentsAdjusted[i]; d.propensity = CohortPropensityAdjusted[i]; return d})
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

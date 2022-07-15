@@ -53,13 +53,13 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
 
   useEffect(() => {
 
-    let newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(d => {delete d.treatment; delete d.propensity; return d});
-    let newCohortTreatments = adjustedCohort.map(d => d.treatment);
-    let newCohortPropensity = adjustedCohort.map(d => d.propensity);
+    if (adjustedCohort.length > 0) {
+      let newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(d => {delete d.treatment; delete d.propensity; return d});
+      let newCohortTreatments = adjustedCohort.map(d => d.treatment);
+      let newCohortPropensity = adjustedCohort.map(d => d.propensity);
 
-    console.log(newCohortPropensity)
-
-    setAdjustedCohortData({"confounds": newCohortConfounds, "propensity": newCohortPropensity, "treatment": newCohortTreatments});
+      setAdjustedCohortData({"confounds": newCohortConfounds, "propensity": newCohortPropensity, "treatment": newCohortTreatments});
+    }
 
   }, [adjustedCohort])
 
