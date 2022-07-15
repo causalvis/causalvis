@@ -5,7 +5,7 @@ import { PropDistributionVis } from './PropDistributionVis';
 
 import { saveAs } from 'file-saver';
 
-export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
+export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, setSelected}) => {
 
   // Track bins for treatment and control groups
   const [bins, setBins] = React.useState({"TBins":[], "CBins":[]});
@@ -51,7 +51,7 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
   }, [selectRange])
 
   useEffect(() => {
-    if (unadjustedCohortData.confounds) {
+    if (!adjustedCohortData && unadjustedCohortData.confounds) {
       let newTAttribute = [];
       let newCAttribute = [];
 
@@ -80,9 +80,42 @@ export const PropDistribution = ({unadjustedCohortData={}, setSelected}) => {
       setBins({"TBins": newTBins, "CBins": newCBins});
       setBinSize({"TBins": TBinSize === 0 ? 1 : TBinSize, 
                   "CBins": CBinSize === 0 ? 1 : CBinSize});
+    } else if (adjustedCohortData.confounds) {
+      let newTAttribute = [];
+      let newCAttribute = [];
+
+      for (let i = 0; i < adjustedCohortData.confounds.length; i++) {
+        let dataRow = JSON.parse(JSON.stringify(adjustedCohortData.confounds[i]));
+        let assignedTreatment = adjustedCohortData.treatment[i];
+
+        // Separate treatment and control rows
+        if (assignedTreatment === 0) {
+          dataRow.propensity = adjustedCohortData.propensity[i][1];
+          newCAttribute.push(dataRow);
+        } else {
+          dataRow.propensity = adjustedCohortData.propensity[i][1];
+          newTAttribute.push(dataRow);
+        }
+      }
+
+      console.log(newTAttribute, newCAttribute);
+
+      // Get histogram for treatment and control data sets
+      var h = histogram().value(d => d.propensity).domain([0, 1]).thresholds(binCount);
+      var newTBins = h(newTAttribute);
+      var newCBins = h(newCAttribute);
+
+      console.log(newTBins, newCBins);
+
+      var TBinSize = newTBins.reduce((count, current) => count + current.length, 0);
+      var CBinSize = newCBins.reduce((count, current) => count + current.length, 0);
+
+      setBins({"TBins": newTBins, "CBins": newCBins});
+      setBinSize({"TBins": TBinSize === 0 ? 1 : TBinSize, 
+                  "CBins": CBinSize === 0 ? 1 : CBinSize});
     }
 
-  }, [unadjustedCohortData])
+  }, [unadjustedCohortData, adjustedCohortData])
 
   let linkStyle = {"color":"steelblue", "cursor":"pointer"};
   let propContainer = {"marginTop":"0px"};

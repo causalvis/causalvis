@@ -11,8 +11,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
   let svgElement = svg.select("g");
 
   useEffect(() => {
-    console.log(SMDDataset)
-
     var xScale = d3.scaleLinear()
           .domain(SMDExtent)
           .range([layout.marginLeft, layout.width - layout.margin])
