@@ -35,7 +35,7 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
       updateTopThreshold(v);
     }
 
-    let xScale
+    let xScale;
 
     if (!isBinary) {
       xScale = d3.scaleLinear()

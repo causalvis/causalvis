@@ -73,7 +73,8 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
 
     for (var _iterator = _createForOfIteratorHelperLoose(allAttributes), _step; !(_step = _iterator()).done;) {
       _loop();
-    }
+    } // console.log(newAttributeLevels);
+
 
     setAttributeLevels(newAttributeLevels);
   }, [data]); // Add a new attribute to facet by
@@ -289,14 +290,16 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     data: cohortData,
     stratify: stratify[1].attribute,
     thresholdValue: stratify[1].threshold,
-    updateTopThreshold: updateTopThreshold
+    updateTopThreshold: updateTopThreshold,
+    isBinary: attributeLevels[stratify[1].attribute].length === 2
   }) : /*#__PURE__*/React.createElement("div", null)), /*#__PURE__*/React.createElement("div", {
     style: bleftStyle
   }, stratify[2] ? /*#__PURE__*/React.createElement(BeeswarmLeft, {
     data: cohortData,
     stratify: stratify[2].attribute,
     thresholdValue: stratify[2].threshold,
-    updateLeftThreshold: updateLeftThreshold
+    updateLeftThreshold: updateLeftThreshold,
+    isBinary: attributeLevels[stratify[2].attribute].length === 2
   }) : /*#__PURE__*/React.createElement("div", null)), /*#__PURE__*/React.createElement("div", {
     style: allVis
   }, stratifiedData.map(function (value, index) {
@@ -304,7 +307,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       key: "vis" + value.stratifyBy + index,
       index: index,
       allData: value,
-      isBinary: attributeLevels[value] === 2
+      isBinary: attributeLevels[value] ? attributeLevels[value].length === 2 : false
     });
   })));
 };

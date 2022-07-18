@@ -16,7 +16,8 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
       stratify = _ref$stratify === void 0 ? "" : _ref$stratify,
       _ref$thresholdValue = _ref.thresholdValue,
       thresholdValue = _ref$thresholdValue === void 0 ? 0 : _ref$thresholdValue,
-      updateTopThreshold = _ref.updateTopThreshold;
+      updateTopThreshold = _ref.updateTopThreshold,
+      isBinary = _ref.isBinary;
   var ref = useRef('svgBeeswarmTop');
   var svgElement = d3.select(ref.current); // Track color map
 
@@ -25,11 +26,9 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
     0: "#f28e2b"
   }),
       colorMap = _React$useState[0],
-      setColorMap = _React$useState[1];
+      setColorMap = _React$useState[1]; // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
+  // Jitter the coordinates of each point slightly along the x-axis
 
-  var isBinary = new Set(data.map(function (d) {
-    return d[stratify];
-  })).size === 2; // Jitter the coordinates of each point slightly along the x-axis
 
   var jitter = 20; // Set the slider step increment size to one-hundredth of variable extent
 
@@ -43,15 +42,28 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
     updateTopThreshold(v);
   }
 
-  var xScale = d3.scaleLinear().domain(extent).range([layout.marginLeft, layout.width - layout.margin]);
+  var xScale;
+
+  if (!isBinary) {
+    xScale = d3.scaleLinear().domain(extent).range([layout.marginLeft, layout.width - layout.margin]);
+  } else {
+    xScale = d3.scaleLinear().domain([-0.5, 1.5]).range([layout.marginLeft, layout.width - layout.margin]);
+  }
+
   var circles = svgElement.select("#points").selectAll(".dataPoint").data(data).join("circle").attr("class", "dataPoint").attr("transform", function (d) {
     return "translate(" + xScale(d[stratify]) + "," + (layout.height / 2 + (Math.random() - 0.5) * jitter) + ")";
   }).attr("r", 3).attr("fill", "none").attr("stroke", function (d) {
-    return colorMap[d.treatment];
+    return colorMap[1];
   }); // Visualize current threshold
 
   var thresholdStroke = svgElement.select("#threshold").attr("transform", "translate(" + xScale(thresholdValue) + ", 0)").attr("stroke", isBinary ? "none" : "black").attr("stroke-dasharray", "5 5 2 5");
-  svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.margin) + ")").call(d3.axisBottom(xScale).tickSize(3));
+
+  if (!isBinary) {
+    svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.margin) + ")").call(d3.axisBottom(xScale).tickSize(3));
+  } else {
+    svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.margin) + ")").call(d3.axisBottom(xScale).tickSize(3).tickValues([0, 1]));
+  }
+
   var subplotStyle = {
     "display": "flex",
     "flexDirection": "column",
@@ -113,5 +125,5 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: thresholdValueIndicator
-  }, /*#__PURE__*/React.createElement("p", null, isBinary ? 0 : "< " + thresholdValue), /*#__PURE__*/React.createElement("p", null, isBinary ? 1 : ">= " + thresholdValue)));
+  }, /*#__PURE__*/React.createElement("p", null, isBinary ? /*#__PURE__*/React.createElement("p", null) : "< " + thresholdValue), /*#__PURE__*/React.createElement("p", null, isBinary ? /*#__PURE__*/React.createElement("p", null) : ">= " + thresholdValue)));
 };

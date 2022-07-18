@@ -44,7 +44,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newAttributeLevels[a] = levels;
     }
 
-    console.log(newAttributeLevels);
+    // console.log(newAttributeLevels);
 
     setAttributeLevels(newAttributeLevels);
 
