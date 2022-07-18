@@ -181,7 +181,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       </div>
       <div style={headerStyle}>
         <p style={plotsTitle}>Treatment Effect Plot</p>
-        <LegendVis />
+        {/*<LegendVis />*/}
       </div>
       <div style={btopStyle}>
         {stratify[1] 
@@ -197,7 +197,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       </div>
       <div style={allVis}>
         {stratifiedData.map((value, index) => {
-            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} />
+            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value] === 2} />
           })
         }
       </div>

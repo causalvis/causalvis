@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import Button from '@mui/material/Button';
 
 export const Covariate = ({value="", color="black", changeStratify}) => {
-  console.log("here", color);
+  // console.log("here", color);
 
   // function handleClick() {
   //   console.log("clicked")

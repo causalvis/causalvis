@@ -18,7 +18,7 @@ let data = JSON.parse(JSON.stringify(CohortConfounds)).map((d, i) => {
   return d
 });
 
-console.log(data);
+// console.log(data);
 
 // let data2 = JSON.parse(JSON.stringify(CohortConfounds));
 

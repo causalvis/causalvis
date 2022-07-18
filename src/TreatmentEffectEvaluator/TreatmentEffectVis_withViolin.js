@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import regression from 'regression';
 import * as d3 from 'd3';
 
-export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect"}) => {
+export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", isBinary}) => {
 
 	const ref = useRef('svgTreatmentEffect');
 
@@ -16,7 +16,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   const [cohortData, setCohortData] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
-  const [isBinary, setIsBinary] = React.useState(false);
+  // const [isBinary, setIsBinary] = React.useState(false);
   const [plotTitle, setPlotTitle] = React.useState("");
   const [layout, setLayout] = React.useState({"height": 500, "width": 600, "margin": 50, "marginLeft": 50});
   const [treatmentReg, setTreatmentReg] = React.useState([[0, 0], [0, 0]]);
@@ -30,11 +30,11 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   useEffect(() => {
   	let cohortData = allData["data"];
   	let stratifyBy = allData["stratifyBy"];
-  	let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size <= 2;
+  	// let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size <= 2;
 
   	setCohortData(cohortData);
   	setStratifyBy(stratifyBy);
-  	setIsBinary(isBinary);
+  	// setIsBinary(isBinary);
   	setPlotTitle(allData["title"]);
   	setLayout(allData["layout"]);
 
