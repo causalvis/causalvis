@@ -8,7 +8,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
                                     unadjustedAttribute=[],
                                     adjustedAttribute,
                                     unadjustedTreatment=[],
+                                    adjustedTreatment,
                                     unadjustedPropensity=[],
+                                    adjustedPropensity,
                                     attribute="",
                                     updateFilter,
                                     selectedAttribute=[],
@@ -17,6 +19,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
 
   const [unadjustedTreatmentData, setUnadjustedTreatmentData] = React.useState([]);
   const [unadjustedControlData, setUnadjustedControlData] = React.useState([]);
+
+  const [adjustedTreatmentData, setAdjustedTreatmentData] = React.useState([]);
+  const [adjustedControlData, setAdjustedControlData] = React.useState([]);
 
   const [xScale, setXScale] = React.useState(() => x => x);
   const [yScaleTreatment, setYScaleTreatment] = React.useState(() => y => y);
@@ -43,13 +48,35 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
 
   useEffect(() => {
 
-    if (!adjustedAttribute) {
-      let treatment = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 1);
-      let control = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 0);
+    let treatment = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 1);
+    let control = unadjustedAttribute.filter((r, i) => unadjustedTreatment[i] === 0);
 
-      let allPropensity = unadjustedPropensity.map((p, i) => p[unadjustedTreatment[i]]);
-      let controlPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 0);
-      let treatmentPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 1);
+    let allPropensity = unadjustedPropensity.map((p, i) => p[unadjustedTreatment[i]]);
+    let controlPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 0);
+    let treatmentPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 1);
+
+    let controlIPW = controlPropensity.map(p => 1/p);
+    let treatmentIPW = treatmentPropensity.map(p => 1/p);
+
+    // Zip attribute values with weight for each data instance
+    treatment = treatment.map((t, i) => [t, treatmentIPW[i]]);
+    control = control.map((c, i) => [c, controlIPW[i]]);
+
+    setUnadjustedTreatmentData([...treatment]);
+    setUnadjustedControlData([...control]);
+
+  }, [unadjustedAttribute])
+
+  useEffect(() => {
+
+    if (adjustedAttribute && adjustedPropensity && adjustedTreatment) {
+
+      let treatment = adjustedAttribute.filter((r, i) => adjustedTreatment[i] === 1);
+      let control = adjustedAttribute.filter((r, i) => adjustedTreatment[i] === 0);
+
+      let allPropensity = adjustedPropensity.map((p, i) => p[adjustedTreatment[i]]);
+      let controlPropensity = allPropensity.filter((r, i) => adjustedTreatment[i] === 0);
+      let treatmentPropensity = allPropensity.filter((r, i) => adjustedTreatment[i] === 1);
 
       let controlIPW = controlPropensity.map(p => 1/p);
       let treatmentIPW = treatmentPropensity.map(p => 1/p);
@@ -58,11 +85,11 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       treatment = treatment.map((t, i) => [t, treatmentIPW[i]]);
       control = control.map((c, i) => [c, controlIPW[i]]);
 
-      setUnadjustedTreatmentData([...treatment]);
-      setUnadjustedControlData([...control]);
+      setAdjustedTreatmentData([...treatment]);
+      setAdjustedControlData([...control]);
     }
 
-  }, [unadjustedAttribute])
+  }, [adjustedAttribute, adjustedPropensity, adjustedTreatment])
 
   let newRef = "svgCompare" + attribute
   
@@ -99,6 +126,17 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
     }
 
     return currentMax;
+  }
+
+  function getMaxProportionWithAdjusted(TBins, CBins, adjustedTBins, adjustedCBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount) {
+    
+    let TBinsMax = d3.max(TBins.map(d => d.length / unadjustedTCount));
+    let CBinsMax = d3.max(CBins.map(d => d.length / unadjustedCCount));
+
+    let TBinsAdjustedMax = d3.max(adjustedTBins.map(d => d.length / adjustedTCount));
+    let CBinsAdjustedMax = d3.max(adjustedCBins.map(d => d.length / adjustedCCount));
+
+    return d3.max([TBinsMax, CBinsMax, TBinsAdjustedMax, CBinsAdjustedMax]);
   }
 
   // Get weighted mean given data
@@ -174,34 +212,68 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
     let adjustedCCount;
     let adjustedTCount;
 
+    let newXScale;
+    let newYScaleTreatment;
+    let newYScaleControl;
+
+    let adjustedCBins;
+    let adjustedTBins;
+
+    let maxProportion;
+
     // If adjusted data set not provided, calculate means and counts using IPW
-    if (!adjustedAttribute) {
+    if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
       adjustedCMean = getWeightedMean(unadjustedControlData);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData);
 
       adjustedCCount = d3.sum(unadjustedControlData, d => d[1]);
       adjustedTCount = d3.sum(unadjustedTreatmentData, d => d[1]);
-    }
 
-    var totalWeight = d3.sum(unadjustedTreatmentData, d => d[1]) + d3.sum(unadjustedControlData, d => d[1]);
+      maxProportion = getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
 
-    let maxProportion = getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
+      newXScale = d3.scaleLinear()
+        .domain([-0.5, 1.5])
+        .range([layout.marginLeft, layout.width - layout.margin]);
 
-    const newXScale = d3.scaleLinear()
-      .domain([-0.5, 1.5])
-      .range([layout.marginLeft, layout.width - layout.margin])
+      newYScaleTreatment = d3.scaleLinear()
+        .domain([0, maxProportion])
+        .range([layout.height / 2, layout.height - layout.margin]);
 
-    const newYScaleTreatment = d3.scaleLinear()
-      .domain([0, maxProportion])
-      .range([layout.height / 2, layout.height - layout.margin])
+      newYScaleControl = d3.scaleLinear()
+        .domain([0, maxProportion])
+        .range([layout.height / 2, layout.margin]);
 
-    const newYScaleControl = d3.scaleLinear()
-      .domain([0, maxProportion])
-      .range([layout.height / 2, layout.margin])
+      setXScale(() => x => newXScale(x));
+      setYScaleTreatment(() => y => newYScaleTreatment(y));
+      setYScaleControl(() => y => newYScaleControl(y));
+    } else {
+      adjustedCMean = d3.mean(adjustedControlData, d => d[0]);
+      adjustedTMean = d3.mean(adjustedTreatmentData, d => d[0]);
 
-    setXScale(() => x => newXScale(x));
-    setYScaleTreatment(() => y => newYScaleTreatment(y));
-    setYScaleControl(() => y => newYScaleControl(y));
+      adjustedCCount = adjustedControlData.length;
+      adjustedTCount = adjustedTreatmentData.length;
+
+      adjustedCBins = histogram(adjustedControlData);
+      adjustedTBins = histogram(adjustedTreatmentData);
+
+      maxProportion = getMaxProportionWithAdjusted(TBins, CBins, adjustedTBins, adjustedCBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
+
+      newXScale = d3.scaleLinear()
+        .domain([-0.5, 1.5])
+        .range([layout.marginLeft, layout.width - layout.margin]);
+
+      newYScaleTreatment = d3.scaleLinear()
+        .domain([0, maxProportion])
+        .range([layout.height / 2, layout.height - layout.margin]);
+
+      newYScaleControl = d3.scaleLinear()
+        .domain([0, maxProportion])
+        .range([layout.height / 2, layout.margin]);
+
+      setXScale(() => x => newXScale(x));
+      setYScaleTreatment(() => y => newYScaleTreatment(y));
+      setYScaleControl(() => y => newYScaleControl(y));
+    } 
 
     let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2;
 
@@ -229,29 +301,55 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       .attr("fill", "none")
       .attr("stroke", "black");
 
-    let adjustedCBars = svgElement.select("#adjusted")
-      .selectAll(".adjustedCBars")
-      .data(CBins)
-      .join("rect")
-      .attr("class", "adjustedCBars")
-      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
-      .attr("width", bandwidth)
-      .attr("height", d => newYScaleControl(0) - newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
-      .attr("fill", colorMap.control)
-      .attr("stroke", "none");
+    if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
+      let adjustedCBars = svgElement.select("#adjusted")
+        .selectAll(".adjustedCBars")
+        .data(CBins)
+        .join("rect")
+        .attr("class", "adjustedCBars")
+        .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+        .attr("y", d => newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
+        .attr("width", bandwidth)
+        .attr("height", d => newYScaleControl(0) - newYScaleControl(d3.sum(d, v => v[1]) / adjustedCCount))
+        .attr("fill", colorMap.control)
+        .attr("stroke", "none");
 
-    let adjustedTBars = svgElement.select("#adjusted")
-      .selectAll(".adjustedTBars")
-      .data(TBins)
-      .join("rect")
-      .attr("class", "adjustedTBars")
-      .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
-      .attr("y", d => newYScaleTreatment(0))
-      .attr("width", bandwidth)
-      .attr("height", d => newYScaleTreatment(d3.sum(d, v => v[1]) / adjustedTCount) - newYScaleTreatment(0))
-      .attr("fill", colorMap.treatment)
-      .attr("stroke", "none");
+      let adjustedTBars = svgElement.select("#adjusted")
+        .selectAll(".adjustedTBars") 
+        .data(TBins)
+        .join("rect")
+        .attr("class", "adjustedTBars")
+        .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+        .attr("y", d => newYScaleTreatment(0))
+        .attr("width", bandwidth)
+        .attr("height", d => newYScaleTreatment(d3.sum(d, v => v[1]) / adjustedTCount) - newYScaleTreatment(0))
+        .attr("fill", colorMap.treatment)
+        .attr("stroke", "none");
+    } else {
+      let adjustedCBars = svgElement.select("#adjusted")
+        .selectAll(".adjustedCBars")
+        .data(adjustedCBins)
+        .join("rect")
+        .attr("class", "adjustedCBars")
+        .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+        .attr("y", d => newYScaleControl(d.length / adjustedCCount))
+        .attr("width", bandwidth)
+        .attr("height", d => newYScaleControl(0) - newYScaleControl(d.length / adjustedCCount))
+        .attr("fill", colorMap.control)
+        .attr("stroke", "none");
+
+      let adjustedTBars = svgElement.select("#adjusted")
+        .selectAll(".adjustedTBars") 
+        .data(adjustedTBins)
+        .join("rect")
+        .attr("class", "adjustedTBars")
+        .attr("x", (d, i) => newXScale(d.x0) -  bandwidth / 2)
+        .attr("y", d => newYScaleTreatment(0))
+        .attr("width", bandwidth)
+        .attr("height", d => newYScaleTreatment(d.length / adjustedTCount) - newYScaleTreatment(0))
+        .attr("fill", colorMap.treatment)
+        .attr("stroke", "none");
+    }
 
     /*
      *
@@ -369,7 +467,7 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
       });
 
 
-  }, [unadjustedTreatmentData, unadjustedControlData])
+  }, [unadjustedTreatmentData, unadjustedControlData, adjustedTreatmentData, adjustedControlData])
 
   useEffect(() => {
 

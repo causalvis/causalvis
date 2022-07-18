@@ -50,7 +50,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
     function onBrush(e) {
       // let brushSelection = e.selection;
-      console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+      // console.log(brushSelection[1], xScale.invert(brushSelection[1]));
     }
 
     function brushEnd(e) {
@@ -59,7 +59,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
       if (brushSelection) {
         brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
-        console.log(brushExtent)
+        // console.log(brushExtent)
         setSelectRange(brushExtent);
       } else {
         brushExtent = null;

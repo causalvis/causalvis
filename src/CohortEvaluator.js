@@ -54,6 +54,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
   useEffect(() => {
 
     if (adjustedCohort.length > 0) {
+      // console.log("there is an adjustedCohort")
       let newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(d => {delete d.treatment; delete d.propensity; return d});
       let newCohortTreatments = adjustedCohort.map(d => d.treatment);
       let newCohortPropensity = adjustedCohort.map(d => d.propensity);

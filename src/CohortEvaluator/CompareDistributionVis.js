@@ -8,7 +8,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
                                         unadjustedAttribute=[],
                                         adjustedAttribute,
                                         unadjustedTreatment=[],
+                                        adjustedTreatment,
                                         unadjustedPropensity=[],
+                                        adjustedPropensity,
                                         attribute="",
                                         updateFilter,
                                         selectedAttribute=[],
@@ -17,6 +19,9 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
   const [unadjustedTreatmentData, setUnadjustedTreatmentData] = React.useState([]);
   const [unadjustedControlData, setUnadjustedControlData] = React.useState([]);
+
+  const [adjustedTreatmentData, setAdjustedTreatmentData] = React.useState([]);
+  const [adjustedControlData, setAdjustedControlData] = React.useState([]);
 
   const [xScale, setXScale] = React.useState(() => x => x);
   const [yScaleTreatment, setYScaleTreatment] = React.useState(() => y => y);
@@ -63,6 +68,31 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     setUnadjustedControlData([...control]);
 
   }, [unadjustedAttribute])
+
+  useEffect(() => {
+
+    if (adjustedAttribute && adjustedPropensity && adjustedTreatment) {
+      let treatment = adjustedAttribute.filter((r, i) => adjustedTreatment[i] === 1);
+      let control = adjustedAttribute.filter((r, i) => adjustedTreatment[i] === 0);
+
+      let allPropensity = adjustedPropensity.map((p, i) => p[adjustedTreatment[i]]);
+      let controlPropensity = allPropensity.filter((r, i) => adjustedTreatment[i] === 0);
+      let treatmentPropensity = allPropensity.filter((r, i) => adjustedTreatment[i] === 1);
+
+      let controlIPW = controlPropensity.map(p => 1/p);
+      let treatmentIPW = treatmentPropensity.map(p => 1/p);
+
+      // Zip attribute values with weight for each data instance
+      treatment = treatment.map((t, i) => [t, treatmentIPW[i]]);
+      control = control.map((c, i) => [c, controlIPW[i]]);
+
+      // console.log("setting...", treatment, control)
+
+      setAdjustedTreatmentData([...treatment]);
+      setAdjustedControlData([...control]);
+    }
+
+  }, [adjustedAttribute, adjustedPropensity, adjustedTreatment])
 
   let newRef = "svgCompare" + attribute
   
@@ -144,12 +174,12 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     return line(density);
   }
 
-  function getArea(bins, binRange, xScale) {
-    let totalLength = bins.reduce((count, current) => count + current.length, 0);
-    let totalWeight = bins.reduce((count, current) => count + d3.sum(current, d => d[1]), 0);
+  function getArea(binned, binRange, xScale) {
+    let totalLength = binned.reduce((count, current) => count + current.length, 0);
+    let totalWeight = binned.reduce((count, current) => count + d3.sum(current, d => d[1]), 0);
 
-    let maxNum = d3.max(bins.map(d => d.length / totalLength));
-    let maxWeight = d3.max(bins.map(d => d3.sum(d, i => i[1]) / totalWeight));
+    let maxNum = d3.max(binned.map(d => d.length / totalLength));
+    let maxWeight = d3.max(binned.map(d => d3.sum(d, i => i[1]) / totalWeight));
 
     let unadjustedBinScale = d3.scaleLinear()
                       .range(binRange)
@@ -170,9 +200,42 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
                 .x(function(d){ return(xScale(d.x0)) } )
                 .curve(d3.curveCatmullRom)
 
+    // console.log(binned)
+
+    return {"unadjusted": unadjustedArea(binned), "adjusted":adjustedArea(binned)}
+  }
+
+  function getAreaWithAdjusted(binsUnadjusted, binsAdjusted, binRange, xScale) {
+    // console.log(binsUnadjusted, binsAdjusted)
+
+    let totalLengthUnadjusted = binsUnadjusted.reduce((count, current) => count + current.length, 0);
+    let totalLengthAdjusted = binsAdjusted.reduce((count, current) => count + current.length, 0);
+
+    let maxNumUnadjusted = d3.max(binsUnadjusted.map(d => d.length / totalLengthUnadjusted));
+    let maxNumAdjusted = d3.max(binsAdjusted.map(d => d.length / totalLengthAdjusted));
+
+    let unadjustedBinScale = d3.scaleLinear()
+                      .range(binRange)
+                      .domain([0, maxNumUnadjusted])
+    let adjustedBinScale = d3.scaleLinear()
+                      .range(binRange)
+                      .domain([0, maxNumAdjusted])
+
+    let unadjustedArea = d3.area()
+                .y0(function(d){ return(unadjustedBinScale(0)) } )
+                .y1(function(d){ return(unadjustedBinScale(d.length / totalLengthUnadjusted)) } )
+                .x(function(d){ return(xScale(d.x0)) } )
+                .curve(d3.curveCatmullRom)
+
+    let adjustedArea = d3.area()
+                .y0(function(d){ return(adjustedBinScale(0)) } )
+                .y1(function(d){ return(adjustedBinScale(d.length / totalLengthAdjusted)) } )
+                .x(function(d){ return(xScale(d.x0)) } )
+                .curve(d3.curveCatmullRom)
+
     // console.log(typeof unadjustedArea(bins))
 
-    return {"unadjusted": unadjustedArea(bins), "adjusted":adjustedArea(bins)}
+    return {"unadjusted": unadjustedArea(binsUnadjusted), "adjusted":adjustedArea(binsAdjusted)}
   }
 
   // Get weighted mean of data
@@ -280,8 +343,10 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
     let adjustedCMean;
     let adjustedTMean;
 
+    // console.log("IPW", adjustedTreatmentData, adjustedControlData, !adjustedTreatmentData || !adjustedControlData)
+
     // If adjusted data set not provided, calculate adjustment using IPW and get weighted KDE
-    if (!adjustedAttribute) {
+    if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
       let allPropensity = unadjustedPropensity.map((p, i) => p[unadjustedTreatment[i]]);
       let controlPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 0);
       let treatmentPropensity = allPropensity.filter((r, i) => unadjustedTreatment[i] === 1);
@@ -308,6 +373,25 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
 
       adjustedCMean = getWeightedMean(unadjustedControlData, controlIPW);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData, treatmentIPW);
+    } else {
+      // console.log("here...")
+
+      var TBinsAdjusted = histogram(adjustedTreatmentData);
+      var CBinsAdjusted = histogram(adjustedControlData);
+
+      // console.log(CBinsAdjusted, TBinsAdjusted)
+
+      let CAreas = getAreaWithAdjusted(CBins, CBinsAdjusted, [layout.height / 2, layout.margin], newXScale);
+      let TAreas = getAreaWithAdjusted(TBins, TBinsAdjusted, [layout.height / 2, layout.height - layout.margin], newXScale);
+
+      unadjustedCArea = CAreas.unadjusted;
+      adjustedCArea = CAreas.adjusted;
+
+      unadjustedTArea = TAreas.unadjusted;
+      adjustedTArea = TAreas.adjusted;
+
+      adjustedCMean = d3.mean(adjustedControlData, d => d[0]);
+      adjustedTMean = d3.mean(adjustedTreatmentData, d => d[0]);
     }
 
     svgElement.select("#unadjusted")
@@ -514,7 +598,7 @@ export const CompareDistributionVis = ({layout={"height": 120, "width": 500, "ma
       });
 
 
-  }, [unadjustedTreatmentData, unadjustedControlData])
+  }, [unadjustedTreatmentData, unadjustedControlData, adjustedTreatmentData, adjustedControlData])
 
   useEffect(() => {
 

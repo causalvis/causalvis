@@ -317,8 +317,11 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
               return <CompareHistogramVis
                       key={value}
                       unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      adjustedAttribute={adjustedCohortData ? adjustedCohortData.confounds.map(d => d[value]) : null}
                       unadjustedTreatment={unadjustedCohortData.treatment}
+                      adjustedTreatment={adjustedCohortData ? adjustedCohortData.treatment : null}
                       unadjustedPropensity={unadjustedCohortData.propensity}
+                      adjustedPropensity={adjustedCohortData ? adjustedCohortData.propensity : null}
                       attribute={value}
                       updateFilter={updateFilter}
                       selectedAttribute={selected.selectedData.map(d => d[value])}
@@ -328,8 +331,11 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
               return <CompareDistributionVis
                       key={value}
                       unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      adjustedAttribute={adjustedCohortData ? adjustedCohortData.confounds.map(d => d[value]) : null}
                       unadjustedTreatment={unadjustedCohortData.treatment}
+                      adjustedTreatment={adjustedCohortData ? adjustedCohortData.treatment : null}
                       unadjustedPropensity={unadjustedCohortData.propensity}
+                      adjustedPropensity={adjustedCohortData ? adjustedCohortData.propensity : null}
                       attribute={value}
                       updateFilter={updateFilter}
                       selectedAttribute={selected.selectedData.map(d => d[value])}
