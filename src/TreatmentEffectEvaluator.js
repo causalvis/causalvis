@@ -44,6 +44,8 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newAttributeLevels[a] = levels;
     }
 
+    console.log(newAttributeLevels);
+
     setAttributeLevels(newAttributeLevels);
 
   }, [data])
@@ -185,19 +187,29 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       </div>
       <div style={btopStyle}>
         {stratify[1] 
-          ? <BeeswarmTop  data={cohortData} stratify={stratify[1].attribute} thresholdValue={stratify[1].threshold} updateTopThreshold={updateTopThreshold} />
+          ? <BeeswarmTop
+              data={cohortData}
+              stratify={stratify[1].attribute}
+              thresholdValue={stratify[1].threshold}
+              updateTopThreshold={updateTopThreshold}
+              isBinary={attributeLevels[stratify[1].attribute].length === 2} />
           : <div />
         }
       </div>
       <div style={bleftStyle}>
         {stratify[2] 
-          ? <BeeswarmLeft data={cohortData} stratify={stratify[2].attribute} thresholdValue={stratify[2].threshold} updateLeftThreshold={updateLeftThreshold} />
+          ? <BeeswarmLeft
+              data={cohortData} 
+              stratify={stratify[2].attribute}
+              thresholdValue={stratify[2].threshold}
+              updateLeftThreshold={updateLeftThreshold}
+              isBinary={attributeLevels[stratify[2].attribute].length === 2} />
           : <div />
         }
       </div>
       <div style={allVis}>
         {stratifiedData.map((value, index) => {
-            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value] === 2} />
+            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value] ? attributeLevels[value].length === 2 : false} />
           })
         }
       </div>

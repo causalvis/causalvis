@@ -4,7 +4,12 @@ import * as d3 from 'd3';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 
-export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, "marginLeft": 10, "marginBottom": 30}, data=[], stratify="", thresholdValue=0, updateLeftThreshold}) => {
+export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, "marginLeft": 10, "marginBottom": 30},
+                              data=[],
+                              stratify="",
+                              thresholdValue=0,
+                              updateLeftThreshold,
+                              isBinary}) => {
 
 	const ref = useRef('svgBeeswarmLeft');
 
@@ -14,7 +19,7 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
   const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
                                                   0: "#f28e2b"});
 
-    const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
+    // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
 
     // Jitter the coordinates of each point slightly along the x-axis
     const jitter = 20;
@@ -29,9 +34,17 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
       updateLeftThreshold(v);
     }
 
-    let yScale = d3.scaleLinear()
+    let yScale;
+
+    if (!isBinary) {
+      yScale = d3.scaleLinear()
                     .domain(extent)
                     .range([layout.height - layout.marginBottom, layout.margin])
+    } else {
+      yScale = d3.scaleLinear()
+                    .domain([-0.5, 1.5])
+                    .range([layout.height - layout.marginBottom, layout.margin])
+    }
 
     const circles = svgElement.select("#points")
       .selectAll(".dataPoint")
@@ -41,7 +54,7 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
       .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
       .attr("r", 3)
       .attr("fill", "none")
-      .attr("stroke", d => colorMap[d.treatment])
+      .attr("stroke", d => colorMap[1])
 
     // Visualize current threshold
     let thresholdStroke = svgElement.select("#threshold")
@@ -49,9 +62,17 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
       .attr("stroke", isBinary ? "none" : "black")
       .attr("stroke-dasharray", "5 5 2 5")
 
-    svgElement.select('#y-axis')
+    if (!isBinary) {
+      svgElement.select('#y-axis')
               .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
               .call(d3.axisRight(yScale).tickSize(3))
+    } else {
+      svgElement.select('#y-axis')
+              .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
+              .call(d3.axisRight(yScale).tickSize(3).tickValues([0, 1]))
+    }
+
+    
 
   let subplotStyle = {"display": "flex", "alignItems":"center"};
   let subplotTitle = {"writingMode":"vertical-rl", "transform":"rotate(-180deg)", "fontFamily": "sans-serif", "marginTop": "15px", "marginBottom": "0px", "fontSize":"15px"};
@@ -91,8 +112,8 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
           </Box>
       }
       <div style={thresholdValueIndicator}>
-        <p style={thresholdText}>{isBinary ? 1 : `>= ${thresholdValue}`}</p>
-        <p style={thresholdText}>{isBinary ? 0 : `< ${thresholdValue}`}</p>
+        <p style={thresholdText}>{isBinary ? <p /> : `>= ${thresholdValue}`}</p>
+        <p style={thresholdText}>{isBinary ? <p /> : `< ${thresholdValue}`}</p>
       </div>
     </div>
   )
