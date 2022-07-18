@@ -5,6 +5,7 @@ import { saveAs } from 'file-saver';
 export var PropDistribution = function PropDistribution(_ref) {
   var _ref$unadjustedCohort = _ref.unadjustedCohortData,
       unadjustedCohortData = _ref$unadjustedCohort === void 0 ? {} : _ref$unadjustedCohort,
+      adjustedCohortData = _ref.adjustedCohortData,
       setSelected = _ref.setSelected;
 
   // Track bins for treatment and control groups
@@ -46,32 +47,32 @@ export var PropDistribution = function PropDistribution(_ref) {
   }
 
   useEffect(function () {
-    if (!selectRange) {
-      return;
-    }
-
     var newSelectedItems = {
       "data": [],
       "propensity": [],
       "treatment": []
     };
 
-    for (var i = 0; i < unadjustedCohortData.propensity.length; i++) {
-      var treatment = unadjustedCohortData.treatment[i];
-      var propensity = unadjustedCohortData.propensity[i][treatment]; // console.log(propensity);
+    if (!selectRange) {
+      setSelectedItems(newSelectedItems);
+    } else {
+      for (var i = 0; i < unadjustedCohortData.propensity.length; i++) {
+        var treatment = unadjustedCohortData.treatment[i];
+        var propensity = unadjustedCohortData.propensity[i][treatment]; // console.log(propensity);
 
-      if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
-        newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
-        newSelectedItems.propensity.push(propensity);
-        newSelectedItems.treatment.push(unadjustedCohortData.treatment[i]);
+        if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
+          newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
+          newSelectedItems.propensity.push(propensity);
+          newSelectedItems.treatment.push(unadjustedCohortData.treatment[i]);
+        }
       }
-    } // console.log(newSelectedItems);
 
-
-    setSelectedItems(newSelectedItems);
+      setSelectedItems(newSelectedItems);
+    }
   }, [selectRange]);
   useEffect(function () {
-    if (unadjustedCohortData.confounds) {
+    // console.log(adjustedCohortData);
+    if (!adjustedCohortData && unadjustedCohortData.confounds) {
       var newTAttribute = [];
       var newCAttribute = [];
 
@@ -108,8 +109,48 @@ export var PropDistribution = function PropDistribution(_ref) {
         "TBins": TBinSize === 0 ? 1 : TBinSize,
         "CBins": CBinSize === 0 ? 1 : CBinSize
       });
+    } else if (adjustedCohortData.confounds) {
+      var _newTAttribute = [];
+      var _newCAttribute = [];
+
+      for (var _i = 0; _i < adjustedCohortData.confounds.length; _i++) {
+        var _dataRow = JSON.parse(JSON.stringify(adjustedCohortData.confounds[_i]));
+
+        var _assignedTreatment = adjustedCohortData.treatment[_i]; // Separate treatment and control rows
+
+        if (_assignedTreatment === 0) {
+          _dataRow.propensity = adjustedCohortData.propensity[_i][1];
+
+          _newCAttribute.push(_dataRow);
+        } else {
+          _dataRow.propensity = adjustedCohortData.propensity[_i][1];
+
+          _newTAttribute.push(_dataRow);
+        }
+      } // Get histogram for treatment and control data sets
+
+
+      var h = histogram().value(function (d) {
+        return d.propensity;
+      }).domain([0, 1]).thresholds(binCount);
+      var newTBins = h(_newTAttribute);
+      var newCBins = h(_newCAttribute);
+      var TBinSize = newTBins.reduce(function (count, current) {
+        return count + current.length;
+      }, 0);
+      var CBinSize = newCBins.reduce(function (count, current) {
+        return count + current.length;
+      }, 0);
+      setBins({
+        "TBins": newTBins,
+        "CBins": newCBins
+      });
+      setBinSize({
+        "TBins": TBinSize === 0 ? 1 : TBinSize,
+        "CBins": CBinSize === 0 ? 1 : CBinSize
+      });
     }
-  }, [unadjustedCohortData]);
+  }, [unadjustedCohortData, adjustedCohortData]);
   var linkStyle = {
     "color": "steelblue",
     "cursor": "pointer"

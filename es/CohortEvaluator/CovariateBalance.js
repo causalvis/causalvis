@@ -9,6 +9,7 @@ import { SMDVis } from './SMDVis';
 import { min, max } from 'd3-array';
 import { CompareDistributionVis } from './CompareDistributionVis';
 import { CompareHistogramVis } from './CompareHistogramVis';
+import { CompareHistogramContinuousVis } from './CompareHistogramContinuousVis';
 import { CovariateSelector } from './CovariateSelector';
 import { SMDMenu } from './SMDMenu';
 import ViewHeadlineSharpIcon from '@mui/icons-material/ViewHeadlineSharp';
@@ -171,7 +172,7 @@ export var CovariateBalance = function CovariateBalance(_ref) {
     return (mean_treated - mean_untreated) / Math.sqrt(var_treated + var_untreated);
   }
 
-  function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignment) {
+  function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignmentUnadjusted, treatmentAssignmentAdjusted) {
     var newSMD = [];
 
     var _loop = function _loop() {
@@ -182,10 +183,10 @@ export var CovariateBalance = function CovariateBalance(_ref) {
         return d[a];
       });
       var x_unadjusted_treated = x_unadjusted.filter(function (u, i) {
-        return treatmentAssignment[i] === 1;
+        return treatmentAssignmentUnadjusted[i] === 1;
       });
       var x_unadjusted_untreated = x_unadjusted.filter(function (u, i) {
-        return treatmentAssignment[i] === 0;
+        return treatmentAssignmentUnadjusted[i] === 0;
       });
       var SMD_unadjusted = attributeSMD(x_unadjusted_treated, x_unadjusted_untreated);
       var SMD_adjusted = void 0; // Use adjusted data if it exists, otherwise use weights
@@ -195,26 +196,27 @@ export var CovariateBalance = function CovariateBalance(_ref) {
           return d[a];
         });
         var x_adjusted_treated = x_adjusted.filter(function (u, i) {
-          return treatmentAssignment[i] === 1;
+          return treatmentAssignmentAdjusted[i] === 1;
         });
         var x_adjusted_untreated = x_adjusted.filter(function (u, i) {
-          return treatmentAssignment[i] === 0;
-        });
+          return treatmentAssignmentAdjusted[i] === 0;
+        }); // console.log(x_adjusted_treated, x_adjusted_untreated)
+
         SMD_adjusted = attributeSMD(x_adjusted_treated, x_adjusted_untreated);
       } else {
         var _x_adjusted_treated = x_unadjusted.filter(function (u, i) {
-          return treatmentAssignment[i] === 1;
+          return treatmentAssignmentUnadjusted[i] === 1;
         });
 
         var _x_adjusted_untreated = x_unadjusted.filter(function (u, i) {
-          return treatmentAssignment[i] === 0;
+          return treatmentAssignmentUnadjusted[i] === 0;
         });
 
         var w_adjusted_treated = weights.filter(function (u, i) {
-          return treatmentAssignment[i] === 1;
+          return treatmentAssignmentUnadjusted[i] === 1;
         });
         var w_adjusted_untreated = weights.filter(function (u, i) {
-          return treatmentAssignment[i] === 0;
+          return treatmentAssignmentUnadjusted[i] === 0;
         });
         SMD_adjusted = attributeSMD(_x_adjusted_treated, _x_adjusted_untreated, w_adjusted_treated, w_adjusted_untreated);
       }
@@ -236,20 +238,24 @@ export var CovariateBalance = function CovariateBalance(_ref) {
   useEffect(function () {
     if (unadjustedCohortData.confounds && unadjustedCohortData.confounds.length !== 0) {
       var newSMD = [];
-      var treatmentAssignment = unadjustedCohortData.treatment;
+      var treatmentAssignmentUnadjusted = unadjustedCohortData.treatment;
       var dataUnadjusted = unadjustedCohortData.confounds;
-      var propensity = unadjustedCohortData.propensity; // If no adjusted data set provided, use propensity to calculate IPW
+      var propensityUnadjusted = unadjustedCohortData.propensity; // If no adjusted data set provided, use propensity to calculate IPW
 
       if (!adjustedCohortData) {
         // Get propensity of assigned treatment level
-        var allPropensity = propensity.map(function (p, i) {
-          return p[treatmentAssignment[i]];
+        var allPropensity = propensityUnadjusted.map(function (p, i) {
+          return p[treatmentAssignmentUnadjusted[i]];
         }); // Get inverse propensity weights
 
         var propensityWeights = allPropensity.map(function (p) {
           return 1 / p;
         });
-        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
+        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignmentUnadjusted, null);
+      } else {
+        var dataAdjusted = adjustedCohortData.confounds;
+        var treatmentAssignmentAdjusted = adjustedCohortData.treatment;
+        newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignmentUnadjusted, treatmentAssignmentAdjusted);
       }
 
       var newAttributeLevels = {};
@@ -266,20 +272,11 @@ export var CovariateBalance = function CovariateBalance(_ref) {
         _loop2();
       }
 
-      setAttributeLevels(newAttributeLevels); // console.log(treatmentAssignment, dataUnadjusted, propensity)
-      // if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
-      //   newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
-      // } else if (weights && dataUnadjusted.length === weights.length) {
-      //   newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
-      // } else if (propensity && dataUnadjusted.length === propensity.length) {
-      // } else {
-      //   console.log("Missing data");
-      // }
-      // setSMD(newSMD);
-
+      setAttributeLevels(newAttributeLevels);
       var SMDSorted = newSMD.sort(function (a, b) {
-        return a.adjusted < b.adjusted;
-      });
+        return b.adjusted - a.adjusted;
+      }); // console.log("init sorted", newSMD, SMDSorted);
+
       setSMD(SMDSorted);
       var newAttributeDetails = SMDSorted.filter(function (s) {
         return s.adjusted > 0.1;
@@ -298,43 +295,46 @@ export var CovariateBalance = function CovariateBalance(_ref) {
       }))];
       setSMDExtent(newSMDExtent);
     }
-  }, [unadjustedCohortData]);
+  }, [unadjustedCohortData, adjustedCohortData]);
   useEffect(function () {
     var newSMD; // let newAttributeDetails;
+    // console.log("new sort...", sort);
 
     if (sort === "Adjusted High to Low") {
       newSMD = SMD.sort(function (a, b) {
-        return a.adjusted < b.adjusted;
+        return b.adjusted - a.adjusted;
       });
     } else if (sort === "Adjusted Low to High") {
+      // console.log("here...")
       newSMD = SMD.sort(function (a, b) {
-        return a.adjusted > b.adjusted;
+        return a.adjusted - b.adjusted;
       });
     } else if (sort === "Unadjusted High to Low") {
       newSMD = SMD.sort(function (a, b) {
-        return a.unadjusted < b.unadjusted;
+        return b.unadjusted - a.unadjusted;
       });
     } else if (sort === "Unadjusted Low to High") {
       newSMD = SMD.sort(function (a, b) {
-        return a.unadjusted > b.unadjusted;
+        return a.unadjusted - b.unadjusted;
       });
     } else if (sort === "Difference High to Low") {
       newSMD = SMD.sort(function (a, b) {
-        return Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted);
+        return Math.abs(b.unadjusted - b.adjusted) - Math.abs(a.unadjusted - a.adjusted);
       });
     } else if (sort === "Difference Low to High") {
       newSMD = SMD.sort(function (a, b) {
-        return Math.abs(a.unadjusted - a.adjusted) < Math.abs(b.unadjusted - b.adjusted);
+        return Math.abs(a.unadjusted - a.adjusted) - Math.abs(b.unadjusted - b.adjusted);
       });
     } else if (sort === "A-Z Alphebatically") {
       newSMD = SMD.sort(function (a, b) {
-        return a.covariate > b.covariate;
+        return a.covariate > b.covariate ? 1 : -1;
       });
     } else if (sort === "Z-A Alphebatically") {
       newSMD = SMD.sort(function (a, b) {
-        return a.covariate < b.covariate;
+        return b.covariate > a.covariate ? 1 : -1;
       });
-    }
+    } // console.log("sorting...", newSMD);
+
 
     setSMD([].concat(newSMD)); // let newAttributeDetails = newSMD.filter(s => s.adjusted > 0.1);
     // setAttributeDetails(newAttributeDetails.map(s => s.covariate));
@@ -424,8 +424,13 @@ export var CovariateBalance = function CovariateBalance(_ref) {
         unadjustedAttribute: unadjustedCohortData.confounds.map(function (d) {
           return d[value];
         }),
+        adjustedAttribute: adjustedCohortData ? adjustedCohortData.confounds.map(function (d) {
+          return d[value];
+        }) : null,
         unadjustedTreatment: unadjustedCohortData.treatment,
+        adjustedTreatment: adjustedCohortData ? adjustedCohortData.treatment : null,
         unadjustedPropensity: unadjustedCohortData.propensity,
+        adjustedPropensity: adjustedCohortData ? adjustedCohortData.propensity : null,
         attribute: value,
         updateFilter: updateFilter,
         selectedAttribute: selected.selectedData.map(function (d) {
@@ -440,8 +445,13 @@ export var CovariateBalance = function CovariateBalance(_ref) {
         unadjustedAttribute: unadjustedCohortData.confounds.map(function (d) {
           return d[value];
         }),
+        adjustedAttribute: adjustedCohortData ? adjustedCohortData.confounds.map(function (d) {
+          return d[value];
+        }) : null,
         unadjustedTreatment: unadjustedCohortData.treatment,
+        adjustedTreatment: adjustedCohortData ? adjustedCohortData.treatment : null,
         unadjustedPropensity: unadjustedCohortData.propensity,
+        adjustedPropensity: adjustedCohortData ? adjustedCohortData.propensity : null,
         attribute: value,
         updateFilter: updateFilter,
         selectedAttribute: selected.selectedData.map(function (d) {

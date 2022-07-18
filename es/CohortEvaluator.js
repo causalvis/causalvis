@@ -46,12 +46,16 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
       unadjustedCohortData = _React$useState3[0],
       setUnadjustedCohortData = _React$useState3[1];
 
+  var _React$useState4 = React.useState(null),
+      adjustedCohortData = _React$useState4[0],
+      setAdjustedCohortData = _React$useState4[1];
+
   var allData = JSON.parse(JSON.stringify(unadjustedCohort));
   var filteredData = crossfilter(allData);
 
-  var _React$useState4 = React.useState({}),
-      allAttributeFilters = _React$useState4[0],
-      setAllAttributeFilters = _React$useState4[1];
+  var _React$useState5 = React.useState({}),
+      allAttributeFilters = _React$useState5[0],
+      setAllAttributeFilters = _React$useState5[1];
 
   useEffect(function () {
     // Get all the confounding attributes, excluding treatment and propensity score
@@ -92,6 +96,27 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
       "treatment": newCohortTreatments
     });
   }, [unadjustedCohort]);
+  useEffect(function () {
+    if (adjustedCohort.length > 0) {
+      // console.log("there is an adjustedCohort")
+      var newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(function (d) {
+        delete d.treatment;
+        delete d.propensity;
+        return d;
+      });
+      var newCohortTreatments = adjustedCohort.map(function (d) {
+        return d.treatment;
+      });
+      var newCohortPropensity = adjustedCohort.map(function (d) {
+        return d.propensity;
+      });
+      setAdjustedCohortData({
+        "confounds": newCohortConfounds,
+        "propensity": newCohortPropensity,
+        "treatment": newCohortTreatments
+      });
+    }
+  }, [adjustedCohort]);
 
   function updateFilter(attribute, extent) {
     var attributeFilter = allAttributeFilters[attribute];
@@ -122,9 +147,11 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
     style: plotLayout
   }, /*#__PURE__*/React.createElement(PropDistribution, {
     unadjustedCohortData: unadjustedCohortData,
+    adjustedCohortData: adjustedCohortData,
     setSelected: setSelected
   }), /*#__PURE__*/React.createElement(CovariateBalance, {
     unadjustedCohortData: unadjustedCohortData,
+    adjustedCohortData: adjustedCohortData,
     attributes: attributes,
     updateFilter: updateFilter,
     selected: selected

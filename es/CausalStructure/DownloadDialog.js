@@ -55,7 +55,11 @@ export var DownloadDialog = function DownloadDialog(_ref) {
 
   var _React$useState3 = React.useState(''),
       downloadJSON = _React$useState3[0],
-      setJSON = _React$useState3[1]; // Update download json based on user selections
+      setJSON = _React$useState3[1];
+
+  var _React$useState4 = React.useState('DAG'),
+      filename = _React$useState4[0],
+      setFilename = _React$useState4[1]; // Update download json based on user selections
 
 
   useEffect(function () {
@@ -109,9 +113,15 @@ export var DownloadDialog = function DownloadDialog(_ref) {
   function download() {
     var fileContent = new Blob([JSON.stringify(downloadJSON, null, 4)], {
       type: 'application/json',
-      name: 'DAG.json'
+      name: filename + ".json"
     });
-    saveAs(fileContent, 'DAG.json');
+    saveAs(fileContent, filename + ".json");
+  }
+
+  function handleFilenameChange(e) {
+    setFilename(e.target.value); // console.log(e.target.value);
+    // setValue(val);
+    // setColor(tagColors[val]);
   }
 
   var dataStyle = {
@@ -123,6 +133,9 @@ export var DownloadDialog = function DownloadDialog(_ref) {
   var textStyle = {
     "margin": "24px 24px 0px 0px"
   };
+  var filenameStyle = {
+    "marginBottom": "24px"
+  };
   var fullWidth = true;
   var maxWidth = "md";
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Dialog, {
@@ -130,7 +143,16 @@ export var DownloadDialog = function DownloadDialog(_ref) {
     onClose: handleClose,
     fullWidth: fullWidth,
     maxWidth: maxWidth
-  }, /*#__PURE__*/React.createElement(DialogTitle, null, "File Download"), /*#__PURE__*/React.createElement(DialogContent, null, /*#__PURE__*/React.createElement(DialogContentText, null, "Select the data you would like to include. Your file will be saved as ", /*#__PURE__*/React.createElement("i", null, "DAG.json"), "."), /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(DialogTitle, null, "Download"), /*#__PURE__*/React.createElement(DialogContent, null, /*#__PURE__*/React.createElement(TextField, {
+    style: filenameStyle,
+    defaultValue: filename,
+    id: "outlined-basic",
+    label: "Filename",
+    variant: "standard",
+    onChange: function onChange(e) {
+      return handleFilenameChange(e);
+    }
+  }), /*#__PURE__*/React.createElement(DialogContentText, null, "Select the data you would like to include. Your file will be saved as ", /*#__PURE__*/React.createElement("i", null, filename, ".json"), "."), /*#__PURE__*/React.createElement("div", {
     style: dataStyle
   }, /*#__PURE__*/React.createElement(FormControl, {
     required: true,

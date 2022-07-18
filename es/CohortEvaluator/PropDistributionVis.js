@@ -58,9 +58,8 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
     var yScaleTreatment = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.height - layout.margin]);
     var yScaleControl = d3.scaleLinear().domain([0, yMax]).range([layout.height / 2, layout.margin]);
 
-    function onBrush(e) {
-      // let brushSelection = e.selection;
-      console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+    function onBrush(e) {// let brushSelection = e.selection;
+      // console.log(brushSelection[1], xScale.invert(brushSelection[1]));
     }
 
     function brushEnd(e) {
@@ -68,8 +67,8 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
       var brushExtent;
 
       if (brushSelection) {
-        brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
-        console.log(brushExtent);
+        brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])]; // console.log(brushExtent)
+
         setSelectRange(brushExtent);
       } else {
         brushExtent = null;

@@ -8,7 +8,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import IconButton from '@mui/material/IconButton';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-export var CompareHistogramVis = function CompareHistogramVis(_ref) {
+export var CompareHistogramContinuousVis = function CompareHistogramContinuousVis(_ref) {
   var _ref$layout = _ref.layout,
       layout = _ref$layout === void 0 ? {
     "height": 120,
@@ -21,10 +21,8 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
       adjustedAttribute = _ref.adjustedAttribute,
       _ref$unadjustedTreatm = _ref.unadjustedTreatment,
       unadjustedTreatment = _ref$unadjustedTreatm === void 0 ? [] : _ref$unadjustedTreatm,
-      adjustedTreatment = _ref.adjustedTreatment,
       _ref$unadjustedPropen = _ref.unadjustedPropensity,
       unadjustedPropensity = _ref$unadjustedPropen === void 0 ? [] : _ref$unadjustedPropen,
-      adjustedPropensity = _ref.adjustedPropensity,
       _ref$attribute = _ref.attribute,
       attribute = _ref$attribute === void 0 ? "" : _ref$attribute,
       updateFilter = _ref.updateFilter,
@@ -42,51 +40,43 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
       unadjustedControlData = _React$useState2[0],
       setUnadjustedControlData = _React$useState2[1];
 
-  var _React$useState3 = React.useState([]),
-      adjustedTreatmentData = _React$useState3[0],
-      setAdjustedTreatmentData = _React$useState3[1];
-
-  var _React$useState4 = React.useState([]),
-      adjustedControlData = _React$useState4[0],
-      setAdjustedControlData = _React$useState4[1];
-
-  var _React$useState5 = React.useState(function () {
+  var _React$useState3 = React.useState(function () {
     return function (x) {
       return x;
     };
   }),
-      xScale = _React$useState5[0],
-      setXScale = _React$useState5[1];
+      xScale = _React$useState3[0],
+      setXScale = _React$useState3[1];
 
-  var _React$useState6 = React.useState(function () {
+  var _React$useState4 = React.useState(function () {
     return function (y) {
       return y;
     };
   }),
-      yScaleTreatment = _React$useState6[0],
-      setYScaleTreatment = _React$useState6[1];
+      yScaleTreatment = _React$useState4[0],
+      setYScaleTreatment = _React$useState4[1];
 
-  var _React$useState7 = React.useState(function () {
+  var _React$useState5 = React.useState(function () {
     return function (y) {
       return y;
     };
   }),
-      yScaleControl = _React$useState7[0],
-      setYScaleControl = _React$useState7[1];
+      yScaleControl = _React$useState5[0],
+      setYScaleControl = _React$useState5[1];
 
-  var _React$useState8 = React.useState(false),
-      iconShow = _React$useState8[0],
-      setIconShow = _React$useState8[1];
+  var _React$useState6 = React.useState(false),
+      iconShow = _React$useState6[0],
+      setIconShow = _React$useState6[1];
 
-  var bins = 2; // Track color map
+  var bins = 20; // Track color map
 
-  var _React$useState9 = React.useState({
+  var _React$useState7 = React.useState({
     "treatment": "#6c8496",
     "outcome": "#f28e2c",
     "control": "#a1c5c0"
   }),
-      colorMap = _React$useState9[0],
-      setColorMap = _React$useState9[1]; // Show icon on hover
+      colorMap = _React$useState7[0],
+      setColorMap = _React$useState7[1]; // Show icon on hover
 
 
   function show(el) {
@@ -99,53 +89,21 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
   }
 
   useEffect(function () {
-    var treatment = unadjustedAttribute.filter(function (r, i) {
-      return unadjustedTreatment[i] === 1;
-    });
-    var control = unadjustedAttribute.filter(function (r, i) {
-      return unadjustedTreatment[i] === 0;
-    });
-    var allPropensity = unadjustedPropensity.map(function (p, i) {
-      return p[unadjustedTreatment[i]];
-    });
-    var controlPropensity = allPropensity.filter(function (r, i) {
-      return unadjustedTreatment[i] === 0;
-    });
-    var treatmentPropensity = allPropensity.filter(function (r, i) {
-      return unadjustedTreatment[i] === 1;
-    });
-    var controlIPW = controlPropensity.map(function (p) {
-      return 1 / p;
-    });
-    var treatmentIPW = treatmentPropensity.map(function (p) {
-      return 1 / p;
-    }); // Zip attribute values with weight for each data instance
-
-    treatment = treatment.map(function (t, i) {
-      return [t, treatmentIPW[i]];
-    });
-    control = control.map(function (c, i) {
-      return [c, controlIPW[i]];
-    });
-    setUnadjustedTreatmentData([].concat(treatment));
-    setUnadjustedControlData([].concat(control));
-  }, [unadjustedAttribute]);
-  useEffect(function () {
-    if (adjustedAttribute && adjustedPropensity && adjustedTreatment) {
-      var treatment = adjustedAttribute.filter(function (r, i) {
-        return adjustedTreatment[i] === 1;
+    if (!adjustedAttribute) {
+      var treatment = unadjustedAttribute.filter(function (r, i) {
+        return unadjustedTreatment[i] === 1;
       });
-      var control = adjustedAttribute.filter(function (r, i) {
-        return adjustedTreatment[i] === 0;
+      var control = unadjustedAttribute.filter(function (r, i) {
+        return unadjustedTreatment[i] === 0;
       });
-      var allPropensity = adjustedPropensity.map(function (p, i) {
-        return p[adjustedTreatment[i]];
+      var allPropensity = unadjustedPropensity.map(function (p, i) {
+        return p[unadjustedTreatment[i]];
       });
       var controlPropensity = allPropensity.filter(function (r, i) {
-        return adjustedTreatment[i] === 0;
+        return unadjustedTreatment[i] === 0;
       });
       var treatmentPropensity = allPropensity.filter(function (r, i) {
-        return adjustedTreatment[i] === 1;
+        return unadjustedTreatment[i] === 1;
       });
       var controlIPW = controlPropensity.map(function (p) {
         return 1 / p;
@@ -160,10 +118,10 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
       control = control.map(function (c, i) {
         return [c, controlIPW[i]];
       });
-      setAdjustedTreatmentData([].concat(treatment));
-      setAdjustedControlData([].concat(control));
+      setUnadjustedTreatmentData([].concat(treatment));
+      setUnadjustedControlData([].concat(control));
     }
-  }, [adjustedAttribute, adjustedPropensity, adjustedTreatment]);
+  }, [unadjustedAttribute]);
   var newRef = "svgCompare" + attribute;
   var ref = useRef("svgCompare");
   var svg = d3.select(ref.current);
@@ -202,22 +160,6 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
     }
 
     return currentMax;
-  }
-
-  function getMaxProportionWithAdjusted(TBins, CBins, adjustedTBins, adjustedCBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount) {
-    var TBinsMax = d3.max(TBins.map(function (d) {
-      return d.length / unadjustedTCount;
-    }));
-    var CBinsMax = d3.max(CBins.map(function (d) {
-      return d.length / unadjustedCCount;
-    }));
-    var TBinsAdjustedMax = d3.max(adjustedTBins.map(function (d) {
-      return d.length / adjustedTCount;
-    }));
-    var CBinsAdjustedMax = d3.max(adjustedCBins.map(function (d) {
-      return d.length / adjustedCCount;
-    }));
-    return d3.max([TBinsMax, CBinsMax, TBinsAdjustedMax, CBinsAdjustedMax]);
   } // Get weighted mean given data
 
 
@@ -265,14 +207,16 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
     // Histogram domain has been adjusted to create a pseudo-bandScale()
     // This allows plotting of both categorical histogram + numerical means on the same plot
 
+    console.log(unadjustedTreatmentData, unadjustedControlData);
     var histogram = d3.histogram().value(function (d) {
       return d[0];
-    }).domain([-0.5, 1.5]).thresholds(bins);
+    }).domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).thresholds(bins);
     var TBins = histogram(unadjustedTreatmentData);
     var CBins = histogram(unadjustedControlData);
     var selectedBins = histogram(selectedAttribute.map(function (s) {
       return [0, s];
-    })); // Get mean of unadjusted data
+    }));
+    console.log(CBins, TBins); // Get mean of unadjusted data
 
     var unadjustedCMean = d3.mean(unadjustedControlData, function (d) {
       return d[0];
@@ -286,15 +230,9 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
     var adjustedCMean;
     var adjustedTMean;
     var adjustedCCount;
-    var adjustedTCount;
-    var newXScale;
-    var newYScaleTreatment;
-    var newYScaleControl;
-    var adjustedCBins;
-    var adjustedTBins;
-    var maxProportion; // If adjusted data set not provided, calculate means and counts using IPW
+    var adjustedTCount; // If adjusted data set not provided, calculate means and counts using IPW
 
-    if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
+    if (!adjustedAttribute) {
       adjustedCMean = getWeightedMean(unadjustedControlData);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData);
       adjustedCCount = d3.sum(unadjustedControlData, function (d) {
@@ -303,119 +241,80 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
       adjustedTCount = d3.sum(unadjustedTreatmentData, function (d) {
         return d[1];
       });
-      maxProportion = getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
-      newXScale = d3.scaleLinear().domain([-0.5, 1.5]).range([layout.marginLeft, layout.width - layout.margin]);
-      newYScaleTreatment = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.height - layout.margin]);
-      newYScaleControl = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.margin]);
-      setXScale(function () {
-        return function (x) {
-          return newXScale(x);
-        };
-      });
-      setYScaleTreatment(function () {
-        return function (y) {
-          return newYScaleTreatment(y);
-        };
-      });
-      setYScaleControl(function () {
-        return function (y) {
-          return newYScaleControl(y);
-        };
-      });
-    } else {
-      adjustedCMean = d3.mean(adjustedControlData, function (d) {
-        return d[0];
-      });
-      adjustedTMean = d3.mean(adjustedTreatmentData, function (d) {
-        return d[0];
-      });
-      adjustedCCount = adjustedControlData.length;
-      adjustedTCount = adjustedTreatmentData.length;
-      adjustedCBins = histogram(adjustedControlData);
-      adjustedTBins = histogram(adjustedTreatmentData);
-      maxProportion = getMaxProportionWithAdjusted(TBins, CBins, adjustedTBins, adjustedCBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
-      newXScale = d3.scaleLinear().domain([-0.5, 1.5]).range([layout.marginLeft, layout.width - layout.margin]);
-      newYScaleTreatment = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.height - layout.margin]);
-      newYScaleControl = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.margin]);
-      setXScale(function () {
-        return function (x) {
-          return newXScale(x);
-        };
-      });
-      setYScaleTreatment(function () {
-        return function (y) {
-          return newYScaleTreatment(y);
-        };
-      });
-      setYScaleControl(function () {
-        return function (y) {
-          return newYScaleControl(y);
-        };
-      });
     }
 
-    var bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2;
+    var totalWeight = d3.sum(unadjustedTreatmentData, function (d) {
+      return d[1];
+    }) + d3.sum(unadjustedControlData, function (d) {
+      return d[1];
+    });
+    var maxProportion = getMaxProportion(TBins, CBins, unadjustedCCount, unadjustedTCount, adjustedCCount, adjustedTCount);
+    var newXScale = d3.scaleLinear().domain([d3.min(unadjustedAttribute), d3.max(unadjustedAttribute)]).range([layout.marginLeft, layout.width - layout.margin]);
+    var newYScaleTreatment = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.height - layout.margin]);
+    var newYScaleControl = d3.scaleLinear().domain([0, maxProportion]).range([layout.height / 2, layout.margin]);
+    setXScale(function () {
+      return function (x) {
+        return newXScale(x);
+      };
+    });
+    setYScaleTreatment(function () {
+      return function (y) {
+        return newYScaleTreatment(y);
+      };
+    });
+    setYScaleControl(function () {
+      return function (y) {
+        return newYScaleControl(y);
+      };
+    }); // let bandwidth = (layout.width - layout.margin - layout.marginLeft) / 2;
+
     var unadjustedCBars = svgElement.select("#unadjusted").selectAll(".unadjustedCBars").data(CBins).join("rect").attr("class", "unadjustedCBars").attr("x", function (d, i) {
-      return newXScale(d.x0) - bandwidth / 2;
+      return newXScale(d.x0);
     }).attr("y", function (d) {
       return newYScaleControl(d.length / unadjustedCCount);
     }).attr("width", function (d) {
-      return bandwidth;
+      return newXScale(d.x1) - newXScale(d.x0);
     }).attr("height", function (d) {
       return newYScaleControl(0) - newYScaleControl(d.length / unadjustedCCount);
     }).attr("fill", "none").attr("stroke", "black");
     var unadjustedTBars = svgElement.select("#unadjusted").selectAll(".unadjustedTBars").data(TBins).join("rect").attr("class", "unadjustedTBars").attr("x", function (d, i) {
-      return newXScale(d.x0) - bandwidth / 2;
+      return newXScale(d.x0);
     }).attr("y", function (d) {
       return newYScaleTreatment(0);
-    }).attr("width", bandwidth).attr("height", function (d) {
+    }).attr("width", function (d) {
+      return newXScale(d.x1) - newXScale(d.x0);
+    }).attr("height", function (d) {
       return newYScaleTreatment(d.length / unadjustedTCount) - newYScaleTreatment(0);
     }).attr("fill", "none").attr("stroke", "black");
-
-    if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
-      var adjustedCBars = svgElement.select("#adjusted").selectAll(".adjustedCBars").data(CBins).join("rect").attr("class", "adjustedCBars").attr("x", function (d, i) {
-        return newXScale(d.x0) - bandwidth / 2;
-      }).attr("y", function (d) {
-        return newYScaleControl(d3.sum(d, function (v) {
-          return v[1];
-        }) / adjustedCCount);
-      }).attr("width", bandwidth).attr("height", function (d) {
-        return newYScaleControl(0) - newYScaleControl(d3.sum(d, function (v) {
-          return v[1];
-        }) / adjustedCCount);
-      }).attr("fill", colorMap.control).attr("stroke", "none");
-      var adjustedTBars = svgElement.select("#adjusted").selectAll(".adjustedTBars").data(TBins).join("rect").attr("class", "adjustedTBars").attr("x", function (d, i) {
-        return newXScale(d.x0) - bandwidth / 2;
-      }).attr("y", function (d) {
-        return newYScaleTreatment(0);
-      }).attr("width", bandwidth).attr("height", function (d) {
-        return newYScaleTreatment(d3.sum(d, function (v) {
-          return v[1];
-        }) / adjustedTCount) - newYScaleTreatment(0);
-      }).attr("fill", colorMap.treatment).attr("stroke", "none");
-    } else {
-      var _adjustedCBars = svgElement.select("#adjusted").selectAll(".adjustedCBars").data(adjustedCBins).join("rect").attr("class", "adjustedCBars").attr("x", function (d, i) {
-        return newXScale(d.x0) - bandwidth / 2;
-      }).attr("y", function (d) {
-        return newYScaleControl(d.length / adjustedCCount);
-      }).attr("width", bandwidth).attr("height", function (d) {
-        return newYScaleControl(0) - newYScaleControl(d.length / adjustedCCount);
-      }).attr("fill", colorMap.control).attr("stroke", "none");
-
-      var _adjustedTBars = svgElement.select("#adjusted").selectAll(".adjustedTBars").data(adjustedTBins).join("rect").attr("class", "adjustedTBars").attr("x", function (d, i) {
-        return newXScale(d.x0) - bandwidth / 2;
-      }).attr("y", function (d) {
-        return newYScaleTreatment(0);
-      }).attr("width", bandwidth).attr("height", function (d) {
-        return newYScaleTreatment(d.length / adjustedTCount) - newYScaleTreatment(0);
-      }).attr("fill", colorMap.treatment).attr("stroke", "none");
-    }
+    var adjustedCBars = svgElement.select("#adjusted").selectAll(".adjustedCBars").data(CBins).join("rect").attr("class", "adjustedCBars").attr("x", function (d, i) {
+      return newXScale(d.x0);
+    }).attr("y", function (d) {
+      return newYScaleControl(d3.sum(d, function (v) {
+        return v[1];
+      }) / adjustedCCount);
+    }).attr("width", function (d) {
+      return newXScale(d.x1) - newXScale(d.x0);
+    }).attr("height", function (d) {
+      return newYScaleControl(0) - newYScaleControl(d3.sum(d, function (v) {
+        return v[1];
+      }) / adjustedCCount);
+    }).attr("fill", colorMap.control).attr("stroke", "none");
+    var adjustedTBars = svgElement.select("#adjusted").selectAll(".adjustedTBars").data(TBins).join("rect").attr("class", "adjustedTBars").attr("x", function (d, i) {
+      return newXScale(d.x0);
+    }).attr("y", function (d) {
+      return newYScaleTreatment(0);
+    }).attr("width", function (d) {
+      return newXScale(d.x1) - newXScale(d.x0);
+    }).attr("height", function (d) {
+      return newYScaleTreatment(d3.sum(d, function (v) {
+        return v[1];
+      }) / adjustedTCount) - newYScaleTreatment(0);
+    }).attr("fill", colorMap.treatment).attr("stroke", "none");
     /*
      *
     Indicate adjusted means
      *
      */
-
 
     svgElement.select("#adjustedMean").selectAll(".adjustedCMeanLine").data([adjustedCMean]).join("line").attr("class", "adjustedCMeanLine").attr("x1", function (d) {
       return newXScale(d);
@@ -465,7 +364,7 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
     d3.selectAll("#y-axiscontrol>.tick>text").each(function (d, i) {
       d3.select(this).style("font-size", "12px");
     });
-  }, [unadjustedTreatmentData, unadjustedControlData, adjustedTreatmentData, adjustedControlData]);
+  }, [unadjustedTreatmentData, unadjustedControlData]);
   useEffect(function () {
     var histogram = d3.histogram().domain([-0.5, 1.5]).thresholds(bins);
     var selectedBins = histogram(selectedAttribute);
