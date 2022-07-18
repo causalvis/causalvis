@@ -17,7 +17,8 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       _ref$outcome = _ref.outcome,
       outcome = _ref$outcome === void 0 ? "outcome" : _ref$outcome,
       _ref$effect = _ref.effect,
-      effect = _ref$effect === void 0 ? "effect" : _ref$effect;
+      effect = _ref$effect === void 0 ? "effect" : _ref$effect,
+      isBinary = _ref.isBinary;
   var ref = useRef('svgTreatmentEffect');
   var svg = d3.select("#svgTreatmentEffect" + index);
   var svgElement = svg.select("g"); // Track color map
@@ -35,55 +36,50 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
 
   var _React$useState3 = React.useState(""),
       stratifyBy = _React$useState3[0],
-      setStratifyBy = _React$useState3[1];
+      setStratifyBy = _React$useState3[1]; // const [isBinary, setIsBinary] = React.useState(false);
 
-  var _React$useState4 = React.useState(false),
-      isBinary = _React$useState4[0],
-      setIsBinary = _React$useState4[1];
 
-  var _React$useState5 = React.useState(""),
-      plotTitle = _React$useState5[0],
-      setPlotTitle = _React$useState5[1];
+  var _React$useState4 = React.useState(""),
+      plotTitle = _React$useState4[0],
+      setPlotTitle = _React$useState4[1];
 
-  var _React$useState6 = React.useState({
+  var _React$useState5 = React.useState({
     "height": 500,
     "width": 600,
     "margin": 50,
     "marginLeft": 50
   }),
-      layout = _React$useState6[0],
-      setLayout = _React$useState6[1];
+      layout = _React$useState5[0],
+      setLayout = _React$useState5[1];
+
+  var _React$useState6 = React.useState([[0, 0], [0, 0]]),
+      treatmentReg = _React$useState6[0],
+      setTreatmentReg = _React$useState6[1];
 
   var _React$useState7 = React.useState([[0, 0], [0, 0]]),
-      treatmentReg = _React$useState7[0],
-      setTreatmentReg = _React$useState7[1];
+      controlReg = _React$useState7[0],
+      setControlReg = _React$useState7[1];
 
-  var _React$useState8 = React.useState([[0, 0], [0, 0]]),
-      controlReg = _React$useState8[0],
-      setControlReg = _React$useState8[1];
+  var _React$useState8 = React.useState([]),
+      treatmentBins = _React$useState8[0],
+      setTreatmentBins = _React$useState8[1];
 
   var _React$useState9 = React.useState([]),
-      treatmentBins = _React$useState9[0],
-      setTreatmentBins = _React$useState9[1];
+      controlBins = _React$useState9[0],
+      setControlBins = _React$useState9[1];
 
   var _React$useState10 = React.useState([]),
-      controlBins = _React$useState10[0],
-      setControlBins = _React$useState10[1];
-
-  var _React$useState11 = React.useState([]),
-      stratifiedBins = _React$useState11[0],
-      setStratifiedBins = _React$useState11[1];
+      stratifiedBins = _React$useState10[0],
+      setStratifiedBins = _React$useState10[1];
 
   var bins = 20;
   useEffect(function () {
     var cohortData = allData["data"];
-    var stratifyBy = allData["stratifyBy"];
-    var isBinary = new Set(cohortData.map(function (d) {
-      return d[stratifyBy];
-    })).size <= 2;
+    var stratifyBy = allData["stratifyBy"]; // let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size <= 2;
+
     setCohortData(cohortData);
-    setStratifyBy(stratifyBy);
-    setIsBinary(isBinary);
+    setStratifyBy(stratifyBy); // setIsBinary(isBinary);
+
     setPlotTitle(allData["title"]);
     setLayout(allData["layout"]);
     var treatmentData = cohortData.filter(function (d) {

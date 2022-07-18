@@ -283,7 +283,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     style: headerStyle
   }, /*#__PURE__*/React.createElement("p", {
     style: plotsTitle
-  }, "Treatment Effect Plot"), /*#__PURE__*/React.createElement(LegendVis, null)), /*#__PURE__*/React.createElement("div", {
+  }, "Treatment Effect Plot")), /*#__PURE__*/React.createElement("div", {
     style: btopStyle
   }, stratify[1] ? /*#__PURE__*/React.createElement(BeeswarmTop, {
     data: cohortData,
@@ -303,7 +303,8 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     return /*#__PURE__*/React.createElement(TreatmentEffectVisViolin, {
       key: "vis" + value.stratifyBy + index,
       index: index,
-      allData: value
+      allData: value,
+      isBinary: attributeLevels[value] === 2
     });
   })));
 };
