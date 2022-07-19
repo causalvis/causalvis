@@ -35,6 +35,8 @@ export var DownloadDialog = function DownloadDialog(_ref) {
       colliders = _ref$colliders === void 0 ? [] : _ref$colliders,
       _ref$mediators = _ref.mediators,
       mediators = _ref$mediators === void 0 ? [] : _ref$mediators,
+      _ref$prognostics = _ref.prognostics,
+      prognostics = _ref$prognostics === void 0 ? [] : _ref$prognostics,
       handleClose = _ref.handleClose;
 
   // console.log(colliders);
@@ -44,7 +46,8 @@ export var DownloadDialog = function DownloadDialog(_ref) {
     outcomeCheck: false,
     confoundsCheck: false,
     mediatorsCheck: false,
-    collidersCheck: false
+    collidersCheck: false,
+    prognosticsCheck: false
   }),
       checked = _React$useState[0],
       setChecked = _React$useState[1];
@@ -97,8 +100,12 @@ export var DownloadDialog = function DownloadDialog(_ref) {
       newDownload.colliders = colliders;
     }
 
+    if (checked.prognosticsCheck) {
+      newDownload.prognostics = prognostics;
+    }
+
     setJSON(newDownload);
-  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators]);
+  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators, prognostics]);
 
   function handleChange(val) {
     checked[val] = !checked[val];
@@ -119,9 +126,7 @@ export var DownloadDialog = function DownloadDialog(_ref) {
   }
 
   function handleFilenameChange(e) {
-    setFilename(e.target.value); // console.log(e.target.value);
-    // setValue(val);
-    // setColor(tagColors[val]);
+    setFilename(e.target.value);
   }
 
   var dataStyle = {
@@ -214,6 +219,14 @@ export var DownloadDialog = function DownloadDialog(_ref) {
       }
     }),
     label: "Colliders"
+  }), /*#__PURE__*/React.createElement(FormControlLabel, {
+    control: /*#__PURE__*/React.createElement(Checkbox, {
+      checked: checked.prognosticsCheck,
+      onChange: function onChange() {
+        return handleChange("prognosticsCheck");
+      }
+    }),
+    label: "Prognostics"
   }))), /*#__PURE__*/React.createElement(TextField, {
     style: textStyle,
     id: "outlined-multiline-flexible",

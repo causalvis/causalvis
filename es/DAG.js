@@ -950,6 +950,7 @@ export var DAG = function DAG(_ref) {
     confounds: confounds,
     colliders: colliders,
     mediators: mediators,
+    prognostics: prognostics,
     handleClose: handleClose
   }), /*#__PURE__*/React.createElement(NodeDialog, {
     open: addNode,

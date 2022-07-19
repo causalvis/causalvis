@@ -23,7 +23,7 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
   const [filename, setFilename] = React.useState('selected');
 
   useEffect(() => {
-    if (selectedItems.data[0]) {
+    if (selectedItems.data.length > 0) {
       let newAttributes = Object.keys(selectedItems.data[0]);
       let newData = JSON.parse(JSON.stringify(selectedItems.data));
 
@@ -35,6 +35,9 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
 
       setAttributes([...newAttributes, "propensity", "treatment"]);
       setData(newData);
+    } else {
+      setAttributes([]);
+      setData([]);
     }
   }, [selectedItems])
 
@@ -65,7 +68,7 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
         maxWidth="lg">
         <DialogTitle>Download</DialogTitle>
         <DialogContent>
-          {selectedItems.data.length > 0
+          {data.length > 0 && data.length < 1000
             ? <div>
                 <TextField
                   style={filenameStyle}
@@ -100,9 +103,23 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
                   </Table>
                 </TableContainer>
               </div>
-            : <DialogContentText>
-                Select items from the propensity score plot to download.
-              </DialogContentText>
+            : data.length > 1000 
+                ? <div>
+                    <TextField
+                      style={filenameStyle}
+                      defaultValue={filename}
+                      id="outlined-basic"
+                      label="Filename"
+                      variant="standard"
+                      onChange={(e) => handleFilenameChange(e)} />
+                    <DialogContentText>
+                      File size too large for preview. Selected data items will be downloaded as <i>{filename}.json</i>.
+                    </DialogContentText>
+                  </div>
+                : <DialogContentText>
+                    Select items from the propensity score plot to download.
+                  </DialogContentText>
+            
           }
         </DialogContent>
         <DialogActions>

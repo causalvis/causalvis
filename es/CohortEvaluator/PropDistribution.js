@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { histogram } from 'd3-array';
 import { PropDistributionVis } from './PropDistributionVis';
-import { saveAs } from 'file-saver';
+import { DownloadSelectedDialog } from './DownloadSelectedDialog';
 export var PropDistribution = function PropDistribution(_ref) {
   var _ref$unadjustedCohort = _ref.unadjustedCohortData,
       unadjustedCohortData = _ref$unadjustedCohort === void 0 ? {} : _ref$unadjustedCohort,
@@ -35,15 +35,15 @@ export var PropDistribution = function PropDistribution(_ref) {
       selectedItems = _React$useState4[0],
       setSelectedItems = _React$useState4[1];
 
+  var _React$useState5 = React.useState(false),
+      openDownload = _React$useState5[0],
+      setOpenDownload = _React$useState5[1];
+
   var binCount = 20;
   var n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
 
-  function downloadSelected() {
-    var fileContent = new Blob([JSON.stringify(selectedItems, null, 4)], {
-      type: 'application/json',
-      name: 'selected.json'
-    });
-    saveAs(fileContent, 'selected.json');
+  function handleDownloadClose() {
+    setOpenDownload(false);
   }
 
   useEffect(function () {
@@ -55,10 +55,10 @@ export var PropDistribution = function PropDistribution(_ref) {
 
     if (!selectRange) {
       setSelectedItems(newSelectedItems);
-    } else {
-      for (var i = 0; i < unadjustedCohortData.propensity.length; i++) {
+    } else if (!adjustedCohortData) {
+      for (var i = 0; i < unadjustedCohortData.confounds.length; i++) {
         var treatment = unadjustedCohortData.treatment[i];
-        var propensity = unadjustedCohortData.propensity[i][treatment]; // console.log(propensity);
+        var propensity = unadjustedCohortData.propensity[i][1];
 
         if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
           newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
@@ -68,10 +68,22 @@ export var PropDistribution = function PropDistribution(_ref) {
       }
 
       setSelectedItems(newSelectedItems);
+    } else {
+      for (var _i = 0; _i < adjustedCohortData.confounds.length; _i++) {
+        var _treatment = adjustedCohortData.treatment[_i];
+        var _propensity = adjustedCohortData.propensity[_i][1];
+
+        if (_propensity >= selectRange[0] && _propensity <= selectRange[1]) {
+          newSelectedItems.data.push(adjustedCohortData.confounds[_i]);
+          newSelectedItems.propensity.push(_propensity);
+          newSelectedItems.treatment.push(adjustedCohortData.treatment[_i]);
+        }
+      }
+
+      setSelectedItems(newSelectedItems);
     }
   }, [selectRange]);
   useEffect(function () {
-    // console.log(adjustedCohortData);
     if (!adjustedCohortData && unadjustedCohortData.confounds) {
       var newTAttribute = [];
       var newCAttribute = [];
@@ -113,17 +125,17 @@ export var PropDistribution = function PropDistribution(_ref) {
       var _newTAttribute = [];
       var _newCAttribute = [];
 
-      for (var _i = 0; _i < adjustedCohortData.confounds.length; _i++) {
-        var _dataRow = JSON.parse(JSON.stringify(adjustedCohortData.confounds[_i]));
+      for (var _i2 = 0; _i2 < adjustedCohortData.confounds.length; _i2++) {
+        var _dataRow = JSON.parse(JSON.stringify(adjustedCohortData.confounds[_i2]));
 
-        var _assignedTreatment = adjustedCohortData.treatment[_i]; // Separate treatment and control rows
+        var _assignedTreatment = adjustedCohortData.treatment[_i2]; // Separate treatment and control rows
 
         if (_assignedTreatment === 0) {
-          _dataRow.propensity = adjustedCohortData.propensity[_i][1];
+          _dataRow.propensity = adjustedCohortData.propensity[_i2][1];
 
           _newCAttribute.push(_dataRow);
         } else {
-          _dataRow.propensity = adjustedCohortData.propensity[_i][1];
+          _dataRow.propensity = adjustedCohortData.propensity[_i2][1];
 
           _newTAttribute.push(_dataRow);
         }
@@ -168,12 +180,16 @@ export var PropDistribution = function PropDistribution(_ref) {
   };
   return /*#__PURE__*/React.createElement("div", {
     style: propContainer
-  }, /*#__PURE__*/React.createElement("p", {
+  }, /*#__PURE__*/React.createElement(DownloadSelectedDialog, {
+    open: openDownload,
+    handleDownloadClose: handleDownloadClose,
+    selectedItems: selectedItems
+  }), /*#__PURE__*/React.createElement("p", {
     style: selectContainer
   }, "" + selectedItems.data.length, " selected.\xA0", /*#__PURE__*/React.createElement("span", {
     style: linkStyle,
     onClick: function onClick() {
-      return downloadSelected();
+      return setOpenDownload(true);
     }
   }, /*#__PURE__*/React.createElement("u", null, "Download."))), /*#__PURE__*/React.createElement(PropDistributionVis, {
     bins: bins,
