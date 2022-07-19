@@ -88,9 +88,6 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
 
   function handleFilenameChange(e) {
     setFilename(e.target.value);
-    // console.log(e.target.value);
-    // setValue(val);
-    // setColor(tagColors[val]);
   }
 
   let dataStyle = {"display": "flex"};

@@ -2,8 +2,7 @@ import React, {useRef, useState, useEffect} from 'react'
 import { histogram } from 'd3-array';
 
 import { PropDistributionVis } from './PropDistributionVis';
-
-import { saveAs } from 'file-saver';
+import { DownloadSelectedDialog } from './DownloadSelectedDialog';
 
 export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, setSelected}) => {
 
@@ -14,16 +13,13 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
   const [selectRange, setSelectRange] = React.useState(null);
   const [selectedItems, setSelectedItems] = React.useState({"data":[], "propensity":[], "treatment":[]});
 
+  const [openDownload, setOpenDownload] = React.useState(false);
+
   const binCount = 20;
   const n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
 
-  function downloadSelected() {
-    let fileContent = new Blob([JSON.stringify(selectedItems, null, 4)], {
-      type: 'application/json',
-      name: 'selected.json'
-    });
-
-    saveAs(fileContent, 'selected.json');
+  function handleDownloadClose() {
+    setOpenDownload(false);
   }
 
   useEffect(() => {
@@ -137,7 +133,11 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
 
   return (
     <div style={propContainer}>
-      <p style={selectContainer}>{`${selectedItems.data.length}`} selected.&nbsp;<span style={linkStyle} onClick={() => downloadSelected()}><u>Download.</u></span></p>
+      <DownloadSelectedDialog
+        open={openDownload}
+        handleDownloadClose={handleDownloadClose}
+        selectedItems={selectedItems} />
+      <p style={selectContainer}>{`${selectedItems.data.length}`} selected.&nbsp;<span style={linkStyle} onClick={() => setOpenDownload(true)}><u>Download.</u></span></p>
       <PropDistributionVis bins={bins} n={binSize} setSelectRange={setSelectRange}/> 
     </div>
   )
