@@ -14,7 +14,7 @@ import TextField from '@mui/material/TextField';
 
 import { saveAs } from 'file-saver';
 
-export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], handleClose}) => {
+export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], prognostics=[], handleClose}) => {
   // console.log(colliders);
   const [checked, setChecked] = React.useState({
     nodelinkCheck: true,
@@ -23,6 +23,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
     confoundsCheck: false,
     mediatorsCheck: false,
     collidersCheck: false,
+    prognosticsCheck: false
   });
   const [error, setError] = React.useState(false);
   const [downloadJSON, setJSON] = React.useState('');
@@ -63,9 +64,13 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
       newDownload.colliders = colliders;
     }
 
+    if (checked.prognosticsCheck) {
+      newDownload.prognostics = prognostics;
+    }
+
     setJSON(newDownload);
 
-  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators])
+  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators, prognostics])
 
 
   function handleChange(val) {
@@ -131,6 +136,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
                 <FormControlLabel control={<Checkbox checked={checked.confoundsCheck} onChange={() => handleChange("confoundsCheck")} />} label="Confounds" />
                 <FormControlLabel control={<Checkbox checked={checked.mediatorsCheck} onChange={() => handleChange("mediatorsCheck")} />} label="Mediators" />
                 <FormControlLabel control={<Checkbox checked={checked.collidersCheck} onChange={() => handleChange("collidersCheck")} />} label="Colliders" />
+                <FormControlLabel control={<Checkbox checked={checked.prognosticsCheck} onChange={() => handleChange("prognosticsCheck")} />} label="Prognostics" />
               </FormGroup>
             </FormControl>
             <TextField

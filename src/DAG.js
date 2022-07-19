@@ -758,6 +758,7 @@ export const DAG = ({attributes = [], graph}) => {
         confounds={confounds}
         colliders={colliders}
         mediators={mediators}
+        prognostics={prognostics}
         handleClose={handleClose} />
       <NodeDialog
         open={addNode}
