@@ -171,8 +171,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .data(["control", "treatment"])
       .join("rect")
       .attr("class", "legend")
-      .attr("x", (d, i) => layout.width / 2 - 75 + 80 * i)
-      .attr("y", (d, i) => layout.margin - 16)
+      .attr("x", (d, i) => layout.width / 2 - 55 + 80 * i)
+      .attr("y", (d, i) => layout.margin / 2 - 16)
       .attr("width", 12)
       .attr("height", 12)
       .attr("fill", d => colorMap[d])
@@ -182,8 +182,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .data(["control", "treatment"])
       .join("text")
       .attr("class", "legendText")
-      .attr("x", (d, i) => layout.width / 2 - 75 + 80 * i + 18)
-      .attr("y", (d, i) => layout.margin - 10)
+      .attr("x", (d, i) => layout.width / 2 - 55 + 80 * i + 18)
+      .attr("y", (d, i) => layout.margin / 2 - 10)
       .attr("alignment-baseline", "middle")
       .attr("text-anchor", "start")
       .attr("fill", d => colorMap[d])
@@ -191,17 +191,17 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("font-size", 12)
       .text(d => d)
 
-    svgElement.select("#title")
-      .selectAll(".title")
-      .data(["Propensity Score Distribution Plot"])
-      .join("text")
-      .attr("class", "title")
-      .attr("x", layout.width / 2)
-      .attr("y", layout.margin / 2)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
-      .text(d => d)
+    // svgElement.select("#title")
+    //   .selectAll(".title")
+    //   .data(["Propensity Score Distribution Plot"])
+    //   .join("text")
+    //   .attr("class", "title")
+    //   .attr("x", layout.width / 2)
+    //   .attr("y", layout.margin / 2)
+    //   .attr("text-anchor", "middle")
+    //   .attr("font-family", "sans-serif")
+    //   .attr("font-size", 12)
+    //   .text(d => d)
 
     xAxis.transition()
         .duration(1000)
@@ -237,8 +237,16 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     setPrevTBins([...newTBins]);
   }, [bins])
 
+  let containerStyle = {"display":"flex",
+                        "flexDirection":"column",
+                        "alignItems":"center"};
+  let titleStyle = {"marginLeft":layout.marginLeft,
+                    "fontFamily":"sans-serif",
+                    "fontSize":"15px"}
+
   return (
-    <div>
+    <div style={containerStyle}>
+      <p style={titleStyle}>Propensity Score Distribution Plot</p>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgPropDistribution">
         <g>
           <g id="bars" />

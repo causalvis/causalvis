@@ -32,11 +32,10 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
 
     if (!selectRange) {
       setSelectedItems(newSelectedItems);
-    } else {
-      for (let i = 0; i < unadjustedCohortData.propensity.length; i++) {
+    } else if (!adjustedCohortData) {
+      for (let i = 0; i < unadjustedCohortData.confounds.length; i++) {
         let treatment = unadjustedCohortData.treatment[i]
-        let propensity = unadjustedCohortData.propensity[i][treatment];
-        // console.log(propensity);
+        let propensity = unadjustedCohortData.propensity[i][1];
 
         if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
           newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
@@ -46,12 +45,24 @@ export const PropDistribution = ({unadjustedCohortData={}, adjustedCohortData, s
       }
 
       setSelectedItems(newSelectedItems);
+    } else {
+      for (let i = 0; i < adjustedCohortData.confounds.length; i++) {
+        let treatment = adjustedCohortData.treatment[i]
+        let propensity = adjustedCohortData.propensity[i][1];
+
+        if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
+          newSelectedItems.data.push(adjustedCohortData.confounds[i]);
+          newSelectedItems.propensity.push(propensity);
+          newSelectedItems.treatment.push(adjustedCohortData.treatment[i]);
+        }
+      }
+
+      setSelectedItems(newSelectedItems);
     }
 
   }, [selectRange])
 
   useEffect(() => {
-    // console.log(adjustedCohortData);
 
     if (!adjustedCohortData && unadjustedCohortData.confounds) {
       let newTAttribute = [];

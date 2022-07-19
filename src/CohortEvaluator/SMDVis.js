@@ -145,13 +145,16 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
     //   .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
     //   .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
 
+    // svgElement.select("#legend")
+    //   .attr("transform", "translate(25px)")
+
     svgElement.select("#legend")
       .selectAll(".legend")
       .data(["adjusted", "unadjusted"])
       .join("circle")
       .attr("class", "legend")
-      .attr("cx", (d, i) => ((layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft) - 73 + 80 * i)
-      .attr("cy", (d, i) => layout.margin - 10)
+      .attr("cx", (d, i) => ((layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft) - 48 + 80 * i)
+      .attr("cy", (d, i) => layout.margin / 2 - 10)
       .attr("r", 3)
       .attr("fill", d => d === "adjusted" ? "black" : "white")
       .attr("stroke", "black")
@@ -161,8 +164,8 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .data(['adjusted', 'unadjusted'])
       .join("text")
       .attr("class", "legendText")
-      .attr("x", (d, i) => ((layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft) - 73 + 80 * i + 10)
-      .attr("y", (d, i) => layout.margin - 10)
+      .attr("x", (d, i) => ((layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft) - 48 + 80 * i + 10)
+      .attr("y", (d, i) => layout.margin / 2 - 10)
       .text(d => d)
       .attr("alignment-baseline", "middle")
       .attr("font-family", "sans-serif")
@@ -174,17 +177,17 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
         .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
     // Add plot title
-    svgElement.select("#title")
-      .selectAll(".title")
-      .data(["Standardized Mean Difference"])
-      .join("text")
-      .attr("class", "title")
-      .attr("x", (layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft)
-      .attr("y", layout.margin / 2)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
-      .text(d => d)
+    // svgElement.select("#title")
+    //   .selectAll(".title")
+    //   .data(["Standardized Mean Difference"])
+    //   .join("text")
+    //   .attr("class", "title")
+    //   .attr("x", (layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft)
+    //   .attr("y", layout.margin / 2)
+    //   .attr("text-anchor", "middle")
+    //   .attr("font-family", "sans-serif")
+    //   .attr("font-size", 12)
+    //   .text(d => d)
 
     d3.selectAll("#x-axis>.tick>text")
       .each(function(d, i){
@@ -193,10 +196,16 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
   }, [SMDDataset])
 
-  let containerStyle = {"display":"flex"};
+  let containerStyle = {"display":"flex",
+                        "flexDirection":"column",
+                        "alignItems":"center"};
+  let titleStyle = {"marginLeft":layout.marginLeft,
+                    "fontFamily":"sans-serif",
+                    "fontSize":"15px"}
 
   return (
     <div style={containerStyle}>
+      <p style={titleStyle}>Standardized Mean Difference</p>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgSMD">
         <g>
           <g id="diff" />
