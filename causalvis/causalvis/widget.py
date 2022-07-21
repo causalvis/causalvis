@@ -1,5 +1,8 @@
+import json
+import pandas as pd
+
 import ipywidgets as widgets
-from traitlets import Unicode, Dict
+from traitlets import Unicode, Dict, TraitError
 
 # @widgets.register
 class BaseWidget(widgets.DOMWidget):
@@ -19,6 +22,9 @@ class BaseWidget(widgets.DOMWidget):
 
         self.component = self.__class__.__name__
         self.props = kwargs
+
+    def update_prop(self, prop_name, prop_value):
+        self.props = {**self.props, prop_name: prop_value}
 
 """
 Read and convert a networkx graph into a python Dict
@@ -53,7 +59,7 @@ The following function initializes the DAG widget
 Only one of the input props should be specified, if multiple props are provided,
 props will be processed in order of preference as listed below
 Input props with the most information (graphs) are prioritized
-If not input props are provided, the DAG is initialized as an empty svg
+If no input props are provided, the DAG is initialized as an empty svg
 
 Props:
   - graph: Dict, json formatted graph data of {nodes: [...], links: [...]}
@@ -122,3 +128,68 @@ class TreatmentEffectEvaluator(BaseWidget):
             outcome=self.outcome,
             **kwargs
         )
+
+@widgets.register
+class VersionHistory(BaseWidget):
+    def __init__(self, **kwargs):
+        
+        self.versions = []
+
+        # print("here", self.data)
+        
+        super().__init__(
+            versions = self.versions,
+            **kwargs
+        )
+
+    def addVersion(self, v):
+        try:
+            assert(len(v) == 3)
+        except AssertionError:
+            raise TraitError("The VersionHistory module expects input in the form of (DAG, Cohort, ATE), got {count}".format(len(newHistory)))
+            return
+
+        try:
+            assert(type(v[0]) == dict)
+        except AssertionError:
+            raise TraitError("Invalid DAG type, expected dict")
+            return
+
+        try:
+            assert(type(v[1]) == pd.core.frame.DataFrame)
+        except AssertionError:
+            raise TraitError("Invalid Cohort type, expected pandas DataFrame")
+            return
+
+        try:
+            assert(type(v[2]) == int)
+        except AssertionError:
+            raise TraitError("Invalid ATE type, expected int")
+            return
+
+        newVersion = {}
+        newVersion["DAG"] = v[0]
+        newVersion["Cohort"] = v[1].to_json(orient="records")
+        newVersion["ATE"] = v[2]
+
+        newVersions = self.versions + [newVersion]
+
+        self.versions = newVersions
+        self.update_prop("versions", newVersions)
+
+    def versionCount(self):
+        print(len(self.versions))
+
+    def saveVersions(self, filename="./versions.json"):
+        # allVersions = []
+
+        # for v in self.versions:
+        #     newV = {}
+        #     newV["DAG"] = v[0]
+        #     newV["Cohort"] = v[1].to_json(orient="records")
+        #     newV["ATE"] = v[2]
+
+        #     allVersions.append(newV)
+
+        with open(filename, "w") as f:
+            json.dump(self.versions, f)

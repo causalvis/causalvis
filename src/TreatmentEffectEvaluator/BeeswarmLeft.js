@@ -19,58 +19,58 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
   const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
                                                   0: "#f28e2b"});
 
-    // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
+  // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
 
-    // Jitter the coordinates of each point slightly along the x-axis
-    const jitter = 20;
+  // Jitter the coordinates of each point slightly along the x-axis
+  const jitter = 20;
 
-    // Set the slider step increment size to one-hundredth of variable extent
-    const extent = d3.extent(data, d => d[stratify]);
-    let step = (extent[1] - extent[0]) / 100;
-    step = parseFloat(step.toPrecision(2));
+  // Set the slider step increment size to one-hundredth of variable extent
+  const extent = d3.extent(data, d => d[stratify]);
+  let step = (extent[1] - extent[0]) / 100;
+  step = parseFloat(step.toPrecision(2));
 
-    // Update the threshold for faceting
-    function handleChange(e, v) {
-      updateLeftThreshold(v);
-    }
+  // Update the threshold for faceting
+  function handleChange(e, v) {
+    updateLeftThreshold(v);
+  }
 
-    let yScale;
+  let yScale;
 
-    if (!isBinary) {
-      yScale = d3.scaleLinear()
-                    .domain(extent)
-                    .range([layout.height - layout.marginBottom, layout.margin])
-    } else {
-      yScale = d3.scaleLinear()
-                    .domain([-0.5, 1.5])
-                    .range([layout.height - layout.marginBottom, layout.margin])
-    }
+  if (!isBinary) {
+    yScale = d3.scaleLinear()
+                  .domain(extent)
+                  .range([layout.height - layout.marginBottom, layout.margin])
+  } else {
+    yScale = d3.scaleLinear()
+                  .domain([-0.5, 1.5])
+                  .range([layout.height - layout.marginBottom, layout.margin])
+  }
 
-    const circles = svgElement.select("#points")
-      .selectAll(".dataPoint")
-      .data(data)
-      .join("circle")
-      .attr("class", "dataPoint")
-      .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
-      .attr("r", 3)
-      .attr("fill", "none")
-      .attr("stroke", d => colorMap[1])
+  const circles = svgElement.select("#points")
+    .selectAll(".dataPoint")
+    .data(data)
+    .join("circle")
+    .attr("class", "dataPoint")
+    .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
+    .attr("r", 3)
+    .attr("fill", "none")
+    .attr("stroke", d => colorMap[1])
 
-    // Visualize current threshold
-    let thresholdStroke = svgElement.select("#threshold")
-      .attr("transform", `translate(0, ${yScale(thresholdValue)})`)
-      .attr("stroke", isBinary ? "none" : "black")
-      .attr("stroke-dasharray", "5 5 2 5")
+  // Visualize current threshold
+  let thresholdStroke = svgElement.select("#threshold")
+    .attr("transform", `translate(0, ${yScale(thresholdValue)})`)
+    .attr("stroke", isBinary ? "none" : "black")
+    .attr("stroke-dasharray", "5 5 2 5")
 
-    if (!isBinary) {
-      svgElement.select('#y-axis')
-              .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
-              .call(d3.axisRight(yScale).tickSize(3))
-    } else {
-      svgElement.select('#y-axis')
-              .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
-              .call(d3.axisRight(yScale).tickSize(3).tickValues([0, 1]))
-    }
+  if (!isBinary) {
+    svgElement.select('#y-axis')
+            .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
+            .call(d3.axisRight(yScale).tickSize(3))
+  } else {
+    svgElement.select('#y-axis')
+            .attr('transform', `translate(${layout.width - layout.margin}, 0)`)
+            .call(d3.axisRight(yScale).tickSize(3).tickValues([0, 1]))
+  }
 
     
 

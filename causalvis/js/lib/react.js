@@ -8,8 +8,9 @@ const e = React.createElement;
 var dag = require('../../../lib/DAG.js');
 var cohort = require('../../../lib/CohortEvaluator.js');
 var teffect = require('../../../lib/TreatmentEffectEvaluator.js');
+var versions = require('../../../lib/VersionHistory.js');
 
-var lib = {...dag, ...cohort, ...teffect};
+var lib = {...dag, ...cohort, ...teffect, ...versions};
 
 // See example.py for the kernel counterpart to this file.
 
@@ -51,13 +52,14 @@ var ReactView = widgets.DOMWidgetView.extend({
 
         // Observe changes in the value traitlet in Python, and define
         // a custom callback.
-        this.model.on('change:value', this.value_changed, this);
+        this.model.on('change:props', this.value_changed, this);
+        console.log("model", this.model);
+        if (document.getElementById('testSelect')) {
+            console.log(document.getElementById('testSelect').innerHTML);
+        }
     },
 
     value_changed: function() {
-        var gm = this.model.get("value");
-        var self = this;
-
         var props = this.model.get("props");
 
         var component = React.createElement(lib[this.model.attributes.component], props);
