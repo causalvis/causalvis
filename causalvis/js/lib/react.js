@@ -53,10 +53,15 @@ var ReactView = widgets.DOMWidgetView.extend({
         // Observe changes in the value traitlet in Python, and define
         // a custom callback.
         this.model.on('change:props', this.value_changed, this);
-        console.log("model", this.model);
-        if (document.getElementById('testSelect')) {
-            console.log(document.getElementById('testSelect').innerHTML);
-        }
+
+        this.input = document.createElement('input');
+        this.input.type = 'text';
+        this.input.id = '_hidden';
+        this.input.style.display = 'none';
+        this.input.value = this.model.get('value');
+        this.input.oninput = this.input_changed.bind(this);
+
+        this.el.appendChild(this.input);
     },
 
     value_changed: function() {
@@ -64,7 +69,13 @@ var ReactView = widgets.DOMWidgetView.extend({
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
-    }
+    },
+
+    input_changed: function() {
+        console.log(this.input.value)
+        this.model.set('value', this.input.value);
+        this.model.save_changes();
+    },
 });
 
 

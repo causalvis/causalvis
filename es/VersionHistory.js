@@ -76,9 +76,7 @@ export var VersionHistory = function VersionHistory(_ref) {
 
     setHierarchy(data);
   }, [versions]);
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
-    id: "testSelect"
-  }, "my content"), /*#__PURE__*/React.createElement(VersionTree, {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(VersionTree, {
     data: hierarchy
   }));
 };

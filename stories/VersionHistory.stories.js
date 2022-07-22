@@ -19,8 +19,15 @@ export default {
   title: 'Versions/Version History',
 };
 
+function test(val) {
+  console.log(val);
+}
+
 export const ToStorybook = () => (
-  <VersionHistory versions={versions} />
+  <div>
+    <input id="_hidden" type="text" />
+    <VersionHistory versions={versions} />
+  </div>
 )
 
 ToStorybook.story = {

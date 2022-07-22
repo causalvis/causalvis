@@ -45,7 +45,6 @@ export const VersionHistory = ({versions=[]}) => {
 
   return (
     <div>
-      <p id="testSelect">my content</p>
       <VersionTree data={hierarchy} />
     </div>
   )

@@ -16,6 +16,7 @@ class BaseWidget(widgets.DOMWidget):
 
     component = Unicode().tag(sync=True)
     props = Dict().tag(sync=True)
+    value = Unicode('test').tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__()

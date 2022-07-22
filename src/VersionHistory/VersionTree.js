@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import * as d3 from 'd3';
 
 // This visualization is modified from https://observablehq.com/@d3/zoomable-icicle
-export const VersionTree = ({layout={"height": 120, "width": 1000, "margin": 30, "marginLeft": 10, "marginBottom": 30},
+export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30, "marginLeft": 10, "marginBottom": 30},
                               data={"children": [], "name": "All Versions"}}) => {
 
   const ref = useRef('svgVersionTree');
@@ -80,7 +80,25 @@ export const VersionTree = ({layout={"height": 120, "width": 1000, "margin": 30,
   //     .attr("class", "title")
   //     .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}`);
 
-  function clicked(event, p) {
+  function clicked(event, p) {    
+    let hidden = document.getElementById("_hidden");
+
+    // function test(val) {
+    //   console.log("here")
+    //   console.log(val)
+    // }
+
+    // hidden.oninput = test;
+
+    // console.log(hidden);
+
+    if (hidden) {
+      hidden.value = p.data.name;
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      hidden.dispatchEvent(event);
+    }
+
     focus = focus === p ? p = p.parent : p;
 
     root.each(d => d.target = {
