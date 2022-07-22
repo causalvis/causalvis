@@ -181,6 +181,12 @@ export const DAG = ({attributes = [], graph}) => {
   // Or when the graph is updated
   // Recalculate mediators, colliders, and confounds
   useEffect(() => {
+
+    let hidden = document.getElementById("_hidden");
+    let nodelink_string = JSON.stringify(nodelinks);
+
+    console.log(hidden, nodelink_string);
+
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
       let newColliders = Array.from(getColliders(treatment, outcome));
@@ -198,6 +204,14 @@ export const DAG = ({attributes = [], graph}) => {
       setMediators(newMediators.map(m => m.name));
       setConfounds(newConfounds.map(c => c.name));
       setPrognostics(newPrognostics.map(p => p.name));
+
+      if (hidden) {
+        console.log('here', nodelinks);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
       
     } else {
       // If either treatment or outcome is missing,
@@ -206,6 +220,14 @@ export const DAG = ({attributes = [], graph}) => {
       setMediators([]);
       setConfounds([]);
       setPrognostics([]);
+
+      if (hidden) {
+        console.log('here', nodelinks);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
     }
   }, [treatment, outcome, nodelinks]);
 

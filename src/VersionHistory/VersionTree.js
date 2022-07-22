@@ -83,15 +83,6 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
   function clicked(event, p) {    
     let hidden = document.getElementById("_hidden");
 
-    // function test(val) {
-    //   console.log("here")
-    //   console.log(val)
-    // }
-
-    // hidden.oninput = test;
-
-    // console.log(hidden);
-
     if (hidden) {
       hidden.value = p.data.name;
       var event = document.createEvent('HTMLEvents');

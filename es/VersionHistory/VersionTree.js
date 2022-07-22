@@ -73,12 +73,7 @@ export var VersionTree = function VersionTree(_ref) {
   //     .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}`);
 
   function clicked(event, p) {
-    var hidden = document.getElementById("_hidden"); // function test(val) {
-    //   console.log("here")
-    //   console.log(val)
-    // }
-    // hidden.oninput = test;
-    // console.log(hidden);
+    var hidden = document.getElementById("_hidden");
 
     if (hidden) {
       hidden.value = p.data.name;

@@ -243,7 +243,10 @@ export var DAG = function DAG(_ref) {
   // Recalculate mediators, colliders, and confounds
 
   useEffect(function () {
-    // Check that both treatment and outcome have been indicated
+    var hidden = document.getElementById("_hidden");
+    var nodelink_string = JSON.stringify(nodelinks);
+    console.log(hidden, nodelink_string); // Check that both treatment and outcome have been indicated
+
     if (treatment.length > 0 && outcome.length > 0) {
       var newColliders = Array.from(getColliders(treatment, outcome));
       var colliderNames = [];
@@ -276,6 +279,14 @@ export var DAG = function DAG(_ref) {
       setPrognostics(newPrognostics.map(function (p) {
         return p.name;
       }));
+
+      if (hidden) {
+        console.log('here', nodelinks);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
     } else {
       // If either treatment or outcome is missing,
       // Set all variable types to empty
@@ -283,6 +294,14 @@ export var DAG = function DAG(_ref) {
       setMediators([]);
       setConfounds([]);
       setPrognostics([]);
+
+      if (hidden) {
+        console.log('here', nodelinks);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
     }
   }, [treatment, outcome, nodelinks]); // Add new attribute to the DAG
 
