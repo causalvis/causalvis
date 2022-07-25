@@ -40,8 +40,8 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { saveAs } from 'file-saver';
 
-export const DAG = ({attributes = [], graph, _dag}) => {
-  console.log(_dag);
+export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _confounds, _prognostics}) => {
+  // console.log(_dag);
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -157,12 +157,25 @@ export const DAG = ({attributes = [], graph, _dag}) => {
 
     // console.log(newnodelinks);
 
-    setnodelinks(newnodelinks);
+    return newnodelinks
   }
 
   useEffect(() => {
     if (graph) {
-      loadGraph(graph);
+      let newnodelinks = loadGraph(graph);
+      setnodelinks(newnodelinks);
+
+      let hidden = document.getElementById(_dag);
+      let nodelink_string = JSON.stringify(newnodelinks);
+      console.log("type graph...", hidden);
+
+      if (hidden) {
+        console.log("loading graph...", hidden, nodelink_string);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
     }
   }, [graph]);
 
@@ -178,15 +191,60 @@ export const DAG = ({attributes = [], graph, _dag}) => {
     }
   }, [attributes]);
 
+  function updateJupyter(jdag, jcolliders, jmediators, jconfounds, jprognostics) {
+    let hidden = document.getElementById(_dag);
+    let nodelinks_string = JSON.stringify(jdag);
+
+    let jupyter_colliders = document.getElementById(_colliders);
+    let jupyter_mediators = document.getElementById(_mediators);
+    let jupyter_confounds = document.getElementById(_confounds);
+    let jupyter_prognostics = document.getElementById(_prognostics);
+
+    if (hidden) {
+      // console.log('here', nodelinks);
+      hidden.value = nodelinks_string;
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      hidden.dispatchEvent(event);
+    }
+
+    if (jupyter_colliders) {
+      // console.log('here', nodelinks);
+      jupyter_colliders.value = JSON.stringify(jcolliders);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_colliders.dispatchEvent(event);
+    }
+
+    if (jupyter_mediators) {
+      // console.log('here', nodelinks);
+      jupyter_mediators.value = JSON.stringify(jmediators);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_mediators.dispatchEvent(event);
+    }
+
+    if (jupyter_confounds) {
+      // console.log('here', nodelinks);
+      jupyter_confounds.value = JSON.stringify(jconfounds);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_confounds.dispatchEvent(event);
+    }
+
+    if (jupyter_prognostics) {
+      // console.log('here', nodelinks);
+      jupyter_prognostics.value = JSON.stringify(jprognostics);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_prognostics.dispatchEvent(event);
+    }
+  }
+
   // When treatment and outcome variables are changed
   // Or when the graph is updated
   // Recalculate mediators, colliders, and confounds
   useEffect(() => {
-
-    let hidden = document.getElementById(_dag);
-    let nodelink_string = JSON.stringify(nodelinks);
-
-    console.log("hidden element", _dag, hidden, nodelink_string);
 
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
@@ -206,13 +264,7 @@ export const DAG = ({attributes = [], graph, _dag}) => {
       setConfounds(newConfounds.map(c => c.name));
       setPrognostics(newPrognostics.map(p => p.name));
 
-      if (hidden) {
-        console.log('here', nodelinks);
-        hidden.value = nodelink_string;
-        var event = document.createEvent('HTMLEvents');
-        event.initEvent('input', false, true);
-        hidden.dispatchEvent(event);
-      }
+      updateJupyter(nodelinks, colliderNames, newMediators, newConfounds, newPrognostics);
       
     } else {
       // If either treatment or outcome is missing,
@@ -222,13 +274,8 @@ export const DAG = ({attributes = [], graph, _dag}) => {
       setConfounds([]);
       setPrognostics([]);
 
-      if (hidden) {
-        console.log('here', nodelinks);
-        hidden.value = nodelink_string;
-        var event = document.createEvent('HTMLEvents');
-        event.initEvent('input', false, true);
-        hidden.dispatchEvent(event);
-      }
+      updateJupyter(nodelinks, [], [], [], []);
+
     }
   }, [treatment, outcome, nodelinks]);
 

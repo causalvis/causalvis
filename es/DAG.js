@@ -45,9 +45,14 @@ export var DAG = function DAG(_ref) {
   var _ref$attributes = _ref.attributes,
       attributes = _ref$attributes === void 0 ? [] : _ref$attributes,
       graph = _ref.graph,
-      _dag = _ref._dag;
-  console.log(_dag); // Tracks nodes and links in DAG
+      _dag = _ref._dag,
+      _colliders = _ref._colliders,
+      _mediators = _ref._mediators,
+      _confounds = _ref._confounds,
+      _prognostics = _ref._prognostics;
 
+  // console.log(_dag);
+  // Tracks nodes and links in DAG
   var _React$useState = React.useState({
     "nodes": [],
     "links": []
@@ -216,12 +221,24 @@ export var DAG = function DAG(_ref) {
     } // console.log(newnodelinks);
 
 
-    setnodelinks(newnodelinks);
+    return newnodelinks;
   }
 
   useEffect(function () {
     if (graph) {
-      loadGraph(graph);
+      var newnodelinks = loadGraph(graph);
+      setnodelinks(newnodelinks);
+      var hidden = document.getElementById(_dag);
+      var nodelink_string = JSON.stringify(newnodelinks);
+      console.log("type graph...", hidden);
+
+      if (hidden) {
+        console.log("loading graph...", hidden, nodelink_string);
+        hidden.value = nodelink_string;
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        hidden.dispatchEvent(event);
+      }
     }
   }, [graph]); // If attributes are provided without an accompanying graph set attributes only
 
@@ -239,15 +256,62 @@ export var DAG = function DAG(_ref) {
 
       setAllAttributes(newAllAttributes);
     }
-  }, [attributes]); // When treatment and outcome variables are changed
+  }, [attributes]);
+
+  function updateJupyter(jdag, jcolliders, jmediators, jconfounds, jprognostics) {
+    var hidden = document.getElementById(_dag);
+    var nodelinks_string = JSON.stringify(jdag);
+    var jupyter_colliders = document.getElementById(_colliders);
+    var jupyter_mediators = document.getElementById(_mediators);
+    var jupyter_confounds = document.getElementById(_confounds);
+    var jupyter_prognostics = document.getElementById(_prognostics);
+
+    if (hidden) {
+      // console.log('here', nodelinks);
+      hidden.value = nodelinks_string;
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      hidden.dispatchEvent(event);
+    }
+
+    if (jupyter_colliders) {
+      // console.log('here', nodelinks);
+      jupyter_colliders.value = JSON.stringify(jcolliders);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_colliders.dispatchEvent(event);
+    }
+
+    if (jupyter_mediators) {
+      // console.log('here', nodelinks);
+      jupyter_mediators.value = JSON.stringify(jmediators);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_mediators.dispatchEvent(event);
+    }
+
+    if (jupyter_confounds) {
+      // console.log('here', nodelinks);
+      jupyter_confounds.value = JSON.stringify(jconfounds);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_confounds.dispatchEvent(event);
+    }
+
+    if (jupyter_prognostics) {
+      // console.log('here', nodelinks);
+      jupyter_prognostics.value = JSON.stringify(jprognostics);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_prognostics.dispatchEvent(event);
+    }
+  } // When treatment and outcome variables are changed
   // Or when the graph is updated
   // Recalculate mediators, colliders, and confounds
 
-  useEffect(function () {
-    var hidden = document.getElementById(_dag);
-    var nodelink_string = JSON.stringify(nodelinks);
-    console.log("hidden element", _dag, hidden, nodelink_string); // Check that both treatment and outcome have been indicated
 
+  useEffect(function () {
+    // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
       var newColliders = Array.from(getColliders(treatment, outcome));
       var colliderNames = [];
@@ -280,14 +344,7 @@ export var DAG = function DAG(_ref) {
       setPrognostics(newPrognostics.map(function (p) {
         return p.name;
       }));
-
-      if (hidden) {
-        console.log('here', nodelinks);
-        hidden.value = nodelink_string;
-        var event = document.createEvent('HTMLEvents');
-        event.initEvent('input', false, true);
-        hidden.dispatchEvent(event);
-      }
+      updateJupyter(nodelinks, colliderNames, newMediators, newConfounds, newPrognostics);
     } else {
       // If either treatment or outcome is missing,
       // Set all variable types to empty
@@ -295,14 +352,7 @@ export var DAG = function DAG(_ref) {
       setMediators([]);
       setConfounds([]);
       setPrognostics([]);
-
-      if (hidden) {
-        console.log('here', nodelinks);
-        hidden.value = nodelink_string;
-        var event = document.createEvent('HTMLEvents');
-        event.initEvent('input', false, true);
-        hidden.dispatchEvent(event);
-      }
+      updateJupyter(nodelinks, [], [], [], []);
     }
   }, [treatment, outcome, nodelinks]); // Add new attribute to the DAG
 

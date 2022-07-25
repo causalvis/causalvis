@@ -2,7 +2,7 @@ import json
 import pandas as pd
 
 import ipywidgets as widgets
-from traitlets import Unicode, Dict, TraitError
+from traitlets import Unicode, Dict, List, TraitError
 
 # @widgets.register
 class BaseWidget(widgets.DOMWidget):
@@ -41,6 +41,10 @@ class DAGBaseWidget(widgets.DOMWidget):
     component = Unicode().tag(sync=True)
     props = Dict().tag(sync=True)
     DAG = Dict().tag(sync=True)
+    colliders = List().tag(sync=True)
+    mediators = List().tag(sync=True)
+    confounds = List().tag(sync=True)
+    prognostics = List().tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__()

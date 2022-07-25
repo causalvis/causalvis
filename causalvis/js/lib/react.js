@@ -95,14 +95,14 @@ var DAGModel = widgets.DOMWidgetModel.extend({
 var DAGView = widgets.DOMWidgetView.extend({
     // Defines how the widget gets rendered into the DOM
     render: function() {
+        // Render component
         this.value_changed();
-
-        // console.log(this.model);
 
         // Observe changes in the value traitlet in Python, and define
         // a custom callback.
         this.model.on('change:props', this.value_changed, this);
-
+        
+        // Create input element to track changes in DAG
         this.inputDAG = document.createElement('input');
         this.inputDAG.type = 'text';
         this.inputDAG.id = `_hiddenDAG${this.model.model_id}`;
@@ -111,12 +111,57 @@ var DAGView = widgets.DOMWidgetView.extend({
         this.inputDAG.oninput = this.dag_changed.bind(this);
 
         this.el.appendChild(this.inputDAG);
+
+        // Create input element to track changes in colliders
+        this.inputColliders = document.createElement('input');
+        this.inputColliders.type = 'text';
+        this.inputColliders.id = `_hiddenColliders${this.model.model_id}`;
+        this.inputColliders.style.display = 'none';
+        this.inputColliders.value = this.model.get('colliders');
+        this.inputColliders.oninput = this.colliders_changed.bind(this);
+
+        this.el.appendChild(this.inputColliders);
+
+        // Create input element to track changes in mediators
+        this.inputMediators = document.createElement('input');
+        this.inputMediators.type = 'text';
+        this.inputMediators.id = `_hiddenMediators${this.model.model_id}`;
+        this.inputMediators.style.display = 'none';
+        this.inputMediators.value = this.model.get('mediators');
+        this.inputMediators.oninput = this.mediators_changed.bind(this);
+
+        this.el.appendChild(this.inputMediators);
+
+        // Create input element to track changes in confounds
+        this.inputConfounds = document.createElement('input');
+        this.inputConfounds.type = 'text';
+        this.inputConfounds.id = `_hiddenConfounds${this.model.model_id}`;
+        this.inputConfounds.style.display = 'none';
+        this.inputConfounds.value = this.model.get('confounds');
+        this.inputConfounds.oninput = this.confounds_changed.bind(this);
+
+        this.el.appendChild(this.inputConfounds);
+
+        // Create input element to track changes in prognostics
+        this.inputPrognostics = document.createElement('input');
+        this.inputPrognostics.type = 'text';
+        this.inputPrognostics.id = `_hiddenPrognostics${this.model.model_id}`;
+        this.inputPrognostics.style.display = 'none';
+        this.inputPrognostics.value = this.model.get('prognostics');
+        this.inputPrognostics.oninput = this.prognostics_changed.bind(this);
+
+        this.el.appendChild(this.inputPrognostics);
     },
 
     value_changed: function() {
         var props = this.model.get("props");
 
-        props = {...props, "_dag": `_hiddenDAG${this.model.model_id}`};
+        props = {...props,
+                "_dag": `_hiddenDAG${this.model.model_id}`,
+                "_colliders": `_hiddenColliders${this.model.model_id}`,
+                "_mediators": `_hiddenMediators${this.model.model_id}`,
+                "_confounds": `_hiddenConfounds${this.model.model_id}`,
+                "_prognostics": `_hiddenPrognostics${this.model.model_id}`};
 
         // console.log(props, this);
 
@@ -127,6 +172,26 @@ var DAGView = widgets.DOMWidgetView.extend({
     dag_changed: function() {
         console.log("widget", this.inputDAG.value)
         this.model.set('DAG', JSON.parse(this.inputDAG.value));
+        this.model.save_changes();
+    },
+
+    colliders_changed: function() {
+        this.model.set('colliders', JSON.parse(this.inputColliders.value));
+        this.model.save_changes();
+    },
+
+    mediators_changed: function() {
+        this.model.set('mediators', JSON.parse(this.inputMediators.value));
+        this.model.save_changes();
+    },
+
+    confounds_changed: function() {
+        this.model.set('confounds', JSON.parse(this.inputConfounds.value));
+        this.model.save_changes();
+    },
+
+    prognostics_changed: function() {
+        this.model.set('prognostics', JSON.parse(this.inputPrognostics.value));
         this.model.save_changes();
     },
 });
