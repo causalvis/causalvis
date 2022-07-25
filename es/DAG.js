@@ -243,7 +243,7 @@ export var DAG = function DAG(_ref) {
   // Recalculate mediators, colliders, and confounds
 
   useEffect(function () {
-    var hidden = document.getElementById("_hidden");
+    var hidden = document.getElementById("_hiddenDAG");
     var nodelink_string = JSON.stringify(nodelinks);
     console.log(hidden, nodelink_string); // Check that both treatment and outcome have been indicated
 

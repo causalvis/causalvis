@@ -17,6 +17,30 @@ class BaseWidget(widgets.DOMWidget):
     component = Unicode().tag(sync=True)
     props = Dict().tag(sync=True)
     value = Unicode('test').tag(sync=True)
+    # DAG = Unicode('').tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.component = self.__class__.__name__
+        self.props = kwargs
+
+    def update_prop(self, prop_name, prop_value):
+        self.props = {**self.props, prop_name: prop_value}
+
+# @widgets.register
+class DAGBaseWidget(widgets.DOMWidget):
+    """An example widget."""
+    _view_name = Unicode('DAGView').tag(sync=True)
+    _model_name = Unicode('DAGModel').tag(sync=True)
+    _view_module = Unicode('causalvis').tag(sync=True)
+    _model_module = Unicode('causalvis').tag(sync=True)
+    _view_module_version = Unicode('^0.1.0').tag(sync=True)
+    _model_module_version = Unicode('^0.1.0').tag(sync=True)
+
+    component = Unicode().tag(sync=True)
+    props = Dict().tag(sync=True)
+    DAG = Dict().tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -69,7 +93,7 @@ Props:
   - data: pandas DataFrame
 """ 
 @widgets.register
-class DAG(BaseWidget):
+class DAG(DAGBaseWidget):
     def __init__(self, graph=None, nx_graph=None, attributes=None, data=None, **kwargs):
         
         if graph:

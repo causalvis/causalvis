@@ -182,7 +182,7 @@ export const DAG = ({attributes = [], graph}) => {
   // Recalculate mediators, colliders, and confounds
   useEffect(() => {
 
-    let hidden = document.getElementById("_hidden");
+    let hidden = document.getElementById("_hiddenDAG");
     let nodelink_string = JSON.stringify(nodelinks);
 
     console.log(hidden, nodelink_string);

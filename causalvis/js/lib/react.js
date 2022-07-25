@@ -12,9 +12,6 @@ var versions = require('../../../lib/VersionHistory.js');
 
 var lib = {...dag, ...cohort, ...teffect, ...versions};
 
-// See example.py for the kernel counterpart to this file.
-
-
 // Custom Model. Custom widgets models must at least provide default values
 // for model attributes, including
 //
@@ -78,8 +75,60 @@ var ReactView = widgets.DOMWidgetView.extend({
     },
 });
 
+// When serialiazing the entire widget state for embedding, only values that
+// differ from the defaults will be specified.
+var DAGModel = widgets.DOMWidgetModel.extend({
+    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+        _model_name : 'HelloModel',
+        _view_name : 'HelloView',
+        _model_module : 'causalvis',
+        _view_module : 'causalvis',
+        _model_module_version : '0.1.0',
+        _view_module_version : '0.1.0',
+        value : {},
+        props : {}
+    })
+});
+
+
+// Custom View. Renders the widget model.
+var DAGView = widgets.DOMWidgetView.extend({
+    // Defines how the widget gets rendered into the DOM
+    render: function() {
+        this.value_changed();
+
+        // Observe changes in the value traitlet in Python, and define
+        // a custom callback.
+        this.model.on('change:props', this.value_changed, this);
+
+        this.inputDAG = document.createElement('input');
+        this.inputDAG.type = 'text';
+        this.inputDAG.id = '_hiddenDAG';
+        this.inputDAG.style.display = 'none';
+        this.inputDAG.value = this.model.get('value');
+        this.inputDAG.oninput = this.dag_changed.bind(this);
+
+        this.el.appendChild(this.inputDAG);
+    },
+
+    value_changed: function() {
+        var props = this.model.get("props");
+
+        var component = React.createElement(lib[this.model.attributes.component], props);
+        ReactDOM.render(component, this.el);  
+    },
+
+    dag_changed: function() {
+        console.log("widget", this.inputDAG.value)
+        this.model.set('DAG', JSON.parse(this.inputDAG.value));
+        this.model.save_changes();
+    },
+});
+
 
 module.exports = {
     ReactModel: ReactModel,
-    ReactView: ReactView
+    ReactView: ReactView,
+    DAGModel: DAGModel,
+    DAGView: DAGView
 };

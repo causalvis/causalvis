@@ -81,14 +81,14 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
   //     .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}`);
 
   function clicked(event, p) {    
-    let hidden = document.getElementById("_hidden");
+    // let hidden = document.getElementById("_hidden");
 
-    if (hidden) {
-      hidden.value = p.data.name;
-      var event = document.createEvent('HTMLEvents');
-      event.initEvent('input', false, true);
-      hidden.dispatchEvent(event);
-    }
+    // if (hidden) {
+    //   hidden.value = p.data.name;
+    //   var event = document.createEvent('HTMLEvents');
+    //   event.initEvent('input', false, true);
+    //   hidden.dispatchEvent(event);
+    // }
 
     focus = focus === p ? p = p.parent : p;
 
