@@ -97,15 +97,17 @@ var DAGView = widgets.DOMWidgetView.extend({
     render: function() {
         this.value_changed();
 
+        // console.log(this.model);
+
         // Observe changes in the value traitlet in Python, and define
         // a custom callback.
         this.model.on('change:props', this.value_changed, this);
 
         this.inputDAG = document.createElement('input');
         this.inputDAG.type = 'text';
-        this.inputDAG.id = '_hiddenDAG';
+        this.inputDAG.id = `_hiddenDAG${this.model.model_id}`;
         this.inputDAG.style.display = 'none';
-        this.inputDAG.value = this.model.get('value');
+        this.inputDAG.value = this.model.get('DAG');
         this.inputDAG.oninput = this.dag_changed.bind(this);
 
         this.el.appendChild(this.inputDAG);
@@ -113,6 +115,10 @@ var DAGView = widgets.DOMWidgetView.extend({
 
     value_changed: function() {
         var props = this.model.get("props");
+
+        props = {...props, "_dag": `_hiddenDAG${this.model.model_id}`};
+
+        // console.log(props, this);
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  

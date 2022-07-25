@@ -40,7 +40,8 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { saveAs } from 'file-saver';
 
-export const DAG = ({attributes = [], graph}) => {
+export const DAG = ({attributes = [], graph, _dag}) => {
+  console.log(_dag);
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -182,10 +183,10 @@ export const DAG = ({attributes = [], graph}) => {
   // Recalculate mediators, colliders, and confounds
   useEffect(() => {
 
-    let hidden = document.getElementById("_hiddenDAG");
+    let hidden = document.getElementById(_dag);
     let nodelink_string = JSON.stringify(nodelinks);
 
-    console.log(hidden, nodelink_string);
+    console.log("hidden element", _dag, hidden, nodelink_string);
 
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {

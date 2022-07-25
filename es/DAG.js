@@ -44,9 +44,10 @@ import { saveAs } from 'file-saver';
 export var DAG = function DAG(_ref) {
   var _ref$attributes = _ref.attributes,
       attributes = _ref$attributes === void 0 ? [] : _ref$attributes,
-      graph = _ref.graph;
+      graph = _ref.graph,
+      _dag = _ref._dag;
+  console.log(_dag); // Tracks nodes and links in DAG
 
-  // Tracks nodes and links in DAG
   var _React$useState = React.useState({
     "nodes": [],
     "links": []
@@ -243,9 +244,9 @@ export var DAG = function DAG(_ref) {
   // Recalculate mediators, colliders, and confounds
 
   useEffect(function () {
-    var hidden = document.getElementById("_hiddenDAG");
+    var hidden = document.getElementById(_dag);
     var nodelink_string = JSON.stringify(nodelinks);
-    console.log(hidden, nodelink_string); // Check that both treatment and outcome have been indicated
+    console.log("hidden element", _dag, hidden, nodelink_string); // Check that both treatment and outcome have been indicated
 
     if (treatment.length > 0 && outcome.length > 0) {
       var newColliders = Array.from(getColliders(treatment, outcome));
