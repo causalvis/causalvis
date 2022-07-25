@@ -23,9 +23,9 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
   const [filename, setFilename] = React.useState('selected');
 
   useEffect(() => {
-    if (selectedItems.data.length > 0) {
-      let newAttributes = Object.keys(selectedItems.data[0]);
-      let newData = JSON.parse(JSON.stringify(selectedItems.data));
+    if (selectedItems.confounds.length > 0) {
+      let newAttributes = Object.keys(selectedItems.confounds[0]);
+      let newData = JSON.parse(JSON.stringify(selectedItems.confounds));
 
       newData = newData.map((d, i) => {
         d.propensity = selectedItems.propensity[i];
@@ -124,7 +124,7 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDownloadClose}>Close</Button>
-          {selectedItems.data.length > 0
+          {selectedItems.confounds.length > 0
             ? <Button onClick={handleDownload}>Download</Button>
             : null}
         </DialogActions>

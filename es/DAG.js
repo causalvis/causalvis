@@ -51,7 +51,6 @@ export var DAG = function DAG(_ref) {
       _confounds = _ref._confounds,
       _prognostics = _ref._prognostics;
 
-  // console.log(_dag);
   // Tracks nodes and links in DAG
   var _React$useState = React.useState({
     "nodes": [],
@@ -218,8 +217,7 @@ export var DAG = function DAG(_ref) {
 
     for (var _iterator2 = _createForOfIteratorHelperLoose(links), _step2; !(_step2 = _iterator2()).done;) {
       _loop();
-    } // console.log(newnodelinks);
-
+    }
 
     return newnodelinks;
   }
@@ -230,10 +228,8 @@ export var DAG = function DAG(_ref) {
       setnodelinks(newnodelinks);
       var hidden = document.getElementById(_dag);
       var nodelink_string = JSON.stringify(newnodelinks);
-      console.log("type graph...", hidden);
 
       if (hidden) {
-        console.log("loading graph...", hidden, nodelink_string);
         hidden.value = nodelink_string;
         var event = document.createEvent('HTMLEvents');
         event.initEvent('input', false, true);
@@ -267,7 +263,6 @@ export var DAG = function DAG(_ref) {
     var jupyter_prognostics = document.getElementById(_prognostics);
 
     if (hidden) {
-      // console.log('here', nodelinks);
       hidden.value = nodelinks_string;
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -275,7 +270,6 @@ export var DAG = function DAG(_ref) {
     }
 
     if (jupyter_colliders) {
-      // console.log('here', nodelinks);
       jupyter_colliders.value = JSON.stringify(jcolliders);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -283,7 +277,6 @@ export var DAG = function DAG(_ref) {
     }
 
     if (jupyter_mediators) {
-      // console.log('here', nodelinks);
       jupyter_mediators.value = JSON.stringify(jmediators);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -291,7 +284,6 @@ export var DAG = function DAG(_ref) {
     }
 
     if (jupyter_confounds) {
-      // console.log('here', nodelinks);
       jupyter_confounds.value = JSON.stringify(jconfounds);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -299,7 +291,6 @@ export var DAG = function DAG(_ref) {
     }
 
     if (jupyter_prognostics) {
-      // console.log('here', nodelinks);
       jupyter_prognostics.value = JSON.stringify(jprognostics);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -369,8 +360,7 @@ export var DAG = function DAG(_ref) {
       y = layout.height / 2;
     }
 
-    // console.log(val);
-    var index = added.indexOf(val); // console.log(allAttributes[val]);
+    var index = added.indexOf(val);
 
     if (index < 0) {
       var id = generateID();
@@ -445,7 +435,6 @@ export var DAG = function DAG(_ref) {
 
 
   function updateTag(color, tagName) {
-    // console.log(color, tagName, tagNode);
     // If attribute already has a tag, do not add the tag again
     if (allAttributes[tagNode]["tags"] && allAttributes[tagNode]["tags"].indexOf(tagName) >= 0) {
       return;
@@ -572,8 +561,7 @@ export var DAG = function DAG(_ref) {
         "source": newLinkCopy[0],
         "target": newLinkCopy[1]
       }])
-    }; // console.log(newnodelinks);
-
+    };
     setnodelinks(newnodelinks);
   } // Delete links between nodes
 
@@ -596,8 +584,7 @@ export var DAG = function DAG(_ref) {
     var newnodelinks = {
       "nodes": [].concat(nodelinks.nodes),
       "links": [].concat(newlinks)
-    }; // console.log(newnodelinks);
-
+    };
     setnodelinks(newnodelinks);
   } // Switch between layout and path editor
 
@@ -668,14 +655,12 @@ export var DAG = function DAG(_ref) {
   };
 
   var handleAddTag = function handleAddTag(value) {
-    // console.log(value);
     setTagNode(value);
     handleTagOpen();
   }; // Download DAG as PNG image
 
 
   function downloadSVG() {
-    // console.log('saving...');
     var svgElement = select("#svgDAG");
     var svgString = getSVGString(svgElement.node());
     svgString2Image(svgString, 2 * layout.width, 2 * layout.height, 'png', save); // passes Blob and filesize String to the callback
@@ -729,7 +714,6 @@ export var DAG = function DAG(_ref) {
       outcomeID = null;
     }
 
-    // console.log(node.id, outcomeID);
     if (node.id === outcomeID) {
       return [];
     }
@@ -804,19 +788,16 @@ export var DAG = function DAG(_ref) {
 
     if (treatment === "" || outcome === "") {
       return [];
-    } // console.log("getting colliders...");
-
+    }
 
     var t = nodelinks.nodes.filter(function (n) {
       return n.name === treatment;
     })[0];
     var o = nodelinks.nodes.filter(function (n) {
       return n.name === outcome;
-    })[0]; // console.log(o.id);
-
+    })[0];
     var treatmentChildren = getDescendents(t, o.id);
-    var outcomeChildren = new Set(getDescendents(o)); // console.log(treatmentChildren, outcomeChildren)
-
+    var outcomeChildren = new Set(getDescendents(o));
     var colliders = new Set([].concat(treatmentChildren).filter(function (x) {
       return outcomeChildren.has(x);
     }));
@@ -825,7 +806,6 @@ export var DAG = function DAG(_ref) {
 
 
   function hasOutcome(node, outcomeID) {
-    // console.log(node, node.children);
     if (node.id === outcomeID) {
       return [node];
     }
@@ -867,8 +847,7 @@ export var DAG = function DAG(_ref) {
 
     if (treatment === "" || outcome === "") {
       return [];
-    } // console.log("getting mediators...");
-
+    }
 
     var t = nodelinks.nodes.filter(function (n) {
       return n.name === treatment;
@@ -876,12 +855,7 @@ export var DAG = function DAG(_ref) {
     var oID = nodelinks.nodes.filter(function (n) {
       return n.name === outcome;
     })[0].id;
-    var paths = hasOutcome(t, oID); // console.log(paths)
-    // if (paths.length === 0) {
-    //   alert("There are no causal pathways from treatment to outcome.");
-    //   return [];
-    // }
-
+    var paths = hasOutcome(t, oID);
     var mediators = [];
 
     for (var _iterator13 = _createForOfIteratorHelperLoose(paths), _step13; !(_step13 = _iterator13()).done;) {
@@ -890,8 +864,7 @@ export var DAG = function DAG(_ref) {
         return n.id !== t.id && n.id !== oID;
       });
       mediators = mediators.concat(med);
-    } // console.log(mediators);
-
+    }
 
     return new Set(mediators);
   } // Get confounds that affect both treatments and outcomes
@@ -900,13 +873,11 @@ export var DAG = function DAG(_ref) {
   function getConfounds(treatment, outcome) {
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
-      // console.log('c1')
       return [];
     } // Return if no treatment and outcome variables indicated
 
 
     if (treatment === "" || outcome === "") {
-      // console.log('c2')
       return [];
     }
 
@@ -928,8 +899,7 @@ export var DAG = function DAG(_ref) {
 
     for (var _iterator14 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step14; !(_step14 = _iterator14()).done;) {
       _loop6();
-    } // console.log('c3', confounds);
-
+    }
 
     return confounds;
   }

@@ -33,9 +33,9 @@ export var DownloadSelectedDialog = function DownloadSelectedDialog(_ref) {
       setFilename = _React$useState3[1];
 
   useEffect(function () {
-    if (selectedItems.data.length > 0) {
-      var newAttributes = Object.keys(selectedItems.data[0]);
-      var newData = JSON.parse(JSON.stringify(selectedItems.data));
+    if (selectedItems.confounds.length > 0) {
+      var newAttributes = Object.keys(selectedItems.confounds[0]);
+      var newData = JSON.parse(JSON.stringify(selectedItems.confounds));
       newData = newData.map(function (d, i) {
         d.propensity = selectedItems.propensity[i];
         d.treatment = selectedItems.treatment[i];
@@ -125,7 +125,7 @@ export var DownloadSelectedDialog = function DownloadSelectedDialog(_ref) {
     }
   }), /*#__PURE__*/React.createElement(DialogContentText, null, "File size too large for preview. Selected data items will be downloaded as ", /*#__PURE__*/React.createElement("i", null, filename, ".json"), ".")) : /*#__PURE__*/React.createElement(DialogContentText, null, "Select items from the propensity score plot to download.")), /*#__PURE__*/React.createElement(DialogActions, null, /*#__PURE__*/React.createElement(Button, {
     onClick: handleDownloadClose
-  }, "Close"), selectedItems.data.length > 0 ? /*#__PURE__*/React.createElement(Button, {
+  }, "Close"), selectedItems.confounds.length > 0 ? /*#__PURE__*/React.createElement(Button, {
     onClick: handleDownload
   }, "Download") : null)));
 };

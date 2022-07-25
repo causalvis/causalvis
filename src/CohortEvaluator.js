@@ -12,7 +12,12 @@ Props:
   - propensity: String, name of propensity variable, should be 1-D Array of propensities for each treatment level
   - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
 */
-export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatment="treatment", propensity="propensity"}) => {
+export const CohortEvaluator = ({unadjustedCohort=[],
+                                 adjustedCohort=[],
+                                 treatment="treatment",
+                                 propensity="propensity",
+                                 _selection,
+                                 _iselection}) => {
 
   const [attributes, setAttributes] = React.useState([]);
   const [selected, setSelected] = React.useState({"selectedData":[], "treatment": false});
@@ -23,7 +28,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
   let allData = JSON.parse(JSON.stringify(unadjustedCohort));
   let filteredData = crossfilter(allData);
 
-  const [allAttributeFilters, setAllAttributeFilters] = React.useState({})
+  const [allAttributeFilters, setAllAttributeFilters] = React.useState({});
 
   useEffect(() => {
     // Get all the confounding attributes, excluding treatment and propensity score
@@ -34,7 +39,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
 
     setAttributes(allAttributes);
 
-    let newAttributeFilters = {}
+    let newAttributeFilters = {};
 
     for (let a of allAttributes) {
       let attributefilter = filteredData.dimension(function(d) { return d[a]; });
@@ -54,7 +59,6 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
   useEffect(() => {
 
     if (adjustedCohort.length > 0) {
-      // console.log("there is an adjustedCohort")
       let newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(d => {delete d.treatment; delete d.propensity; return d});
       let newCohortTreatments = adjustedCohort.map(d => d.treatment);
       let newCohortPropensity = adjustedCohort.map(d => d.propensity);
@@ -73,7 +77,7 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
     let newFilteredTreatments = newData.map(d => d.treatment);
     let newFilteredPropensity = newData.map(d => d.propensity);
 
-    setCohortData({"confounds": newFilteredConfounds, "propensity": newFilteredPropensity, "treatment": newFilteredTreatments})
+    setCohortData({"confounds": newFilteredConfounds, "propensity": newFilteredPropensity, "treatment": newFilteredTreatments});
   }
 
   let plotLayout = {"display":"flex"};
@@ -81,8 +85,18 @@ export const CohortEvaluator = ({unadjustedCohort=[], adjustedCohort=[], treatme
   return (
     <div>
       <div style={plotLayout}>
-        <PropDistribution unadjustedCohortData={unadjustedCohortData} adjustedCohortData={adjustedCohortData} setSelected={setSelected} />
-        <CovariateBalance unadjustedCohortData={unadjustedCohortData} adjustedCohortData={adjustedCohortData} attributes={attributes} updateFilter={updateFilter} selected={selected} />
+        <PropDistribution
+          unadjustedCohortData={unadjustedCohortData}
+          adjustedCohortData={adjustedCohortData}
+          setSelected={setSelected}
+          _selection={_selection}
+          _iselection={_iselection} />
+        <CovariateBalance
+          unadjustedCohortData={unadjustedCohortData}
+          adjustedCohortData={adjustedCohortData}
+          attributes={attributes}
+          updateFilter={updateFilter}
+          selected={selected} />
       </div>
     </div>
   )

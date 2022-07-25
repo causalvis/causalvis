@@ -41,7 +41,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import { saveAs } from 'file-saver';
 
 export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _confounds, _prognostics}) => {
-  // console.log(_dag);
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -155,8 +154,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
       delete l.target.parents;
     }
 
-    // console.log(newnodelinks);
-
     return newnodelinks
   }
 
@@ -167,10 +164,8 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
 
       let hidden = document.getElementById(_dag);
       let nodelink_string = JSON.stringify(newnodelinks);
-      console.log("type graph...", hidden);
 
       if (hidden) {
-        console.log("loading graph...", hidden, nodelink_string);
         hidden.value = nodelink_string;
         var event = document.createEvent('HTMLEvents');
         event.initEvent('input', false, true);
@@ -201,7 +196,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     let jupyter_prognostics = document.getElementById(_prognostics);
 
     if (hidden) {
-      // console.log('here', nodelinks);
       hidden.value = nodelinks_string;
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -209,7 +203,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     }
 
     if (jupyter_colliders) {
-      // console.log('here', nodelinks);
       jupyter_colliders.value = JSON.stringify(jcolliders);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -217,7 +210,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     }
 
     if (jupyter_mediators) {
-      // console.log('here', nodelinks);
       jupyter_mediators.value = JSON.stringify(jmediators);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -225,7 +217,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     }
 
     if (jupyter_confounds) {
-      // console.log('here', nodelinks);
       jupyter_confounds.value = JSON.stringify(jconfounds);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -233,7 +224,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     }
 
     if (jupyter_prognostics) {
-      // console.log('here', nodelinks);
       jupyter_prognostics.value = JSON.stringify(jprognostics);
       var event = document.createEvent('HTMLEvents');
       event.initEvent('input', false, true);
@@ -249,10 +239,10 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     // Check that both treatment and outcome have been indicated
     if (treatment.length > 0 && outcome.length > 0) {
       let newColliders = Array.from(getColliders(treatment, outcome));
-      let colliderNames = []
+      let colliderNames = [];
 
       for (let c of newColliders) {
-        colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name)
+        colliderNames.push(nodelinks.nodes.filter(n => n.id === c)[0].name);
       }
 
       let newMediators = Array.from(getMediators(treatment, outcome));
@@ -281,11 +271,8 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
 
   // Add new attribute to the DAG
   function addAttribute(val, custom=false, x=layout.width/2, y=layout.height/2) {
-    // console.log(val);
 
     let index = added.indexOf(val);
-
-    // console.log(allAttributes[val]);
 
     if (index < 0) {
       const id = generateID();
@@ -352,8 +339,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
 
   // Update tags for an attribute
   function updateTag(color, tagName) {
-    // console.log(color, tagName, tagNode);
-
     // If attribute already has a tag, do not add the tag again
     if (allAttributes[tagNode]["tags"] && allAttributes[tagNode]["tags"].indexOf(tagName) >= 0) {
       return;
@@ -468,7 +453,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     delete newLinkCopy[1].children;
 
     const newnodelinks = {"nodes": [...nodelinks.nodes], "links": [...nodelinks.links, {"source": newLinkCopy[0], "target": newLinkCopy[1]}]};
-    // console.log(newnodelinks);
     setnodelinks(newnodelinks);
   }
 
@@ -487,7 +471,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
     }
 
     const newnodelinks = {"nodes": [...nodelinks.nodes], "links": [...newlinks]};
-    // console.log(newnodelinks);
     setnodelinks(newnodelinks)
   }
 
@@ -543,14 +526,12 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
   };
 
   const handleAddTag = (value) => {
-    // console.log(value);
     setTagNode(value);
     handleTagOpen();
   }
 
   // Download DAG as PNG image
   function downloadSVG() {
-    // console.log('saving...');
     let svgElement = select("#svgDAG")
     var svgString = getSVGString(svgElement.node());
     svgString2Image( svgString, 2*layout.width, 2*layout.height, 'png', save ); // passes Blob and filesize String to the callback
@@ -606,7 +587,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
   // The same descendent may be included twice if there are multiple causal pathways
   // For unique descendents, apply Set() to the result
   function getDescendents(node, outcomeID = null) {
-    // console.log(node.id, outcomeID);
     if (node.id === outcomeID) {
       return [];
     }
@@ -665,16 +645,11 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
       return [];
     }
 
-    // console.log("getting colliders...");
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let o = nodelinks.nodes.filter(n => n.name === outcome)[0];
 
-    // console.log(o.id);
-
     let treatmentChildren = getDescendents(t, o.id);
     let outcomeChildren = new Set(getDescendents(o));
-
-    // console.log(treatmentChildren, outcomeChildren)
 
     let colliders = new Set([...treatmentChildren].filter(x => outcomeChildren.has(x)))
 
@@ -683,7 +658,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
 
   // Gets descendents of a node that is on a path to the outcome
   function hasOutcome(node, outcomeID) {
-    // console.log(node, node.children);
     if (node.id === outcomeID) {
       return [node];
     }
@@ -717,18 +691,10 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
       return [];
     }
 
-    // console.log("getting mediators...");
     let t = nodelinks.nodes.filter(n => n.name === treatment)[0];
     let oID = nodelinks.nodes.filter(n => n.name === outcome)[0].id;
 
     let paths = hasOutcome(t, oID);
-
-    // console.log(paths)
-
-    // if (paths.length === 0) {
-    //   alert("There are no causal pathways from treatment to outcome.");
-    //   return [];
-    // }
 
     let mediators = []
 
@@ -737,8 +703,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
       mediators = mediators.concat(med);
     }
 
-    // console.log(mediators);
-
     return new Set(mediators);
   }
 
@@ -746,13 +710,11 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
   function getConfounds(treatment, outcome) {
     // Return if no nodes or links
     if (nodelinks.nodes.length === 0 || nodelinks.links.length === 0) {
-      // console.log('c1')
       return [];
     }
 
     // Return if no treatment and outcome variables indicated
     if (treatment === "" || outcome === "") {
-      // console.log('c2')
       return [];
     }
 
@@ -766,8 +728,6 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
         confounds.push(n);
       }
     }
-
-    // console.log('c3', confounds);
 
     return confounds;
   }

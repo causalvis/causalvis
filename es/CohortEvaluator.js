@@ -25,7 +25,9 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
       _ref$treatment = _ref.treatment,
       treatment = _ref$treatment === void 0 ? "treatment" : _ref$treatment,
       _ref$propensity = _ref.propensity,
-      propensity = _ref$propensity === void 0 ? "propensity" : _ref$propensity;
+      propensity = _ref$propensity === void 0 ? "propensity" : _ref$propensity,
+      _selection = _ref._selection,
+      _iselection = _ref._iselection;
 
   var _React$useState = React.useState([]),
       attributes = _React$useState[0],
@@ -98,7 +100,6 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
   }, [unadjustedCohort]);
   useEffect(function () {
     if (adjustedCohort.length > 0) {
-      // console.log("there is an adjustedCohort")
       var newCohortConfounds = JSON.parse(JSON.stringify(adjustedCohort)).map(function (d) {
         delete d.treatment;
         delete d.propensity;
@@ -148,7 +149,9 @@ export var CohortEvaluator = function CohortEvaluator(_ref) {
   }, /*#__PURE__*/React.createElement(PropDistribution, {
     unadjustedCohortData: unadjustedCohortData,
     adjustedCohortData: adjustedCohortData,
-    setSelected: setSelected
+    setSelected: setSelected,
+    _selection: _selection,
+    _iselection: _iselection
   }), /*#__PURE__*/React.createElement(CovariateBalance, {
     unadjustedCohortData: unadjustedCohortData,
     adjustedCohortData: adjustedCohortData,

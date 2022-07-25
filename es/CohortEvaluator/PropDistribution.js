@@ -6,7 +6,9 @@ export var PropDistribution = function PropDistribution(_ref) {
   var _ref$unadjustedCohort = _ref.unadjustedCohortData,
       unadjustedCohortData = _ref$unadjustedCohort === void 0 ? {} : _ref$unadjustedCohort,
       adjustedCohortData = _ref.adjustedCohortData,
-      setSelected = _ref.setSelected;
+      setSelected = _ref.setSelected,
+      _selection = _ref._selection,
+      _iselection = _ref._iselection;
 
   // Track bins for treatment and control groups
   var _React$useState = React.useState({
@@ -28,16 +30,24 @@ export var PropDistribution = function PropDistribution(_ref) {
       setSelectRange = _React$useState3[1];
 
   var _React$useState4 = React.useState({
-    "data": [],
+    "confounds": [],
     "propensity": [],
     "treatment": []
   }),
       selectedItems = _React$useState4[0],
       setSelectedItems = _React$useState4[1];
 
-  var _React$useState5 = React.useState(false),
-      openDownload = _React$useState5[0],
-      setOpenDownload = _React$useState5[1];
+  var _React$useState5 = React.useState({
+    "confounds": [],
+    "propensity": [],
+    "treatment": []
+  }),
+      inverseSelectedItems = _React$useState5[0],
+      setInverseSelectedItems = _React$useState5[1];
+
+  var _React$useState6 = React.useState(false),
+      openDownload = _React$useState6[0],
+      setOpenDownload = _React$useState6[1];
 
   var binCount = 20;
   var n = unadjustedCohortData.propensity ? unadjustedCohortData.propensity.length : 0;
@@ -46,41 +56,78 @@ export var PropDistribution = function PropDistribution(_ref) {
     setOpenDownload(false);
   }
 
+  function updateJupyter(selected, inverseSelected) {
+    var jupyter_selection = document.getElementById(_selection);
+    var jupyter_iselection = document.getElementById(_iselection); // console.log("looking for jupyter...", jupyter_selection, jupyter_iselection);
+
+    if (jupyter_selection) {
+      // console.log("setting selection...");
+      jupyter_selection.value = JSON.stringify(selected);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_selection.dispatchEvent(event);
+    }
+
+    if (jupyter_iselection) {
+      // console.log("setting inverse selection...");
+      jupyter_iselection.value = JSON.stringify(inverseSelected);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      jupyter_iselection.dispatchEvent(event);
+    }
+  }
+
   useEffect(function () {
     var newSelectedItems = {
-      "data": [],
+      "confounds": [],
+      "propensity": [],
+      "treatment": []
+    };
+    var newInverseSelection = {
+      "confounds": [],
       "propensity": [],
       "treatment": []
     };
 
     if (!selectRange) {
       setSelectedItems(newSelectedItems);
+      updateJupyter(newSelectedItems, unadjustedCohortData);
     } else if (!adjustedCohortData) {
       for (var i = 0; i < unadjustedCohortData.confounds.length; i++) {
         var treatment = unadjustedCohortData.treatment[i];
         var propensity = unadjustedCohortData.propensity[i][1];
 
         if (propensity >= selectRange[0] && propensity <= selectRange[1]) {
-          newSelectedItems.data.push(unadjustedCohortData.confounds[i]);
+          newSelectedItems.confounds.push(unadjustedCohortData.confounds[i]);
           newSelectedItems.propensity.push(propensity);
           newSelectedItems.treatment.push(unadjustedCohortData.treatment[i]);
+        } else {
+          newInverseSelection.confounds.push(unadjustedCohortData.confounds[i]);
+          newInverseSelection.propensity.push(propensity);
+          newInverseSelection.treatment.push(unadjustedCohortData.treatment[i]);
         }
       }
 
       setSelectedItems(newSelectedItems);
+      updateJupyter(newSelectedItems, newInverseSelection);
     } else {
       for (var _i = 0; _i < adjustedCohortData.confounds.length; _i++) {
         var _treatment = adjustedCohortData.treatment[_i];
         var _propensity = adjustedCohortData.propensity[_i][1];
 
         if (_propensity >= selectRange[0] && _propensity <= selectRange[1]) {
-          newSelectedItems.data.push(adjustedCohortData.confounds[_i]);
+          newSelectedItems.confounds.push(adjustedCohortData.confounds[_i]);
           newSelectedItems.propensity.push(_propensity);
           newSelectedItems.treatment.push(adjustedCohortData.treatment[_i]);
+        } else {
+          newInverseSelection.confounds.push(adjustedCohortData.confounds[_i]);
+          newInverseSelection.propensity.push(_propensity);
+          newInverseSelection.treatment.push(adjustedCohortData.treatment[_i]);
         }
       }
 
       setSelectedItems(newSelectedItems);
+      updateJupyter(newSelectedItems, newInverseSelection);
     }
   }, [selectRange]);
   useEffect(function () {
@@ -186,7 +233,7 @@ export var PropDistribution = function PropDistribution(_ref) {
     selectedItems: selectedItems
   }), /*#__PURE__*/React.createElement("p", {
     style: selectContainer
-  }, "" + selectedItems.data.length, " selected.\xA0", /*#__PURE__*/React.createElement("span", {
+  }, "" + selectedItems.confounds.length, " selected.\xA0", /*#__PURE__*/React.createElement("span", {
     style: linkStyle,
     onClick: function onClick() {
       return setOpenDownload(true);
