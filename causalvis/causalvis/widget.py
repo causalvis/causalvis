@@ -4,7 +4,6 @@ import pandas as pd
 import ipywidgets as widgets
 from traitlets import Unicode, Dict, List, TraitError
 
-# @widgets.register
 class BaseWidget(widgets.DOMWidget):
     """An example widget."""
     _view_name = Unicode('ReactView').tag(sync=True)
@@ -28,7 +27,6 @@ class BaseWidget(widgets.DOMWidget):
     def update_prop(self, prop_name, prop_value):
         self.props = {**self.props, prop_name: prop_value}
 
-# @widgets.register
 class DAGBaseWidget(widgets.DOMWidget):
     """An example widget."""
     _view_name = Unicode('DAGView').tag(sync=True)
@@ -45,6 +43,29 @@ class DAGBaseWidget(widgets.DOMWidget):
     mediators = List().tag(sync=True)
     confounds = List().tag(sync=True)
     prognostics = List().tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.component = self.__class__.__name__
+        self.props = kwargs
+
+    def update_prop(self, prop_name, prop_value):
+        self.props = {**self.props, prop_name: prop_value}
+
+class CohortBaseWidget(widgets.DOMWidget):
+    """An example widget."""
+    _view_name = Unicode('CohortView').tag(sync=True)
+    _model_name = Unicode('CohortModel').tag(sync=True)
+    _view_module = Unicode('causalvis').tag(sync=True)
+    _model_module = Unicode('causalvis').tag(sync=True)
+    _view_module_version = Unicode('^0.1.0').tag(sync=True)
+    _model_module_version = Unicode('^0.1.0').tag(sync=True)
+
+    component = Unicode().tag(sync=True)
+    props = Dict().tag(sync=True)
+    selection = Dict().tag(sync=True)
+    iselection = Dict().tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -123,7 +144,7 @@ class DAG(DAGBaseWidget):
         )
 
 @widgets.register
-class CohortEvaluator(BaseWidget):
+class CohortEvaluator(CohortBaseWidget):
     def __init__(self, unadjustedCohort, adjustedCohort=[], treatment="treatment", propensity="propensity", **kwargs):
         
         self.unadjustedCohort = unadjustedCohort

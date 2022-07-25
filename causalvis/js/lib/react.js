@@ -101,7 +101,7 @@ var DAGView = widgets.DOMWidgetView.extend({
         // Observe changes in the value traitlet in Python, and define
         // a custom callback.
         this.model.on('change:props', this.value_changed, this);
-        
+
         // Create input element to track changes in DAG
         this.inputDAG = document.createElement('input');
         this.inputDAG.type = 'text';
@@ -196,10 +196,81 @@ var DAGView = widgets.DOMWidgetView.extend({
     },
 });
 
+// When serialiazing the entire widget state for embedding, only values that
+// differ from the defaults will be specified.
+var CohortModel = widgets.DOMWidgetModel.extend({
+    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+        _model_name : 'HelloModel',
+        _view_name : 'HelloView',
+        _model_module : 'causalvis',
+        _view_module : 'causalvis',
+        _model_module_version : '0.1.0',
+        _view_module_version : '0.1.0',
+        value : {},
+        props : {}
+    })
+});
+
+
+// Custom View. Renders the widget model.
+var CohortView = widgets.DOMWidgetView.extend({
+    // Defines how the widget gets rendered into the DOM
+    render: function() {
+        // Render component
+        this.value_changed();
+
+        // Observe changes in the value traitlet in Python, and define
+        // a custom callback.
+        this.model.on('change:props', this.value_changed, this);
+        
+        // Create input element to track changes in DAG
+        this.inputSelection = document.createElement('input');
+        this.inputSelection.type = 'text';
+        this.inputSelection.id = `_hiddenSelection${this.model.model_id}`;
+        this.inputSelection.style.display = 'none';
+        this.inputSelection.value = this.model.get('selection');
+        this.inputSelection.oninput = this.selection_changed.bind(this);
+
+        this.el.appendChild(this.inputSelection);
+
+        // Create input element to track changes in DAG
+        this.inputInverseSelection = document.createElement('input');
+        this.inputInverseSelection.type = 'text';
+        this.inputInverseSelection.id = `_hiddenInverseSelection${this.model.model_id}`;
+        this.inputInverseSelection.style.display = 'none';
+        this.inputInverseSelection.value = this.model.get('iselection');
+        this.inputInverseSelection.oninput = this.iselection_changed.bind(this);
+
+        this.el.appendChild(this.inputInverseSelection);
+    },
+
+    value_changed: function() {
+        var props = this.model.get("props");
+
+        props = {...props,
+                "_selection": `_hiddenSelection${this.model.model_id}`,
+                "_iselection": `_hiddenInverseSelection${this.model.model_id}`};
+
+        var component = React.createElement(lib[this.model.attributes.component], props);
+        ReactDOM.render(component, this.el);  
+    },
+
+    selection_changed: function() {
+        this.model.set('selection', JSON.parse(this.inputSelection.value));
+        this.model.save_changes();
+    },
+
+    iselection_changed: function() {
+        this.model.set('iselection', JSON.parse(this.inputInverseSelection.value));
+        this.model.save_changes();
+    },
+});
 
 module.exports = {
     ReactModel: ReactModel,
     ReactView: ReactView,
     DAGModel: DAGModel,
-    DAGView: DAGView
+    DAGView: DAGView,
+    CohortModel: CohortModel,
+    CohortView: CohortView
 };
