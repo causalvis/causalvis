@@ -11,8 +11,6 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
                              updateTopThreshold,
                              isBinary}) => {
 
-  console.log(thresholdValue);
-
 	const ref = useRef('svgBeeswarmTop');
 
   let svgElement = d3.select(ref.current);
@@ -56,8 +54,9 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
     .attr("class", "dataPoint")
     .attr("transform", d => `translate(${xScale(d[stratify])},${layout.height / 2 + (Math.random() - 0.5) * jitter})`)
     .attr("r", 3)
-    .attr("fill", "none")
-    .attr("stroke", d => colorMap[1])
+    .attr("fill", "steelblue")
+    .attr("opacity", 0.2)
+    // .attr("stroke", d => colorMap[1])
 
   // Visualize current threshold
   let thresholdStroke = svgElement.select("#threshold")

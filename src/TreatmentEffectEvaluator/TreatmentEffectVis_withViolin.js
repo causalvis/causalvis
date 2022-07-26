@@ -2,7 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import regression from 'regression';
 import * as d3 from 'd3';
 
-export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", isBinary}) => {
+export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", effectExtent=[0, 0], isBinary}) => {
 	const ref = useRef('svgTreatmentEffect');
 
   let svg = d3.select(`#svgTreatmentEffect${index}`);
@@ -92,7 +92,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   				.range([layout.marginLeft, layout.width - layout.margin])
 
   		var yScale = d3.scaleLinear()
-          .domain(d3.extent(cohortData, d => d[effect]))
+          .domain(effectExtent)
           .range([layout.height - layout.marginBottom, layout.margin])
 
   		let computedBandwidth = xScale.bandwidth();
@@ -168,18 +168,18 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
     // 	}
 
   		let xAxis = svgElement.select('#x-axis')
-	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)
+	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom / 2})`)
 	            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 
   	} else {
   		// If variable is not binary, visualize each data instance and outcome with regression line
 
   		var xScale = d3.scaleLinear()
-          .domain(d3.extent(cohortData, d => d[stratifyBy]))
+          .domain(allData.stratifyExtent)
           .range([layout.marginLeft, layout.width - layout.margin])
 
       var yScale = d3.scaleLinear()
-          .domain(d3.extent(cohortData, d => d[effect]))
+          .domain(effectExtent)
           .range([layout.height - layout.marginBottom, layout.margin])
 
 	    let effects = svgElement.select("#effects")
@@ -190,6 +190,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	      .attr("cx", d => xScale(d[stratifyBy]) + (Math.random() - 0.5) * jitter)
 	      .attr("cy", d => yScale(d[effect]))
 	      .attr("r", 3)
+	      .attr("opacity", 0.2)
 	      .attr("fill", "steelblue")
 	      // .attr("stroke", d => colorMap[d[treatment]])
 	      .attr("cursor", "pointer")
@@ -206,7 +207,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	    //   .attr("stroke", "black")
 
 	    let xAxis = svgElement.select('#x-axis')
-	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom})`)
+	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom / 2})`)
 	            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
 	  	}
 
@@ -216,7 +217,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 		    	.join("text")
 		    	.attr("id", "axis-title")
 		    	.attr("x", layout.width / 2)
-		    	.attr("y", 30)
+		    	.attr("y", -10)
 		    	.attr("text-anchor", "middle")
 		    	.attr("fill", "black")
 		    	.attr("font-size", "15px")
@@ -228,23 +229,23 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 		    	.join("text")
 		    	.attr("id", "axis-title")
 		    	.attr("text-anchor", "middle")
-		    	.attr("transform", `translate(${layout.marginLeft - 5}, ${layout.height / 2}) rotate(-90)`)
+		    	.attr("transform", `translate(${layout.marginLeft / 2 - 5}, ${layout.height / 2}) rotate(-90)`)
 		    	.attr("fill", "black")
 		    	.attr("font-size", "15px")
 		    	.text(d => d)
 
 	  	d3.selectAll("#x-axis>.tick>text")
 			  .each(function(d, i){
-			    d3.select(this).style("font-size","12px");
+			    d3.select(this).style("font-size","10px");
 			  });
 
 	  	let yAxis = svgElement.select('#y-axis')
-		            .attr('transform', `translate(${layout.marginLeft}, 0)`)
+		            .attr('transform', `translate(${layout.marginLeft / 2}, 0)`)
 		            .call(d3.axisLeft(yScale).tickSize(3).ticks(5))
 
 			d3.selectAll("#y-axis>.tick>text")
 			  .each(function(d, i){
-			    d3.select(this).style("font-size","12px");
+			    d3.select(this).style("font-size","10px");
 			  });
 
   	}, [cohortData, stratifyBy, isBinary, layout, treatmentBins, controlBins])

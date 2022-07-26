@@ -53,8 +53,8 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
     .attr("class", "dataPoint")
     .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
     .attr("r", 3)
-    .attr("fill", "none")
-    .attr("stroke", d => colorMap[1])
+    .attr("fill", "steelblue")
+    .attr("opacity", 0.2)
 
   // Visualize current threshold
   let thresholdStroke = svgElement.select("#threshold")

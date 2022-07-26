@@ -19,7 +19,9 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
   const [attributes, setAttributes] = React.useState([]);
   const [attributeLevels, setAttributeLevels] = React.useState({});
+  const [attributeExtents, setAttributeExtents] = React.useState({});
   const [cohortData, setCohortData] = React.useState([]);
+  const [effectExtent, setEffectExtent] = React.useState([0, 0]);
 
   const [stratify, setStratify] = React.useState([]);
   const [stratifiedData, setStratifiedData] = React.useState([]);
@@ -38,13 +40,22 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
     setCohortData(newCohortData);
 
     let newAttributeLevels = {};
+    let newAttributeExtents = {};
 
     for (let a of allAttributes) {
-      let levels = Array.from(new Set(data.map(d => d[a])));
-      newAttributeLevels[a] = levels;
+      let attributeValues = data.map(d => d[a])
+
+      let aLevels = Array.from(new Set(attributeValues));
+      newAttributeLevels[a] = aLevels;
+
+      let aExtent = extent(attributeValues);
+      newAttributeExtents[a] = aExtent;
     }
 
     setAttributeLevels(newAttributeLevels);
+    setAttributeExtents(newAttributeExtents);
+
+    setEffectExtent(extent(data, d => d[effect]));
 
   }, [data])
 
@@ -104,8 +115,9 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
       newStratifiedData.push({"data": JSON.parse(JSON.stringify(cohortData)),
                               "stratifyBy": stratify[0].attribute,
+                              "stratifyExtent": attributeExtents[stratify[0].attribute],
                               "title": ``,
-                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 30, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 50, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     } else if (stratify.length === 2) {
@@ -113,7 +125,8 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       let newStratifiedData = splitDataset(cohortData, stratify[1].attribute, stratify[1].threshold);
       newStratifiedData = newStratifiedData.map(function(s) {
         s.stratifyBy = stratify[0].attribute;
-        s.layout = {"height": 600, "width": 300, "margin": 20, "marginLeft": 30, "marginBottom": 35};
+        s.stratifyExtent = attributeExtents[stratify[0].attribute];
+        s.layout = {"height": 600, "width": 300, "margin": 20, "marginLeft": 50, "marginBottom": 35};
         return s;
       })
       setStratifiedData([...newStratifiedData]);
@@ -131,7 +144,8 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
         subStratify = subStratify.map(function(s) {
           s.stratifyBy = stratify[0].attribute;
-          s.layout = {"height": 300, "width": 300, "margin": 20, "marginLeft": 30, "marginBottom": 35};
+          s.stratifyExtent = attributeExtents[stratify[0].attribute];
+          s.layout = {"height": 300, "width": 300, "margin": 20, "marginLeft": 50, "marginBottom": 35};
           s.title = `${subTitle}, ${s.title}`;
           return s;
         })
@@ -144,8 +158,9 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
       newStratifiedData.push({"data": [],
                               "stratifyBy": "",
+                              "stratifyExtent": [0, 0],
                               "title": ``,
-                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 30, "marginBottom": 35}});
+                              "layout": {"height": 600, "width": 600, "margin": 20, "marginLeft": 50, "marginBottom": 35}});
       setStratifiedData([...newStratifiedData]);
 
     }
@@ -207,7 +222,12 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       </div>
       <div style={allVis}>
         {stratifiedData.map((value, index) => {
-            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value.stratifyBy] ? attributeLevels[value.stratifyBy].length === 2 : false} />
+            return <TreatmentEffectVisViolin
+                    key={`vis${value.stratifyBy}${index}`}
+                    index={index}
+                    allData={value}
+                    effectExtent={effectExtent}
+                    isBinary={attributeLevels[value.stratifyBy] ? attributeLevels[value.stratifyBy].length === 2 : false} />
           })
         }
       </div>
