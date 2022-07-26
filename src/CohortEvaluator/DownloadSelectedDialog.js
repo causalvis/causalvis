@@ -84,8 +84,8 @@ export const DownloadSelectedDialog = ({open=false, handleDownloadClose, selecte
                   <Table sx={{ minWidth: 650 }} aria-label="simple table" size="small">
                     <TableHead>
                       <TableRow>
-                        {attributes.map(function (a) {
-                          return <TableCell component="th" scope="row">{a}</TableCell>
+                        {attributes.map(function (a, j) {
+                          return <TableCell key={`header${j}`} component="th" scope="row">{a}</TableCell>
                         })}
                       </TableRow>
                     </TableHead>

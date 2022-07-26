@@ -261,6 +261,7 @@ var CohortView = widgets.DOMWidgetView.extend({
     },
 
     iselection_changed: function() {
+        console.log("changing inverse...");
         this.model.set('iselection', JSON.parse(this.inputInverseSelection.value));
         this.model.save_changes();
     },

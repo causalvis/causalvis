@@ -76,6 +76,8 @@ export const PropDistribution = ({unadjustedCohortData={},
         }
       }
 
+      console.log(newInverseSelection);
+
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, newInverseSelection);
 

@@ -13,7 +13,10 @@ export default {
 };
 
 export const ToStorybook = () => (
-  <CohortEvaluator unadjustedCohort={unadjustedData} />
+  <div>
+    <input id="_hiddenInverseSelection" type="text" />
+    <CohortEvaluator unadjustedCohort={unadjustedData} _iselection="_hiddenInverseSelection" />
+  </div>
 )
 
 ToStorybook.story = {
