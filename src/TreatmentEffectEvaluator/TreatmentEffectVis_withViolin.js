@@ -224,6 +224,30 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 		    	.attr("fill", "none")
 		    	.attr('stroke', "black")
 
+		    svgElement.select("#IQR")
+		    	.selectAll(`.topCap${i}`)
+		    	.data([binStats])
+		    	.join("line")
+		    	.attr("class", `topCap${i}`)
+		    	.attr("x1", xScale(i) + computedBandwidth / 4 - 5)
+		    	.attr("y1", d => yScale(d.IQRMax))
+		    	.attr("x2", xScale(i) + computedBandwidth / 4 + 5)
+		    	.attr("y2", d => yScale(d.IQRMax))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
+		    svgElement.select("#IQR")
+		    	.selectAll(`.bottomCap${i}`)
+		    	.data([binStats])
+		    	.join("line")
+		    	.attr("class", `bottomCap${i}`)
+		    	.attr("x1", xScale(i) + computedBandwidth / 4 - 5)
+		    	.attr("y1", d => yScale(d.IQRMin))
+		    	.attr("x2", xScale(i) + computedBandwidth / 4 + 5)
+		    	.attr("y2", d => yScale(d.IQRMin))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
     	}
 
     // 	let controlScales = [];

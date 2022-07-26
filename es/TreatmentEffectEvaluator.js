@@ -37,17 +37,25 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       attributeLevels = _React$useState2[0],
       setAttributeLevels = _React$useState2[1];
 
-  var _React$useState3 = React.useState([]),
-      cohortData = _React$useState3[0],
-      setCohortData = _React$useState3[1];
+  var _React$useState3 = React.useState({}),
+      attributeExtents = _React$useState3[0],
+      setAttributeExtents = _React$useState3[1];
 
   var _React$useState4 = React.useState([]),
-      stratify = _React$useState4[0],
-      setStratify = _React$useState4[1];
+      cohortData = _React$useState4[0],
+      setCohortData = _React$useState4[1];
 
-  var _React$useState5 = React.useState([]),
-      stratifiedData = _React$useState5[0],
-      setStratifiedData = _React$useState5[1];
+  var _React$useState5 = React.useState([0, 0]),
+      effectExtent = _React$useState5[0],
+      setEffectExtent = _React$useState5[1];
+
+  var _React$useState6 = React.useState([]),
+      stratify = _React$useState6[0],
+      setStratify = _React$useState6[1];
+
+  var _React$useState7 = React.useState([]),
+      stratifiedData = _React$useState7[0],
+      setStratifiedData = _React$useState7[1];
 
   useEffect(function () {
     // Get all the confounding attributes, excluding treatment and propensity score
@@ -62,21 +70,28 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     });
     setCohortData(newCohortData);
     var newAttributeLevels = {};
+    var newAttributeExtents = {};
 
     var _loop = function _loop() {
       var a = _step.value;
-      var levels = Array.from(new Set(data.map(function (d) {
+      var attributeValues = data.map(function (d) {
         return d[a];
-      })));
-      newAttributeLevels[a] = levels;
+      });
+      var aLevels = Array.from(new Set(attributeValues));
+      newAttributeLevels[a] = aLevels;
+      var aExtent = extent(attributeValues);
+      newAttributeExtents[a] = aExtent;
     };
 
     for (var _iterator = _createForOfIteratorHelperLoose(allAttributes), _step; !(_step = _iterator()).done;) {
       _loop();
-    } // console.log(newAttributeLevels);
-
+    }
 
     setAttributeLevels(newAttributeLevels);
+    setAttributeExtents(newAttributeExtents);
+    setEffectExtent(extent(data, function (d) {
+      return d[effect];
+    }));
   }, [data]); // Add a new attribute to facet by
   // For each new attribute, also add the faceting threshold
 
@@ -93,7 +108,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
 
       var vThreshold = attributeLevels[v].length === 2 ? null : mean(data, function (d) {
         return d[v];
-      }).toPrecision(2);
+      }).toPrecision(3);
       stratify.push({
         "attribute": v,
         "threshold": vThreshold
@@ -158,12 +173,13 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       newStratifiedData.push({
         "data": JSON.parse(JSON.stringify(cohortData)),
         "stratifyBy": stratify[0].attribute,
+        "stratifyExtent": attributeExtents[stratify[0].attribute],
         "title": "",
         "layout": {
           "height": 600,
           "width": 600,
           "margin": 20,
-          "marginLeft": 30,
+          "marginLeft": 50,
           "marginBottom": 35
         }
       });
@@ -173,11 +189,12 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
 
       _newStratifiedData = _newStratifiedData.map(function (s) {
         s.stratifyBy = stratify[0].attribute;
+        s.stratifyExtent = attributeExtents[stratify[0].attribute];
         s.layout = {
           "height": 600,
           "width": 300,
           "margin": 20,
-          "marginLeft": 30,
+          "marginLeft": 50,
           "marginBottom": 35
         };
         return s;
@@ -194,11 +211,12 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
         var subStratify = splitDataset(sub.data, stratify[1].attribute, stratify[1].threshold);
         subStratify = subStratify.map(function (s) {
           s.stratifyBy = stratify[0].attribute;
+          s.stratifyExtent = attributeExtents[stratify[0].attribute];
           s.layout = {
             "height": 300,
             "width": 300,
             "margin": 20,
-            "marginLeft": 30,
+            "marginLeft": 50,
             "marginBottom": 35
           };
           s.title = subTitle + ", " + s.title;
@@ -216,12 +234,13 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       newStratifiedData.push({
         "data": [],
         "stratifyBy": "",
+        "stratifyExtent": [0, 0],
         "title": "",
         "layout": {
           "height": 600,
           "width": 600,
           "margin": 20,
-          "marginLeft": 30,
+          "marginLeft": 50,
           "marginBottom": 35
         }
       });
@@ -230,19 +249,19 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
   }, [stratify]);
   var mainLayout = {
     "display": "grid",
-    "grid-template-columns": "auto auto 1fr",
-    "grid-template-rows": "auto auto 1fr",
-    "grid-gap": "20px"
+    "gridTemplateColumns": "auto auto 1fr",
+    "gridTemplateRows": "auto auto 1fr",
+    "gridGap": "20px"
   };
   var covariateStyle = {
-    "grid-column": "1/2",
-    "grid-row": "3/4",
+    "gridColumn": "1/2",
+    "gridRow": "3/4",
     "display": "flex",
     "alignItems": "center"
   };
   var headerStyle = {
-    "grid-column": "3/4",
-    "grid-row": "1/2",
+    "gridColumn": "3/4",
+    "gridRow": "1/2",
     "display": "flex",
     "flexDirection": "column",
     "alignItems": "center",
@@ -253,22 +272,22 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
     "fontFamily": "sans-serif"
   };
   var btopStyle = {
-    "grid-column": "3/4",
-    "grid-row": "2/3",
+    "gridColumn": "3/4",
+    "gridRow": "2/3",
     "width": "600px"
   };
   var bleftStyle = {
-    "grid-column": "2/3",
-    "grid-row": "3/4"
+    "gridColumn": "2/3",
+    "gridRow": "3/4"
   };
   var allVis = {
-    "grid-column": "3/4",
-    "grid-row": "3/4",
+    "gridColumn": "3/4",
+    "gridRow": "3/4",
     "width": "600px",
     "height": "600px",
     "display": "grid",
-    "grid-template-columns": "1fr 1fr",
-    "grid-template-rows": "1fr 1fr"
+    "gridTemplateColumns": "1fr 1fr",
+    "gridTemplateRows": "1fr 1fr"
   };
   return /*#__PURE__*/React.createElement("div", {
     style: mainLayout
@@ -307,7 +326,8 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       key: "vis" + value.stratifyBy + index,
       index: index,
       allData: value,
-      isBinary: attributeLevels[value] ? attributeLevels[value].length === 2 : false
+      effectExtent: effectExtent,
+      isBinary: attributeLevels[value.stratifyBy] ? attributeLevels[value.stratifyBy].length === 2 : false
     });
   })));
 };
