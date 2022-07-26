@@ -21,9 +21,9 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       _ref$effectExtent = _ref.effectExtent,
       effectExtent = _ref$effectExtent === void 0 ? [0, 0] : _ref$effectExtent,
       isBinary = _ref.isBinary;
-  var ref = useRef('svgTreatmentEffect');
-  var svg = d3.select("#svgTreatmentEffect" + index);
-  var svgElement = svg.select("g"); // Track color map
+  var ref = useRef('svgTreatmentEffect'); // let svg = d3.select(`#svgTreatmentEffect${index}`);
+
+  var svgElement = d3.select(ref.current); // Track color map
 
   var _React$useState = React.useState({
     1: "#4e79a7",
@@ -251,6 +251,16 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
           }).attr("x2", xScale(i) + computedBandwidth / 4).attr("y2", function (d) {
             return yScale(d.IQRMin);
           }).attr("fill", "none").attr('stroke', "black");
+          svgElement.select("#IQR").selectAll(".topCap" + i).data([binStats]).join("line").attr("class", "topCap" + i).attr("x1", xScale(i) + computedBandwidth / 4 - 5).attr("y1", function (d) {
+            return yScale(d.IQRMax);
+          }).attr("x2", xScale(i) + computedBandwidth / 4 + 5).attr("y2", function (d) {
+            return yScale(d.IQRMax);
+          }).attr("fill", "none").attr('stroke', "black");
+          svgElement.select("#IQR").selectAll(".bottomCap" + i).data([binStats]).join("line").attr("class", "bottomCap" + i).attr("x1", xScale(i) + computedBandwidth / 4 - 5).attr("y1", function (d) {
+            return yScale(d.IQRMin);
+          }).attr("x2", xScale(i) + computedBandwidth / 4 + 5).attr("y2", function (d) {
+            return yScale(d.IQRMin);
+          }).attr("fill", "none").attr('stroke', "black");
         };
 
         for (var i = 0; i < stratifiedBins.length; i++) {
@@ -341,6 +351,7 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
   }, /*#__PURE__*/React.createElement("svg", {
     width: layout.width,
     height: layout.height,
+    ref: ref,
     id: "svgTreatmentEffect" + index
   }, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("g", {
     id: "x-axis"

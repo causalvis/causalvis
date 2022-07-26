@@ -95,8 +95,9 @@ export var DownloadSelectedDialog = function DownloadSelectedDialog(_ref) {
     },
     "aria-label": "simple table",
     size: "small"
-  }, /*#__PURE__*/React.createElement(TableHead, null, /*#__PURE__*/React.createElement(TableRow, null, attributes.map(function (a) {
+  }, /*#__PURE__*/React.createElement(TableHead, null, /*#__PURE__*/React.createElement(TableRow, null, attributes.map(function (a, j) {
     return /*#__PURE__*/React.createElement(TableCell, {
+      key: "header" + j,
       component: "th",
       scope: "row"
     }, a);

@@ -5,9 +5,9 @@ import * as d3 from 'd3';
 export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", effectExtent=[0, 0], isBinary}) => {
 	const ref = useRef('svgTreatmentEffect');
 
-  let svg = d3.select(`#svgTreatmentEffect${index}`);
+  // let svg = d3.select(`#svgTreatmentEffect${index}`);
 
-  let svgElement = svg.select("g");
+  let svgElement = d3.select(ref.current);
 
   // Track color map
   const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
@@ -373,7 +373,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   return (
     <div style={subplotStyle}>
     	{/*<p style={subplotTitle}>{plotTitle}</p>*/}
-      <svg width={layout.width} height={layout.height} id={`svgTreatmentEffect${index}`}>
+      <svg width={layout.width} height={layout.height} ref={ref} id={`svgTreatmentEffect${index}`}>
         <g>
         	<g id="x-axis" />
           <g id="y-axis" />

@@ -108,6 +108,7 @@ export var PropDistribution = function PropDistribution(_ref) {
         }
       }
 
+      console.log(newInverseSelection);
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, newInverseSelection);
     } else {
