@@ -70,7 +70,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       }
 
       // For continuous variables, set the default faceting threshold to be the mean
-      let vThreshold = attributeLevels[v].length === 2 ? null : mean(data, d => d[v]).toPrecision(2);
+      let vThreshold = attributeLevels[v].length === 2 ? null : mean(data, d => d[v]).toPrecision(3);
 
       stratify.push({"attribute":v, "threshold":vThreshold});
       setStratify([...stratify]);

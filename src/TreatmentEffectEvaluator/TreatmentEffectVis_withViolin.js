@@ -81,6 +81,27 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   }, [allData])
 
+  function getIQR(dataset) {
+
+  	let Q1 = d3.quantile(dataset, 0.25, d => d);
+  	let Q2 = d3.quantile(dataset, 0.5, d => d);
+  	let Q3 = d3.quantile(dataset, 0.75, d => d);
+
+  	let IQR = Q3 - Q1;
+  	let IQRMin = Q1 - 1.5 * IQR;
+  	let IQRMax = Q3 + 1.5 * IQR;
+
+  	let outliers = dataset.filter(d => d < IQRMin || d > IQRMax)
+
+  	return {"Q1": Q1,
+  					"Q2": Q2,
+  					"Q3": Q3,
+  					"IQR": IQR,
+  					"IQRMin": IQRMin,
+  					"IQRMax": IQRMax,
+  					"outliers": outliers}
+  }
+
   useEffect(() => {
 
   	let jitter = 15;
@@ -116,6 +137,16 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
     		let binScale = binScales[i].scale;
     		let binSize = binScales[i].len;
 
+    		let binEffects = [];
+
+    		for (let g of binData) {
+    			binEffects = binEffects.concat(g.map(d => d.effect));
+    		}
+
+    		let binStats = getIQR(binEffects);
+
+    		// console.log(binStats);
+
     		svgElement.select("#violin")
     			.selectAll(`.area${i}`)
 			    .data([binData])
@@ -126,11 +157,73 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 			    .style("stroke", "none")
 		        .style("fill", colorMap[i])
 		        .attr("d", d3.area()
-		            .x0(function(d){ return(binScale(-d.length / binSize)) } )
+		            .x0(function(d){ return(binScale(0)) } )
 		            .x1(function(d){ return(binScale(d.length / binSize)) } )
 		            .y(function(d){ return(yScale(d.x0)) } )
 		            .curve(d3.curveCatmullRom)
 		        )
+
+		    svgElement.select("#violin")
+		    	.selectAll(`.point${i}`)
+		    	.data(binEffects)
+		    	.join("circle")
+		    	.attr("class", `point${i}`)
+		    	.attr("cx", d => {
+		    		return xScale(i) + computedBandwidth / 4 + (Math.random() - 0.5) * jitter;
+		    	})
+		    	.attr("cy", d => yScale(d))
+		    	.attr("r", 3)
+		    	.attr("opacity", 0.2)
+		    	.attr("fill", colorMap[i])
+
+		    svgElement.select("#IQR")
+		    	.selectAll(`.boxplot${i}`)
+		    	.data([binStats])
+		    	.join("rect")
+		    	.attr("class", `boxplot${i}`)
+		    	.attr("x", xScale(i) + computedBandwidth / 4 - 15)
+		    	.attr("y", d => yScale(d.Q3))
+		    	.attr("width", 30)
+		    	.attr("height", d => yScale(d.Q1) - yScale(d.Q3))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
+		    svgElement.select("#IQR")
+		    	.selectAll(`.boxmedian${i}`)
+		    	.data([binStats])
+		    	.join("line")
+		    	.attr("class", `boxmedian${i}`)
+		    	.attr("x1", xScale(i) + computedBandwidth / 4 - 15)
+		    	.attr("y1", d => yScale(d.Q2))
+		    	.attr("x2", xScale(i) + computedBandwidth / 4 + 15)
+		    	.attr("y2", d => yScale(d.Q2))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
+		    svgElement.select("#IQR")
+		    	.selectAll(`.whiskerTop${i}`)
+		    	.data([binStats])
+		    	.join("line")
+		    	.attr("class", `whiskerTop${i}`)
+		    	.attr("x1", xScale(i) + computedBandwidth / 4)
+		    	.attr("y1", d => yScale(d.IQRMax))
+		    	.attr("x2", xScale(i) + computedBandwidth / 4)
+		    	.attr("y2", d => yScale(d.Q3))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
+		    svgElement.select("#IQR")
+		    	.selectAll(`.whiskerBottom${i}`)
+		    	.data([binStats])
+		    	.join("line")
+		    	.attr("class", `whiskerBottom${i}`)
+		    	.attr("x1", xScale(i) + computedBandwidth / 4)
+		    	.attr("y1", d => yScale(d.Q1))
+		    	.attr("x2", xScale(i) + computedBandwidth / 4)
+		    	.attr("y2", d => yScale(d.IQRMin))
+		    	.attr("fill", "none")
+		    	.attr('stroke', "black")
+
     	}
 
     // 	let controlScales = [];
@@ -263,6 +356,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
           <g id="effects" />
           <g id="regression" />
           <g id="violin" />
+          <g id="IQR" />
           <g id="title" />
         </g>
       </svg>
