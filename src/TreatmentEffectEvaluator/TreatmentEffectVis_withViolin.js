@@ -3,7 +3,6 @@ import regression from 'regression';
 import * as d3 from 'd3';
 
 export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", isBinary}) => {
-
 	const ref = useRef('svgTreatmentEffect');
 
   let svg = d3.select(`#svgTreatmentEffect${index}`);
@@ -60,8 +59,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   		let newTreatmentBins = [histogram(treatmentStratify0), histogram(treatmentStratify1)];
   		let newControlBins = [histogram(controlStratify0), histogram(controlStratify1)];
-
-  		// console.log(newTreatmentBins, newControlBins)
 
   		setTreatmentBins(newTreatmentBins);
   		setControlBins(newControlBins);
@@ -127,7 +124,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 			    .attr("transform", `translate(${xScale(i)}, 0)`)
 			    .datum(function(d){ return(d)})
 			    .style("stroke", "none")
-		        .style("fill", colorMap[1])
+		        .style("fill", colorMap[i])
 		        .attr("d", d3.area()
 		            .x0(function(d){ return(binScale(-d.length / binSize)) } )
 		            .x1(function(d){ return(binScale(d.length / binSize)) } )

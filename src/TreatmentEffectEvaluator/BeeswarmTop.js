@@ -11,6 +11,8 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
                              updateTopThreshold,
                              isBinary}) => {
 
+  console.log(thresholdValue);
+
 	const ref = useRef('svgBeeswarmTop');
 
   let svgElement = d3.select(ref.current);

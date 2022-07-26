@@ -44,8 +44,6 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       newAttributeLevels[a] = levels;
     }
 
-    // console.log(newAttributeLevels);
-
     setAttributeLevels(newAttributeLevels);
 
   }, [data])
@@ -155,23 +153,23 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
   }, [stratify])
 
   let mainLayout = {"display":"grid",
-                    "grid-template-columns":"auto auto 1fr",
-                    "grid-template-rows":"auto auto 1fr",
-                    "grid-gap":"20px"};
-  let covariateStyle = {"grid-column": "1/2", "grid-row": "3/4", "display":"flex", "alignItems":"center"};
-  let headerStyle = {"grid-column":"3/4", "grid-row": "1/2", "display":"flex", "flexDirection":"column", "alignItems":"center", "width":"600px"};
+                    "gridTemplateColumns":"auto auto 1fr",
+                    "gridTemplateRows":"auto auto 1fr",
+                    "gridGap":"20px"};
+  let covariateStyle = {"gridColumn":"1/2", "gridRow":"3/4", "display":"flex", "alignItems":"center"};
+  let headerStyle = {"gridColumn":"3/4", "gridRow": "1/2", "display":"flex", "flexDirection":"column", "alignItems":"center", "width":"600px"};
 
   let plotsTitle = {"fontSize":"16px", "fontFamily":"sans-serif"};
 
-  let btopStyle = {"grid-column": "3/4", "grid-row":"2/3", "width":"600px"};
-  let bleftStyle = {"grid-column": "2/3", "grid-row":"3/4"};
-  let allVis = {"grid-column": "3/4",
-                "grid-row":"3/4",
+  let btopStyle = {"gridColumn":"3/4", "gridRow":"2/3", "width":"600px"};
+  let bleftStyle = {"gridColumn":"2/3", "gridRow":"3/4"};
+  let allVis = {"gridColumn":"3/4",
+                "gridRow":"3/4",
                 "width":"600px",
                 "height":"600px",
                 "display":"grid", 
-                "grid-template-columns":"1fr 1fr",
-                "grid-template-rows":"1fr 1fr"}
+                "gridTemplateColumns":"1fr 1fr",
+                "gridTemplateRows":"1fr 1fr"};
 
   return (
     <div style={mainLayout}>
@@ -209,7 +207,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
       </div>
       <div style={allVis}>
         {stratifiedData.map((value, index) => {
-            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value] ? attributeLevels[value].length === 2 : false} />
+            return <TreatmentEffectVisViolin key={`vis${value.stratifyBy}${index}`} index={index} allData={value} isBinary={attributeLevels[value.stratifyBy] ? attributeLevels[value.stratifyBy].length === 2 : false} />
           })
         }
       </div>
