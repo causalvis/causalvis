@@ -24,6 +24,16 @@ export var VersionHistory = function VersionHistory(_ref) {
       hierarchy = _React$useState[0],
       setHierarchy = _React$useState[1];
 
+  var _React$useState2 = React.useState({
+    "height": 120,
+    "width": 1200,
+    "margin": 30,
+    "marginLeft": 10,
+    "marginBottom": 30
+  }),
+      layout = _React$useState2[0],
+      setLayout = _React$useState2[1];
+
   useEffect(function () {
     var newDAGs = [];
     var newHierarchy = {};
@@ -39,14 +49,14 @@ export var VersionHistory = function VersionHistory(_ref) {
       if (!isIncluded) {
         newDAGs.push(vDAGString);
         newHierarchy[vDAGString] = [{
-          "name": "Cohort 1",
+          "name": "Cohort 1: " + v.Cohort.length + " rows",
           "Cohort": v.Cohort,
           "ATE": v.ATE
         }];
       } else {
         var versionCount = newHierarchy[vDAGString].length;
         newHierarchy[vDAGString].push({
-          "name": "Cohort " + (versionCount + 1),
+          "name": "Cohort " + (versionCount + 1) + ": " + v.Cohort.length + " rows",
           "Cohort": v.Cohort,
           "ATE": v.ATE
         });
@@ -75,8 +85,19 @@ export var VersionHistory = function VersionHistory(_ref) {
     }
 
     setHierarchy(data);
+
+    if (versions.length > 5) {
+      setLayout({
+        "height": 24 * versions.length,
+        "width": 1200,
+        "margin": 30,
+        "marginLeft": 10,
+        "marginBottom": 30
+      });
+    }
   }, [versions]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(VersionTree, {
+    layout: layout,
     data: hierarchy
   }));
 };

@@ -11,26 +11,15 @@ git clone https://github.ibm.com/bumchul-kwon/causalvis.git
 npm install
 ```
 
-### Building React Components
+### Installing for Jupyter lab
+
+In the main project folder, run:
 
 ```bash
-npm run build
+sh ./setup.sh
 ```
 
-This should automatically create a `lib` folder that includes all the components for the visualization modules in `.js` format.
-
-### Installing for JupyterLab
-
-```bash
-cd causalvis/js
-npm install
-npm run build:labextension
-cd ..
-pip install -e .
-cd ..
-```
-
-If the causalvis widget has been successfully installed, you should see it when running:
+If the causalvis widget has been successfully installed, you should see it in the list:
 
 ```bash
 jupyter labextension list
@@ -38,7 +27,7 @@ jupyter labextension list
 
 ### Running the widget
 
-Open JupyterLab
+Open JupyterLab:
 
 ```bash
 jupyter lab
@@ -50,6 +39,16 @@ Create a new notebook in python 3, then import the widget and pass it the releva
 from causalvis import DAG
 DAG(attributes=["A", "B"])
 ```
+
+### Troubleshooting
+
+If you encounter errors when importing causalvis in Jupyter lab, first ensure that the package is successfully installed and appears in the Jupyter labextension list.
+
+```bash
+jupyter labextension list
+```
+
+If this has been verified, check that the python version used by Jupyter lab is identical to the version in which causalvis is installed. In cases where there are multiple virtual environments in the same machine, the causalvis package may be installed in a different location.
 
 ## Developing for Causalvis
 

@@ -13,7 +13,8 @@ let versions = [{"DAG":DAG1, "Cohort":CohortConfounds, "ATE": 5},
                 {"DAG":DAG1, "Cohort":CohortConfounds2, "ATE": 7},
                 {"DAG":DAG2, "Cohort":CohortConfounds2, "ATE": 8},
                 {"DAG":DAG3, "Cohort":CohortConfounds, "ATE": 5},
-                {"DAG":DAG3, "Cohort":CohortConfounds2, "ATE": 1},]
+                {"DAG":DAG3, "Cohort":CohortConfounds2, "ATE": 1},
+                {"DAG":DAG3, "Cohort":CohortConfounds, "ATE": 1},]
 
 export default {
   title: 'Versions/Version History',

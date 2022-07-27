@@ -106,9 +106,9 @@ export var PropDistribution = function PropDistribution(_ref) {
           newInverseSelection.propensity.push(propensity);
           newInverseSelection.treatment.push(unadjustedCohortData.treatment[i]);
         }
-      }
+      } // console.log(newInverseSelection);
 
-      console.log(newInverseSelection);
+
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, newInverseSelection);
     } else {

@@ -7,7 +7,9 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
 
   const ref = useRef('svgVersionTree');
 
-  let svgElement = d3.select(ref.current);
+  let component = d3.select(ref.current)
+
+  let svgElement = component.select("svg");
 
   function partition(data) {
     const root = d3.hierarchy(data)
@@ -19,6 +21,7 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
 
   const root = partition(data);
   let focus = root;
+  let selected = focus.data.name;
 
   let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
 
@@ -29,7 +32,7 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     .attr("transform", d => `translate(${d.y0},${d.x0})`)
     .attr("width", d => d.y1 - d.y0 - 1)
     .attr("height", d => rectHeight(d))
-    .attr("fill-opacity", 0.6)
+    .attr("fill-opacity", 0.48)
     .attr("fill", d => {
       if (!d.depth) return "#ccc";
       while (d.depth > 1) d = d.parent;
@@ -73,12 +76,21 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
       .attr("font-family", "sans-serif")
       .attr("font-size", "10px");
 
-  // svgElement.selectAll(".title")
-  //     .data(root.descendants())
-  //     .join("title")
-  //     .attr("transform", d => `translate(${d.y0},${d.x0})`)
-  //     .attr("class", "title")
-  //     .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}`);
+  const selectedTitle = component.select("#selectedTitle")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "11px")
+      .selectAll("text")
+      .data([selected])
+      .join("text")
+      .text(d => getTitle(d))
+
+  function getTitle(s) {
+    if (s !== "All Versions") {
+      return `Showing ${s}. `
+    } else {
+      return "Showing All Versions. "
+    }
+  }
 
   function clicked(event, p) {    
     // let hidden = document.getElementById("_hidden");
@@ -91,6 +103,8 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     // }
 
     focus = focus === p ? p = p.parent : p;
+
+    selected = focus.data.name;
 
     root.each(d => d.target = {
       x0: (d.x0 - p.x0) / (p.x1 - p.x0) * layout.height,
@@ -111,6 +125,8 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     rect.transition(tr).attr("height", d => rectHeight(d.target));
     text.transition(tt).attr("fill-opacity", d => +labelVisible(d.target));
     tspan.transition(ts).attr("fill-opacity", d => labelVisible(d.target) * 0.7);
+
+    selectedTitle.text(getTitle(selected));
   }
   
   function rectHeight(d) {
@@ -121,9 +137,24 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     return d.y1 <= layout.width && d.y0 >= 0 && d.x1 - d.x0 > 16;
   }
 
+  function handleDownload() {
+    console.log('here', focus);
+  }
+
+  const titleStyle = {"fontFamily": "sans-serif",
+                      "fontSize": "13px",
+                      "display": "flex",
+                      "alignItems": "center"};
+  const downloadStyle = {"color":"steelblue", "cursor": "pointer"}
+
   return (
-    <div>
-      <svg width={layout.width} height={layout.height} ref={ref} id={`svgVersionTree`}>
+    <div ref={ref} >
+      <div style={titleStyle}>
+        <p id="selectedTitle"></p>
+        <p>&nbsp;</p>
+        <span style={downloadStyle} onClick={() => handleDownload()}><u>Download.</u></span>
+      </div>
+      <svg width={layout.width} height={layout.height} id={`svgVersionTree`}>
         <g id="rect" />
         <g id="text" />
         <g id="tspan" />

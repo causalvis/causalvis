@@ -232,7 +232,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       setStratifiedData([].concat(_newStratifiedData2));
     } else if (stratify.length === 0) {
       newStratifiedData.push({
-        "data": [],
+        "data": JSON.parse(JSON.stringify(cohortData)),
         "stratifyBy": "",
         "stratifyExtent": [0, 0],
         "title": "",
@@ -246,7 +246,7 @@ export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
       });
       setStratifiedData([].concat(newStratifiedData));
     }
-  }, [stratify]);
+  }, [stratify, cohortData]);
   var mainLayout = {
     "display": "grid",
     "gridTemplateColumns": "auto auto 1fr",
