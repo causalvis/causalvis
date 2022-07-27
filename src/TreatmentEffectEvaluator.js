@@ -156,7 +156,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
     } else if (stratify.length === 0) {
 
-      newStratifiedData.push({"data": [],
+      newStratifiedData.push({"data": JSON.parse(JSON.stringify(cohortData)),
                               "stratifyBy": "",
                               "stratifyExtent": [0, 0],
                               "title": ``,
@@ -165,7 +165,7 @@ export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcom
 
     }
 
-  }, [stratify])
+  }, [stratify, cohortData])
 
   let mainLayout = {"display":"grid",
                     "gridTemplateColumns":"auto auto 1fr",
