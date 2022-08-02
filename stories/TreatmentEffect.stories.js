@@ -38,7 +38,7 @@ export default {
 };
 
 export const ToStorybook = () => (
-  <TreatmentEffectEvaluator data={data} />
+  <TreatmentEffectEvaluator data={data} effect="effect" />
 )
 
 ToStorybook.story = {

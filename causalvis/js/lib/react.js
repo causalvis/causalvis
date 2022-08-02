@@ -51,14 +51,14 @@ var ReactView = widgets.DOMWidgetView.extend({
         // a custom callback.
         this.model.on('change:props', this.value_changed, this);
 
-        this.input = document.createElement('input');
-        this.input.type = 'text';
-        this.input.id = '_hidden';
-        this.input.style.display = 'none';
-        this.input.value = this.model.get('value');
-        this.input.oninput = this.input_changed.bind(this);
+        // this.input = document.createElement('input');
+        // this.input.type = 'text';
+        // this.input.id = '_hidden';
+        // this.input.style.display = 'none';
+        // this.input.value = this.model.get('value');
+        // this.input.oninput = this.input_changed.bind(this);
 
-        this.el.appendChild(this.input);
+        // this.el.appendChild(this.input);
     },
 
     value_changed: function() {
@@ -69,7 +69,6 @@ var ReactView = widgets.DOMWidgetView.extend({
     },
 
     input_changed: function() {
-        console.log(this.input.value)
         this.model.set('value', this.input.value);
         this.model.save_changes();
     },
@@ -261,8 +260,79 @@ var CohortView = widgets.DOMWidgetView.extend({
     },
 
     iselection_changed: function() {
-        console.log("changing inverse...");
         this.model.set('iselection', JSON.parse(this.inputInverseSelection.value));
+        this.model.save_changes();
+    },
+});
+
+// When serialiazing the entire widget state for embedding, only values that
+// differ from the defaults will be specified.
+var VersionHistoryModel = widgets.DOMWidgetModel.extend({
+    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+        _model_name : 'HelloModel',
+        _view_name : 'HelloView',
+        _model_module : 'causalvis',
+        _view_module : 'causalvis',
+        _model_module_version : '0.1.0',
+        _view_module_version : '0.1.0',
+        value : {},
+        props : {}
+    })
+});
+
+
+// Custom View. Renders the widget model.
+var VersionHistoryView = widgets.DOMWidgetView.extend({
+    // Defines how the widget gets rendered into the DOM
+    render: function() {
+        // Render component
+        this.value_changed();
+
+        // Observe changes in the value traitlet in Python, and define
+        // a custom callback.
+        this.model.on('change:props', this.value_changed, this);
+        
+        // Create input element to track changes in DAG
+        this.inputVersionDAG = document.createElement('input');
+        this.inputVersionDAG.type = 'text';
+        this.inputVersionDAG.id = `_versionDAG${this.model.model_id}`;
+        this.inputVersionDAG.style.display = 'none';
+        this.inputVersionDAG.value = this.model.get('DAG');
+        this.inputVersionDAG.oninput = this.versionDAG_changed.bind(this);
+
+        this.el.appendChild(this.inputVersionDAG);
+
+        // Create input element to track changes in DAG
+        this.inputVersionCohort = document.createElement('input');
+        this.inputVersionCohort.type = 'text';
+        this.inputVersionCohort.id = `_versionCohort${this.model.model_id}`;
+        this.inputVersionCohort.style.display = 'none';
+        this.inputVersionCohort.value = this.model.get('cohort');
+        this.inputVersionCohort.oninput = this.versionCohort_changed.bind(this);
+
+        this.el.appendChild(this.inputVersionCohort);
+    },
+
+    value_changed: function() {
+        var props = this.model.get("props");
+
+        props = {...props,
+                "_dag": `_versionDAG${this.model.model_id}`,
+                "_cohort": `_versionCohort${this.model.model_id}`};
+
+        var component = React.createElement(lib[this.model.attributes.component], props);
+        ReactDOM.render(component, this.el);  
+    },
+
+    versionDAG_changed: function() {
+        // console.log(this.inputVersionDAG.value);
+        this.model.set('DAG', JSON.parse(this.inputVersionDAG.value));
+        this.model.save_changes();
+    },
+
+    versionCohort_changed: function() {
+        // console.log(this.inputVersionCohort.value);
+        this.model.set('cohort', JSON.parse(this.inputVersionCohort.value));
         this.model.save_changes();
     },
 });
@@ -273,5 +343,7 @@ module.exports = {
     DAGModel: DAGModel,
     DAGView: DAGView,
     CohortModel: CohortModel,
-    CohortView: CohortView
+    CohortView: CohortView,
+    VersionHistoryModel: VersionHistoryModel,
+    VersionHistoryView: VersionHistoryView
 };

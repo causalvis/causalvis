@@ -3,7 +3,10 @@ import * as d3 from 'd3';
 
 // This visualization is modified from https://observablehq.com/@d3/zoomable-icicle
 export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30, "marginLeft": 10, "marginBottom": 30},
-                              data={"children": [], "name": "All Versions"}}) => {
+                              data={"children": [], "name": "All Versions"},
+                              colorScale,
+                              _dag,
+                              _cohort}) => {
 
   const ref = useRef('svgVersionTree');
 
@@ -23,7 +26,7 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
   let focus = root;
   let selected = focus.data.name;
 
-  let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
+  // let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
 
   const rect = svgElement.select("#rect")
     .selectAll("rect")
@@ -92,6 +95,39 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     }
   }
 
+  function setVariables(node) {
+    let DAGInput = document.getElementById(_dag);
+    let CohortInput = document.getElementById(_cohort);
+
+    if (node.data.DAG && DAGInput) {
+      DAGInput.value = JSON.stringify(node.data.DAG);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      DAGInput.dispatchEvent(event);
+
+      if (CohortInput) {
+        CohortInput.value = "";
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        CohortInput.dispatchEvent(event);
+      }
+    }
+
+    if (node.data.Cohort && CohortInput) {
+      CohortInput.value = JSON.stringify(node.data.Cohort);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      CohortInput.dispatchEvent(event);
+
+      if (DAGInput) {
+        DAGInput.value = "";
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        DAGInput.dispatchEvent(event);
+      }
+    }
+  }
+
   function clicked(event, p) {    
     // let hidden = document.getElementById("_hidden");
 
@@ -105,6 +141,7 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     focus = focus === p ? p = p.parent : p;
 
     selected = focus.data.name;
+    setVariables(focus);
 
     root.each(d => d.target = {
       x0: (d.x0 - p.x0) / (p.x1 - p.x0) * layout.height,
@@ -151,8 +188,8 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     <div ref={ref} >
       <div style={titleStyle}>
         <p id="selectedTitle"></p>
-        <p>&nbsp;</p>
-        <span style={downloadStyle} onClick={() => handleDownload()}><u>Download.</u></span>
+        {/*<p>&nbsp;</p>
+        <span style={downloadStyle} onClick={() => handleDownload()}><u>Download.</u></span>*/}
       </div>
       <svg width={layout.width} height={layout.height} id={`svgVersionTree`}>
         <g id="rect" />

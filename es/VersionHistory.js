@@ -15,7 +15,9 @@ Props:
 
 export var VersionHistory = function VersionHistory(_ref) {
   var _ref$versions = _ref.versions,
-      versions = _ref$versions === void 0 ? [] : _ref$versions;
+      versions = _ref$versions === void 0 ? [] : _ref$versions,
+      _dag = _ref._dag,
+      _cohort = _ref._cohort;
 
   var _React$useState = React.useState({
     "children": [],
@@ -98,6 +100,8 @@ export var VersionHistory = function VersionHistory(_ref) {
   }, [versions]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(VersionTree, {
     layout: layout,
-    data: hierarchy
+    data: hierarchy,
+    _dag: _dag,
+    _cohort: _cohort
   }));
 };

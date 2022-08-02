@@ -1,6 +1,6 @@
 # Causalvis
 
-Causalvis is a python library of interactive visualizations for causal inference, designed to work with JupyterLab and Jupyter Notebook.
+Causalvis is a python library of interactive visualizations for causal inference, designed to work with the [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/getting_started/overview.html) computational environment.
 
 ## Getting Started with Causalvis
 
@@ -13,14 +13,18 @@ npm install
 
 ### Installing for Jupyter lab
 
-In the main project folder, run:
+If this is the first time you are installing causalvis, in the main project folder, run:
 
 ```bash
 sh ./setup.sh
 ```
 
-If the causalvis widget has been successfully installed, you should see it in the list:
+For subsequent builds, run:
+```bash
+sh ./update.sh
+```
 
+If the causalvis widget has been successfully installed, you should see it in the list:
 ```bash
 jupyter labextension list
 ```

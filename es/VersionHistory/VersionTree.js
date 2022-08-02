@@ -14,7 +14,9 @@ export var VersionTree = function VersionTree(_ref) {
       data = _ref$data === void 0 ? {
     "children": [],
     "name": "All Versions"
-  } : _ref$data;
+  } : _ref$data,
+      _dag = _ref._dag,
+      _cohort = _ref._cohort;
   var ref = useRef('svgVersionTree');
   var component = d3.select(ref.current);
   var svgElement = component.select("svg");
@@ -80,6 +82,39 @@ export var VersionTree = function VersionTree(_ref) {
     }
   }
 
+  function setVariables(node) {
+    var DAGInput = document.getElementById(_dag);
+    var CohortInput = document.getElementById(_cohort);
+
+    if (node.data.DAG && DAGInput) {
+      DAGInput.value = JSON.stringify(node.data.DAG);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      DAGInput.dispatchEvent(event);
+
+      if (CohortInput) {
+        CohortInput.value = "";
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        CohortInput.dispatchEvent(event);
+      }
+    }
+
+    if (node.data.Cohort && CohortInput) {
+      CohortInput.value = JSON.stringify(node.data.Cohort);
+      var event = document.createEvent('HTMLEvents');
+      event.initEvent('input', false, true);
+      CohortInput.dispatchEvent(event);
+
+      if (DAGInput) {
+        DAGInput.value = "";
+        var event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+        DAGInput.dispatchEvent(event);
+      }
+    }
+  }
+
   function clicked(event, p) {
     // let hidden = document.getElementById("_hidden");
     // if (hidden) {
@@ -90,6 +125,7 @@ export var VersionTree = function VersionTree(_ref) {
     // }
     focus = focus === p ? p = p.parent : p;
     selected = focus.data.name;
+    setVariables(focus);
     root.each(function (d) {
       return d.target = {
         x0: (d.x0 - p.x0) / (p.x1 - p.x0) * layout.height,
@@ -147,12 +183,7 @@ export var VersionTree = function VersionTree(_ref) {
     style: titleStyle
   }, /*#__PURE__*/React.createElement("p", {
     id: "selectedTitle"
-  }), /*#__PURE__*/React.createElement("p", null, "\xA0"), /*#__PURE__*/React.createElement("span", {
-    style: downloadStyle,
-    onClick: function onClick() {
-      return handleDownload();
-    }
-  }, /*#__PURE__*/React.createElement("u", null, "Download."))), /*#__PURE__*/React.createElement("svg", {
+  })), /*#__PURE__*/React.createElement("svg", {
     width: layout.width,
     height: layout.height,
     id: "svgVersionTree"

@@ -29,8 +29,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     let newTBins = [];
 
     var xScale = d3.scaleLinear()
-    .domain([0, maxPropensity])
-    .range([layout.marginLeft, layout.width - layout.margin])
+      .domain([0, maxPropensity])
+      .range([layout.marginLeft, layout.width - layout.margin])
 
     let controlCount = n.CBins;
     let treatmentCount = n.TBins;

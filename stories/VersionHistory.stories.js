@@ -7,27 +7,27 @@ import DAG2 from '../public/DAG_2.json'
 import DAG3 from '../public/DAG_3.json'
 
 import CohortConfounds from '../public/cohort_confounds.json'
-import CohortConfounds2 from '../public/cohort_confounds_matched.json'
 
-let versions = [{"DAG":DAG1, "Cohort":CohortConfounds, "ATE": 5},
-                {"DAG":DAG1, "Cohort":CohortConfounds2, "ATE": 7},
-                {"DAG":DAG2, "Cohort":CohortConfounds2, "ATE": 8},
-                {"DAG":DAG3, "Cohort":CohortConfounds, "ATE": 5},
-                {"DAG":DAG3, "Cohort":CohortConfounds2, "ATE": 1},
-                {"DAG":DAG3, "Cohort":CohortConfounds, "ATE": 1},]
+import Cohort1 from '../public/te_test.json'
+import Cohort2 from '../public/te_test_2.json'
+import Cohort3 from '../public/te_test_3.json'
+
+let versions = [{"DAG":DAG1, "Cohort":Cohort1, "ATE": 5},
+                {"DAG":DAG1, "Cohort":Cohort1, "ATE": 7},
+                {"DAG":DAG2, "Cohort":Cohort2, "ATE": 8},
+                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 5},
+                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 1},
+                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 1},]
 
 export default {
   title: 'Versions/Version History',
 };
 
-function test(val) {
-  console.log(val);
-}
-
 export const ToStorybook = () => (
   <div>
-    <input id="_hidden" type="text" />
-    <VersionHistory versions={versions} />
+    {/*<input id="_dagtest" type="text" />
+    <input id="_cohorttest" type="text" />*/}
+    <VersionHistory versions={versions} _dag="_dagtest" _cohort="_cohorttest" effect="effect" />
   </div>
 )
 
