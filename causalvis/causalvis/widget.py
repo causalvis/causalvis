@@ -235,7 +235,7 @@ class VersionHistory(VersionHistoryWidget):
             return
 
         try:
-            assert(type(v[2]) == int)
+            assert(type(v[2]) == float)
         except AssertionError:
             raise TraitError("Invalid ATE type, expected int")
             return

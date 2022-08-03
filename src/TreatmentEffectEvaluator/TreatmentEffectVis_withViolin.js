@@ -10,8 +10,8 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   let svgElement = d3.select(ref.current);
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
-                                                  0: "#f28e2b"});
+  const [colorMap, setColorMap] = React.useState({1: "#698fb8",
+                                                  0: "#f0a856"});
 
   const [cohortData, setCohortData] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
@@ -459,7 +459,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	      .attr("cy", d => yScale(d[effect]))
 	      .attr("r", 3)
 	      .attr("opacity", 0.2)
-	      .attr("fill", "steelblue")
+	      .attr("fill", "#698fb8")
 	      // .attr("stroke", d => colorMap[d[treatment]])
 	      .attr("cursor", "pointer")
 
@@ -477,6 +477,20 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	    let xAxis = svgElement.select('#x-axis')
 	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom / 2})`)
 	            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
+	  	}
+
+	  	if (effectExtent[0] < 0 && effectExtent[1] > 0) {
+	  		svgElement.select("#zero")
+	        .selectAll(".zeroLine")
+	        .data([0])
+	        .join("line")
+	        .attr("class", "zeroLine")
+	        .attr("y1", d => yScale(0))
+	        .attr("x1", layout.marginLeft)
+	        .attr("y2", d => yScale(0))
+	        .attr("x2", layout.width - layout.margin)
+	        .attr("stroke", "black")
+	        .attr("stroke-dasharray", "5 5 2 5")
 	  	}
 
 	  	svgElement.select('#x-axis')
@@ -526,6 +540,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
     	{/*<p style={subplotTitle}>{plotTitle}</p>*/}
       <svg width={layout.width} height={layout.height} ref={ref} id={`svgTreatmentEffect${index}`}>
         <g>
+        	<g id="zero" />
         	<g id="x-axis" />
           <g id="y-axis" />
           <g id="effects" />

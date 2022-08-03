@@ -25,6 +25,10 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
 
   useEffect(() => {
 
+    let ATEExtent = d3.extent(ATE, d => d.ATE);
+
+    console.log(ATEExtent);
+
     let xScale = d3.scaleLinear()
       .domain(d3.extent(ATE, d => d.ATE))
       .range([layout.marginLeft, layout.width - layout.margin])
@@ -35,6 +39,20 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
       yScale = d3.scaleOrdinal()
         .domain(d3.extent(ATE, d => d.group))
         .range([layout.margin + 10, layout.height - layout.margin - 10])
+    }
+
+    if (ATEExtent[0] < 0 && ATEExtent[1] > 0) {
+      svgElement.select("#ate")
+        .selectAll(".zeroLine")
+        .data([0])
+        .join("line")
+        .attr("class", "zeroLine")
+        .attr("x1", d => xScale(0))
+        .attr("y1", layout.margin)
+        .attr("x2", d => xScale(0))
+        .attr("y2", layout.height - layout.margin)
+        .attr("stroke", "black")
+        .attr("stroke-dasharray", "5 5 2 5")
     }
 
     let atePoints = svgElement.select("#ate")

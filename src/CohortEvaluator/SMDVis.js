@@ -108,7 +108,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("x2", d => xScale(d))
       .attr("y2", layout.height - layout.margin + 20)
       .attr("stroke", "black")
-      .attr("stroke-dasharray", "2")
+      .attr("stroke-dasharray", "5 5 2 5")
 
     // thresholdLine.transition()
     //   .duration(1000)

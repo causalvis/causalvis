@@ -8,9 +8,9 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
                                      setSelectRange}) => {
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#bf99ba",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#a1c5c0"});
+                                                  "control": "#a5c8d4"});
 
   // Track previous bar heights
   const [prevCBins, setPrevCBins] = React.useState(null);
@@ -155,6 +155,18 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
             .attr('transform', `translate(${layout.marginLeft}, 0)`)
             .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
 
+    svgElement.select("#zero")
+          .selectAll(".zeroLine")
+          .data([0])
+          .join("line")
+          .attr("class", "zeroLine")
+          .attr("y1", d => yScaleTreatment(0))
+          .attr("x1", layout.marginLeft)
+          .attr("y2", d => yScaleTreatment(0))
+          .attr("x2", layout.width - layout.margin)
+          .attr("stroke", "black")
+          .attr("stroke-dasharray", "5 5 2 5")
+
     // controlBars.transition()
     //   .duration(transitionDuration)
     //   .ease(d3.easeLinear)
@@ -255,6 +267,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
           <g id="y-axiscontrol" />
           <g id="legend" />
           <g id="title" />
+          <g id="zero" />
         </g>
       </svg>
     </div>

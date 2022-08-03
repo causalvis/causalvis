@@ -32,9 +32,9 @@ export const CompareHistogramVis = ({layout={"height": 120, "width": 500, "margi
   const bins = 2;
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#bf99ba",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#a1c5c0"});
+                                                  "control": "#a5c8d4"});
 
   // Show icon on hover
   function show(el) {

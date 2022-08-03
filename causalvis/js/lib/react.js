@@ -169,7 +169,7 @@ var DAGView = widgets.DOMWidgetView.extend({
     },
 
     dag_changed: function() {
-        console.log("widget", this.inputDAG.value)
+        // console.log("widget", this.inputDAG.value)
         this.model.set('DAG', JSON.parse(this.inputDAG.value));
         this.model.save_changes();
     },

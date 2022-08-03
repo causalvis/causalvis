@@ -16,8 +16,8 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
   let svgElement = d3.select(ref.current);
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
-                                                  0: "#f28e2b"});
+  const [colorMap, setColorMap] = React.useState({1: "#698fb8",
+                                                  0: "#f0a856"});
 
   // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
 
@@ -53,7 +53,7 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
     .attr("class", "dataPoint")
     .attr("transform", d => `translate(${layout.width / 2 + (Math.random() - 0.5) * jitter},${yScale(d[stratify])})`)
     .attr("r", 3)
-    .attr("fill", "steelblue")
+    .attr("fill", "#698fb8")
     .attr("opacity", 0.2)
 
   // Visualize current threshold
