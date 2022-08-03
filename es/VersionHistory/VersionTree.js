@@ -15,6 +15,7 @@ export var VersionTree = function VersionTree(_ref) {
     "children": [],
     "name": "All Versions"
   } : _ref$data,
+      colorScale = _ref.colorScale,
       _dag = _ref._dag,
       _cohort = _ref._cohort;
   var ref = useRef('svgVersionTree');
@@ -30,8 +31,8 @@ export var VersionTree = function VersionTree(_ref) {
 
   var root = partition(data);
   var focus = root;
-  var selected = focus.data.name;
-  var colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
+  var selected = focus.data.name; // let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
+
   var rect = svgElement.select("#rect").selectAll("rect").data(root.descendants()).join("rect").attr("transform", function (d) {
     return "translate(" + d.y0 + "," + d.x0 + ")";
   }).attr("width", function (d) {

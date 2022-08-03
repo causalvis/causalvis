@@ -22,8 +22,8 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
   var svgElement = d3.select(ref.current); // Track color map
 
   var _React$useState = React.useState({
-    1: "#4e79a7",
-    0: "#f28e2b"
+    1: "#698fb8",
+    0: "#f0a856"
   }),
       colorMap = _React$useState[0],
       setColorMap = _React$useState[1]; // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
@@ -52,7 +52,7 @@ export var BeeswarmTop = function BeeswarmTop(_ref) {
 
   var circles = svgElement.select("#points").selectAll(".dataPoint").data(data).join("circle").attr("class", "dataPoint").attr("transform", function (d) {
     return "translate(" + xScale(d[stratify]) + "," + (layout.height / 2 + (Math.random() - 0.5) * jitter) + ")";
-  }).attr("r", 3).attr("fill", "steelblue").attr("opacity", 0.2); // .attr("stroke", d => colorMap[1])
+  }).attr("r", 3).attr("fill", "#698fb8").attr("opacity", 0.2); // .attr("stroke", d => colorMap[1])
   // Visualize current threshold
 
   var thresholdStroke = svgElement.select("#threshold").attr("transform", "translate(" + xScale(thresholdValue) + ", 0)").attr("stroke", isBinary ? "none" : "black").attr("stroke-dasharray", "5 5 2 5");

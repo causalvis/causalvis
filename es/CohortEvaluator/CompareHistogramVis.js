@@ -81,9 +81,9 @@ export var CompareHistogramVis = function CompareHistogramVis(_ref) {
   var bins = 2; // Track color map
 
   var _React$useState9 = React.useState({
-    "treatment": "#6c8496",
+    "treatment": "#bf99ba",
     "outcome": "#f28e2c",
-    "control": "#a1c5c0"
+    "control": "#a5c8d4"
   }),
       colorMap = _React$useState9[0],
       setColorMap = _React$useState9[1]; // Show icon on hover

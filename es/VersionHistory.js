@@ -4,18 +4,17 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-import React, { useState, useEffect } from 'react';
-import { VersionTree } from './VersionHistory/VersionTree';
-/*
-Props:
-  - data: Array, data set before adjustment
-  - treatment: String, name of treatment variable
-  - outcome: String, name of outcome variable
-*/
-
+import React, { useState, useEffect } from "react";
+import { scaleOrdinal } from "d3-scale";
+import { schemePuBuGn, schemeSpectral, schemeYlGnBu } from "d3-scale-chromatic";
+import { CompareVersions } from "./VersionHistory/CompareVersions";
+import { VersionTree } from "./VersionHistory/VersionTree";
 export var VersionHistory = function VersionHistory(_ref) {
   var _ref$versions = _ref.versions,
       versions = _ref$versions === void 0 ? [] : _ref$versions,
+      _ref$effect = _ref.effect,
+      effect = _ref$effect === void 0 ? "" : _ref$effect,
+      ITE = _ref.ITE,
       _dag = _ref._dag,
       _cohort = _ref._cohort;
 
@@ -36,9 +35,32 @@ export var VersionHistory = function VersionHistory(_ref) {
       layout = _React$useState2[0],
       setLayout = _React$useState2[1];
 
+  var _React$useState3 = React.useState([]),
+      versionAttributes = _React$useState3[0],
+      setVersionAttributes = _React$useState3[1];
+
+  var _React$useState4 = React.useState(new Set()),
+      allAttributes = _React$useState4[0],
+      setAllAttributes = _React$useState4[1];
+
+  var _React$useState5 = React.useState({}),
+      attributeLevels = _React$useState5[0],
+      setAttributeLevels = _React$useState5[1];
+
+  var _React$useState6 = React.useState(function () {
+    return function (x) {
+      return "black";
+    };
+  }),
+      colorScale = _React$useState6[0],
+      setColorScale = _React$useState6[1];
+
   useEffect(function () {
     var newDAGs = [];
     var newHierarchy = {};
+    var newVersionAttributes = [];
+    var newAllAttributes = [];
+    var newAttributeLevels = {};
 
     var _loop = function _loop() {
       var v = _step.value;
@@ -47,6 +69,26 @@ export var VersionHistory = function VersionHistory(_ref) {
       var isIncluded = newDAGs.filter(function (nd) {
         return nd === vDAGString;
       }).length > 0;
+      var attributes = Object.keys(v.Cohort[0]);
+      newVersionAttributes.push(attributes);
+      newAllAttributes = newAllAttributes.concat(attributes);
+
+      var _loop2 = function _loop2() {
+        var a = _attributes[_i2];
+        var versionAttributeValues = Array.from(new Set(v.Cohort.map(function (d) {
+          return d[a];
+        })));
+
+        if (a in newAttributeLevels) {
+          newAttributeLevels[a] = newAttributeLevels[a].concat(versionAttributeValues);
+        } else {
+          newAttributeLevels[a] = versionAttributeValues;
+        }
+      };
+
+      for (var _i2 = 0, _attributes = attributes; _i2 < _attributes.length; _i2++) {
+        _loop2();
+      }
 
       if (!isIncluded) {
         newDAGs.push(vDAGString);
@@ -69,6 +111,22 @@ export var VersionHistory = function VersionHistory(_ref) {
       _loop();
     }
 
+    var colors = schemeYlGnBu[newDAGs.length + 1].slice(1);
+    var newColorScale = scaleOrdinal().domain(newDAGs).range(colors);
+    setColorScale(function () {
+      return function (x) {
+        return newColorScale(x);
+      };
+    });
+
+    for (var _i = 0, _Object$keys = Object.keys(newAttributeLevels); _i < _Object$keys.length; _i++) {
+      var attr = _Object$keys[_i];
+      newAttributeLevels[attr] = Array.from(new Set(newAttributeLevels[attr]));
+    }
+
+    setVersionAttributes(newVersionAttributes);
+    setAllAttributes(new Set(newAllAttributes));
+    setAttributeLevels(newAttributeLevels);
     var data = {
       "children": [],
       "name": "All Versions"
@@ -101,7 +159,15 @@ export var VersionHistory = function VersionHistory(_ref) {
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(VersionTree, {
     layout: layout,
     data: hierarchy,
+    colorScale: colorScale,
     _dag: _dag,
     _cohort: _cohort
+  }), /*#__PURE__*/React.createElement(CompareVersions, {
+    versions: versions,
+    allAttributes: allAttributes,
+    versionAttributes: versionAttributes,
+    attributeLevels: attributeLevels,
+    effect: effect,
+    colorScale: colorScale
   }));
 };

@@ -26,8 +26,8 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
   var svgElement = d3.select(ref.current); // Track color map
 
   var _React$useState = React.useState({
-    1: "#4e79a7",
-    0: "#f28e2b"
+    1: "#698fb8",
+    0: "#f0a856"
   }),
       colorMap = _React$useState[0],
       setColorMap = _React$useState[1];
@@ -371,7 +371,7 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
         return xScale(d[stratifyBy]) + (Math.random() - 0.5) * jitter;
       }).attr("cy", function (d) {
         return yScale(d[effect]);
-      }).attr("r", 3).attr("opacity", 0.2).attr("fill", "steelblue") // .attr("stroke", d => colorMap[d[treatment]])
+      }).attr("r", 3).attr("opacity", 0.2).attr("fill", "#698fb8") // .attr("stroke", d => colorMap[d[treatment]])
       .attr("cursor", "pointer"); // let regressionLines = svgElement.select("#regression")
       //   .selectAll(".regressionLine")
       //   .data([treatmentReg, controlReg])
@@ -384,6 +384,14 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
       //   .attr("stroke", "black")
 
       var _xAxis = svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.marginBottom / 2) + ")").call(d3.axisBottom(xScale).tickSize(3).ticks(5));
+    }
+
+    if (effectExtent[0] < 0 && effectExtent[1] > 0) {
+      svgElement.select("#zero").selectAll(".zeroLine").data([0]).join("line").attr("class", "zeroLine").attr("y1", function (d) {
+        return yScale(0);
+      }).attr("x1", layout.marginLeft).attr("y2", function (d) {
+        return yScale(0);
+      }).attr("x2", layout.width - layout.margin).attr("stroke", "black").attr("stroke-dasharray", "5 5 2 5");
     }
 
     svgElement.select('#x-axis').selectAll("#axis-title").data([stratifyBy]).join("text").attr("id", "axis-title").attr("x", layout.width / 2).attr("y", -10).attr("text-anchor", "middle").attr("fill", "black").attr("font-size", "15px").text(function (d) {
@@ -419,6 +427,8 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     ref: ref,
     id: "svgTreatmentEffect" + index
   }, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("g", {
+    id: "zero"
+  }), /*#__PURE__*/React.createElement("g", {
     id: "x-axis"
   }), /*#__PURE__*/React.createElement("g", {
     id: "y-axis"

@@ -18,9 +18,9 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
 
   // Track color map
   var _React$useState = React.useState({
-    "treatment": "#6c8496",
+    "treatment": "#bf99ba",
     "outcome": "#f28e2c",
-    "control": "#a1c5c0"
+    "control": "#a5c8d4"
   }),
       colorMap = _React$useState[0],
       setColorMap = _React$useState[1]; // Track previous bar heights
@@ -139,7 +139,12 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
     });
     var xAxis = svgElement.select('#x-axis').attr('transform', "translate(0, " + (layout.height - layout.margin) + ")").call(d3.axisBottom(xScale).tickSize(3).ticks(5));
     var yAxisTreatment = svgElement.select('#y-axistreatment').attr('transform', "translate(" + layout.marginLeft + ", 0)").call(d3.axisLeft(yScaleTreatment).tickSize(3).ticks(3));
-    var yAxisControl = svgElement.select('#y-axiscontrol').attr('transform', "translate(" + layout.marginLeft + ", 0)").call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3)); // controlBars.transition()
+    var yAxisControl = svgElement.select('#y-axiscontrol').attr('transform', "translate(" + layout.marginLeft + ", 0)").call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3));
+    svgElement.select("#zero").selectAll(".zeroLine").data([0]).join("line").attr("class", "zeroLine").attr("y1", function (d) {
+      return yScaleTreatment(0);
+    }).attr("x1", layout.marginLeft).attr("y2", function (d) {
+      return yScaleTreatment(0);
+    }).attr("x2", layout.width - layout.margin).attr("stroke", "black").attr("stroke-dasharray", "5 5 2 5"); // controlBars.transition()
     //   .duration(transitionDuration)
     //   .ease(d3.easeLinear)
     //   .attr("y", d => yScaleControl(d.length / n))
@@ -222,5 +227,7 @@ export var PropDistributionVis = function PropDistributionVis(_ref) {
     id: "legend"
   }), /*#__PURE__*/React.createElement("g", {
     id: "title"
+  }), /*#__PURE__*/React.createElement("g", {
+    id: "zero"
   }))));
 };
