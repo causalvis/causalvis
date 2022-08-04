@@ -3,6 +3,8 @@ import React, {useState} from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey, blue, orange } from '@mui/material/colors';
 
+import { Covariate } from './Covariate';
+
 import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,28 +13,9 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export const CovariatesManager = ({attributes=[], changeStratify, stratify=[]}) => {
 
-  const theme = createTheme({
-    palette: {
-      grey: {
-        light: grey[300],
-        main: grey[500],
-        dark: grey[700],
-        contrastText: '#fff',
-      },
-      treatment: {
-        light: blue[500],
-        main: "#4e79a7",
-        dark: blue[900],
-        contrastText: '#fff',
-      },
-      outcome: {
-        light: orange[500],
-        main: "#f28e2c",
-        dark: orange[900],
-        contrastText: '#fff',
-      }
-    },
-  });
+  // console.log(grey, blue, orange);
+
+  
 
   // Get color of attribute
   // function getColor(value) {
@@ -55,19 +38,16 @@ export const CovariatesManager = ({attributes=[], changeStratify, stratify=[]}) 
 
   return (
     <div>
-      <ThemeProvider theme={theme}>
-
         <div style={attrStyle}>
 
           {attributes.map((value, index) => {
-            return <Button style={buttonStyle}
+            return <Covariate
+                      value={value}
                       key={`covariate${index}`}
-                      onClick={() => changeStratify(value)}
-                      color={stratify.indexOf(value) < 0 ? "grey" : "inherit"}
-                      variant="outlined"><a title="click to add">{value}</a></Button>
+                      changeStratify={changeStratify}
+                      color={stratify.indexOf(value) < 0 ? "grey" : "black"} />
           })}
         </div>
-      </ThemeProvider>
     </div>
   )
 }

@@ -5,7 +5,14 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag}) => {
+import { grey, blue, orange } from '@mui/material/colors';
+
+export const Attribute = ({value=[], color="black", isAdded=false, treatment, outcome, addAttribute, deleteAttribute, changeTreatment, changeOutcome, handleAddTag}) => {
+  
+  const colorMap = {"grey": {"rgb": "rgb(158, 158, 158)", "rgba": "rgba(158, 158, 158, 0.05)"},
+                    "treatment": {"rgb": "rgb(78, 121, 167)", "rgba": "rgba(78, 121, 167, 0.05)"},
+                    "outcome": {"rgb": "rgb(242, 142, 44)", "rgba": "rgba(242, 142, 44, 0.05)"},
+                    "black": {"rgb": "rgb(0, 0, 0)", "rgba": "rgba(0, 0, 0, 0.05)"}};
 
   // const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
@@ -72,15 +79,18 @@ export const Attribute = ({value=[], color="inherit", isAdded=false, treatment, 
     handleClose();
   }
 
-  const buttonStyle = {"width":"100%", "marginBottom":"5px"};
+  const buttonStyle = {"width":"100%",
+                       "marginBottom":"5px",
+                       "color":colorMap[color].rgb,
+                       "borderColor":colorMap[color].rgb,
+                       "&:hover": { "borderColor":colorMap[color].rgb, "backgroundColor": colorMap[color].rgba }};
   const menuStyle = {}
 
   return (
     <div>
-      <Button style={buttonStyle}
+      <Button sx={buttonStyle}
               onClick={() => addAttribute(value)}
               onContextMenu={(e) => handleContextMenu(e)}
-              color={color}
               variant="outlined"><a title="click to add">{value}</a></Button>
       <Menu
         id="basic-menu"

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { CohortEvaluator } from '../src/CohortEvaluator/CohortEvaluator.js'
+import { CohortEvaluator } from '../src/CohortEvaluator.js'
 import CohortPropensity from '../public/cohort2_propensity.json'
 import CohortConfounds from '../public/cohort2_confounds.json'
 import CohortTreatments from '../public/cohort2_treatment.json'
@@ -13,7 +13,10 @@ export default {
 };
 
 export const ToStorybook = () => (
-  <CohortEvaluator unadjustedCohort={unadjustedData} />
+  <div>
+    <input id="_hiddenInverseSelection" type="text" />
+    <CohortEvaluator unadjustedCohort={unadjustedData} _iselection="_hiddenInverseSelection" />
+  </div>
 )
 
 ToStorybook.story = {

@@ -1,8 +1,10 @@
 import React from 'react';
 
-import { DAG } from '../src/CausalStructure/DAG.js';
+import { DAG } from '../src/DAG.js';
 import dataset from '../public/student_data.json';
 import graph from '../public/DAG.json'
+import graph2 from '../public/DAG_2.json'
+import graph3 from '../public/DAG_3.json'
 
 let attributes = [];
 
@@ -12,7 +14,7 @@ export default {
 };
 
 export const ToStorybook = () => (
-  <DAG graph={graph} />
+  <DAG graph={graph3} />
 )
 
 ToStorybook.story = {

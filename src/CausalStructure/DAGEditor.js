@@ -34,6 +34,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
                            mediators=[],
                            colliders=[],
                            confounds=[],
+                           prognostics=[],
                            search,
                            updateNodePos,
                            deleteAttribute,
@@ -55,7 +56,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
                                                   "outcome": "#f28e2c",
                                                   "confounds": "#e15759",
                                                   "colliders": "#76b7b2",
-                                                  "mediators": "#59a14f"});
+                                                  "mediators": "#59a14f",
+                                                  "prognostics": "#b07AA1"});
 
   function handleClose() {
     setAnchorPos(null);
@@ -65,8 +67,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   function handleContextMenu(e, d) {
     e.preventDefault();
-    setOpen(!open);
     setAnchorPos({"left": e.clientX + 2, "top": e.clientY - 6})
+    setOpen(!open);
     setContextItem(d.name);
   }
 
@@ -415,18 +417,21 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       return colorMap.treatment
     } else if (d.name === outcome) {
       return colorMap.outcome
-    } else if (d.$custom) {
-      // return "#9e9e9e"
-      return "black"
     } else if (mediators.indexOf(d.name) >= 0) {
       return colorMap.mediators
     } else if (colliders.indexOf(d.name) >= 0) {
       return colorMap.colliders
     } else if (confounds.indexOf(d.name) >= 0) {
       return colorMap.confounds
-    } else {
-      return "black"
+    } else if (prognostics.indexOf(d.name) >= 0) {
+      return colorMap.prognostics
     }
+
+    // else if (d.$custom) {
+    //   // return "#9e9e9e"
+    //   return "black"
+    // }
+    return "black"
   }
 
   var text = svgElement
@@ -564,11 +569,13 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           d3.select(this).attr("stroke-width", 1);
         }
       })
-      .on("contextmenu", (e, d) => handleContextMenu(e, d));
+      // .on("contextmenu", (e, d) => handleContextMenu(e, d));
+
+  const covariateTypes = ["treatment", "outcome", "confounds", "colliders", "mediators", "prognostics"];
 
   var legend = svg.select("#legend")
     .selectAll(".legendRect")
-    .data(["treatment", "outcome", "confounds", "colliders", "mediators"])
+    .data(covariateTypes)
     .join("rect")
     .attr("class", "legendRect")
     .attr("x", layout.width - layout.margin * 2)
@@ -579,7 +586,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   var legendText = svg.select("#legend")
     .selectAll(".legendText")
-    .data(["treatment", "outcome", "confounds", "colliders", "mediators"])
+    .data(covariateTypes)
     .join("text")
     .attr("class", "legendText")
     .attr("x", layout.width - layout.margin * 2 + 18)

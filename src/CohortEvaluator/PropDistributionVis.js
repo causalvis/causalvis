@@ -1,12 +1,16 @@
 import React, {useRef, useState, useEffect} from 'react'
 import * as d3 from 'd3';
 
-export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50}, bins={}, n={}, maxPropensity=1, setSelected}) => {
+export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "margin": 50, "marginLeft": 50},
+                                     bins={},
+                                     n={},
+                                     maxPropensity=1,
+                                     setSelectRange}) => {
 
   // Track color map
-  const [colorMap, setColorMap] = React.useState({"treatment": "#6c8496",
+  const [colorMap, setColorMap] = React.useState({"treatment": "#bf99ba",
                                                   "outcome": "#f28e2c",
-                                                  "control": "#a1c5c0"});
+                                                  "control": "#a5c8d4"});
 
   // Track previous bar heights
   const [prevCBins, setPrevCBins] = React.useState(null);
@@ -25,8 +29,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     let newTBins = [];
 
     var xScale = d3.scaleLinear()
-    .domain([0, maxPropensity])
-    .range([layout.marginLeft, layout.width - layout.margin])
+      .domain([0, maxPropensity])
+      .range([layout.marginLeft, layout.width - layout.margin])
 
     let controlCount = n.CBins;
     let treatmentCount = n.TBins;
@@ -44,6 +48,34 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .domain([0, yMax])
       .range([layout.height / 2, layout.margin])
 
+    function onBrush(e) {
+      // let brushSelection = e.selection;
+      // console.log(brushSelection[1], xScale.invert(brushSelection[1]));
+    }
+
+    function brushEnd(e) {
+      let brushSelection = e.selection;
+      let brushExtent;
+
+      if (brushSelection) {
+        brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
+        // console.log(brushExtent)
+        setSelectRange(brushExtent);
+      } else {
+        brushExtent = null;
+        setSelectRange(null);
+      }
+      
+      // updateFilter(refIndex, brushExtent);
+    }
+
+    var brush = d3.brushX()
+                .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
+                // .on("brush", (e) => onBrush(e))
+                .on("end", (e) => brushEnd(e))
+
+    svgElement.call(brush)
+
     let controlBars = svgElement.select("#bars")
       .selectAll(".controlBars")
       .data(bins.CBins)
@@ -57,11 +89,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          setSelected({"selectedData":[], "treatment":false});
+          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          setSelected({"selectedData":d, "treatment":false});
+          // setSelected({"selectedData":d, "treatment":false});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
@@ -92,11 +124,11 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          setSelected({"selectedData":[], "treatment":false});
+          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          setSelected({"selectedData":d, "treatment":true});
+          // setSelected({"selectedData":d, "treatment":true});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
@@ -123,6 +155,18 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
             .attr('transform', `translate(${layout.marginLeft}, 0)`)
             .call(d3.axisLeft(yScaleControl).tickSize(3).ticks(3))
 
+    svgElement.select("#zero")
+          .selectAll(".zeroLine")
+          .data([0])
+          .join("line")
+          .attr("class", "zeroLine")
+          .attr("y1", d => yScaleTreatment(0))
+          .attr("x1", layout.marginLeft)
+          .attr("y2", d => yScaleTreatment(0))
+          .attr("x2", layout.width - layout.margin)
+          .attr("stroke", "black")
+          .attr("stroke-dasharray", "5 5 2 5")
+
     // controlBars.transition()
     //   .duration(transitionDuration)
     //   .ease(d3.easeLinear)
@@ -139,8 +183,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .data(["control", "treatment"])
       .join("rect")
       .attr("class", "legend")
-      .attr("x", (d, i) => layout.width / 2 - 75 + 80 * i)
-      .attr("y", (d, i) => layout.margin - 16)
+      .attr("x", (d, i) => layout.width / 2 - 55 + 80 * i)
+      .attr("y", (d, i) => layout.margin / 2 - 16)
       .attr("width", 12)
       .attr("height", 12)
       .attr("fill", d => colorMap[d])
@@ -150,8 +194,8 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .data(["control", "treatment"])
       .join("text")
       .attr("class", "legendText")
-      .attr("x", (d, i) => layout.width / 2 - 75 + 80 * i + 18)
-      .attr("y", (d, i) => layout.margin - 10)
+      .attr("x", (d, i) => layout.width / 2 - 55 + 80 * i + 18)
+      .attr("y", (d, i) => layout.margin / 2 - 10)
       .attr("alignment-baseline", "middle")
       .attr("text-anchor", "start")
       .attr("fill", d => colorMap[d])
@@ -159,17 +203,17 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("font-size", 12)
       .text(d => d)
 
-    svgElement.select("#title")
-      .selectAll(".title")
-      .data(["Propensity Score Distribution Plot"])
-      .join("text")
-      .attr("class", "title")
-      .attr("x", layout.width / 2)
-      .attr("y", layout.margin / 2)
-      .attr("text-anchor", "middle")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
-      .text(d => d)
+    // svgElement.select("#title")
+    //   .selectAll(".title")
+    //   .data(["Propensity Score Distribution Plot"])
+    //   .join("text")
+    //   .attr("class", "title")
+    //   .attr("x", layout.width / 2)
+    //   .attr("y", layout.margin / 2)
+    //   .attr("text-anchor", "middle")
+    //   .attr("font-family", "sans-serif")
+    //   .attr("font-size", 12)
+    //   .text(d => d)
 
     xAxis.transition()
         .duration(1000)
@@ -205,8 +249,16 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
     setPrevTBins([...newTBins]);
   }, [bins])
 
+  let containerStyle = {"display":"flex",
+                        "flexDirection":"column",
+                        "alignItems":"center"};
+  let titleStyle = {"marginLeft":layout.marginLeft,
+                    "fontFamily":"sans-serif",
+                    "fontSize":"15px"}
+
   return (
-    <div>
+    <div style={containerStyle}>
+      <p style={titleStyle}>Propensity Score Distribution Plot</p>
       <svg width={layout.width} height={layout.height} ref={ref} id="svgPropDistribution">
         <g>
           <g id="bars" />
@@ -215,6 +267,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
           <g id="y-axiscontrol" />
           <g id="legend" />
           <g id="title" />
+          <g id="zero" />
         </g>
       </svg>
     </div>

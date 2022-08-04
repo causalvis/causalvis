@@ -5,6 +5,7 @@ import { min, max } from 'd3-array';
 
 import { CompareDistributionVis } from './CompareDistributionVis';
 import { CompareHistogramVis } from './CompareHistogramVis';
+import { CompareHistogramContinuousVis } from './CompareHistogramContinuousVis';
 import { CovariateSelector } from './CovariateSelector';
 import { SMDMenu } from './SMDMenu'
 
@@ -137,7 +138,7 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     return (mean_treated - mean_untreated) / Math.sqrt(var_treated + var_untreated);
   }
 
-  function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignment) {
+  function getSMD(dataUnadjusted, dataAdjusted, weights, treatmentAssignmentUnadjusted, treatmentAssignmentAdjusted) {
     let newSMD = [];
 
     for (let a of attributes) {
@@ -147,8 +148,8 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       // data before adjustment
       let x_unadjusted = dataUnadjusted.map(d => d[a]);
 
-      let x_unadjusted_treated = x_unadjusted.filter((u, i) => treatmentAssignment[i] === 1);
-      let x_unadjusted_untreated = x_unadjusted.filter((u, i) => treatmentAssignment[i] === 0);
+      let x_unadjusted_treated = x_unadjusted.filter((u, i) => treatmentAssignmentUnadjusted[i] === 1);
+      let x_unadjusted_untreated = x_unadjusted.filter((u, i) => treatmentAssignmentUnadjusted[i] === 0);
 
       let SMD_unadjusted = attributeSMD(x_unadjusted_treated, x_unadjusted_untreated);
 
@@ -158,16 +159,18 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       if (dataAdjusted) {
         let x_adjusted = dataAdjusted.map(d => d[a]);
 
-        let x_adjusted_treated = x_adjusted.filter((u, i) => treatmentAssignment[i] === 1);
-        let x_adjusted_untreated = x_adjusted.filter((u, i) => treatmentAssignment[i] === 0);
+        let x_adjusted_treated = x_adjusted.filter((u, i) => treatmentAssignmentAdjusted[i] === 1);
+        let x_adjusted_untreated = x_adjusted.filter((u, i) => treatmentAssignmentAdjusted[i] === 0);
+
+        // console.log(x_adjusted_treated, x_adjusted_untreated)
 
         SMD_adjusted = attributeSMD(x_adjusted_treated, x_adjusted_untreated);
       } else {
-        let x_adjusted_treated = x_unadjusted.filter((u, i) => treatmentAssignment[i] === 1);
-        let x_adjusted_untreated = x_unadjusted.filter((u, i) => treatmentAssignment[i] === 0);
+        let x_adjusted_treated = x_unadjusted.filter((u, i) => treatmentAssignmentUnadjusted[i] === 1);
+        let x_adjusted_untreated = x_unadjusted.filter((u, i) => treatmentAssignmentUnadjusted[i] === 0);
 
-        let w_adjusted_treated = weights.filter((u, i) => treatmentAssignment[i] === 1);
-        let w_adjusted_untreated = weights.filter((u, i) => treatmentAssignment[i] === 0);
+        let w_adjusted_treated = weights.filter((u, i) => treatmentAssignmentUnadjusted[i] === 1);
+        let w_adjusted_untreated = weights.filter((u, i) => treatmentAssignmentUnadjusted[i] === 0);
 
         SMD_adjusted = attributeSMD(x_adjusted_treated, x_adjusted_untreated, w_adjusted_treated, w_adjusted_untreated);
       }
@@ -183,18 +186,23 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
     if (unadjustedCohortData.confounds && unadjustedCohortData.confounds.length !== 0) {
       let newSMD = [];
 
-      let treatmentAssignment = unadjustedCohortData.treatment;
+      let treatmentAssignmentUnadjusted = unadjustedCohortData.treatment;
       let dataUnadjusted = unadjustedCohortData.confounds;
-      let propensity = unadjustedCohortData.propensity;
+      let propensityUnadjusted = unadjustedCohortData.propensity;
 
       // If no adjusted data set provided, use propensity to calculate IPW
       if (!adjustedCohortData) {
         // Get propensity of assigned treatment level
-        let allPropensity = propensity.map((p, i) => p[treatmentAssignment[i]]);
+        let allPropensity = propensityUnadjusted.map((p, i) => p[treatmentAssignmentUnadjusted[i]]);
         // Get inverse propensity weights
         let propensityWeights = allPropensity.map(p => 1/p);
 
-        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignment);
+        newSMD = getSMD(dataUnadjusted, null, propensityWeights, treatmentAssignmentUnadjusted, null);
+      } else {
+        let dataAdjusted = adjustedCohortData.confounds;
+        let treatmentAssignmentAdjusted = adjustedCohortData.treatment;
+
+        newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignmentUnadjusted, treatmentAssignmentAdjusted);
       }
       
       let newAttributeLevels = {};
@@ -206,21 +214,10 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
 
       setAttributeLevels(newAttributeLevels);
 
-      // console.log(treatmentAssignment, dataUnadjusted, propensity)
+      let SMDSorted = newSMD.sort((a, b) => b.adjusted - a.adjusted);
 
-      // if (dataAdjusted && dataUnadjusted.length === dataAdjusted.length) {
-      //   newSMD = getSMD(dataUnadjusted, dataAdjusted, null, treatmentAssignment);
-      // } else if (weights && dataUnadjusted.length === weights.length) {
-      //   newSMD = getSMD(dataUnadjusted, null, weights, treatmentAssignment);
-      // } else if (propensity && dataUnadjusted.length === propensity.length) {
-        
-      // } else {
-      //   console.log("Missing data");
-      // }
+      // console.log("init sorted", newSMD, SMDSorted);
 
-      // setSMD(newSMD);
-
-      let SMDSorted = newSMD.sort((a, b) => a.adjusted < b.adjusted);
       setSMD(SMDSorted);
       
       let newAttributeDetails = SMDSorted.filter(s => s.adjusted > 0.1);
@@ -230,29 +227,34 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
       setSMDExtent(newSMDExtent);
     }
     
-  }, [unadjustedCohortData])
+  }, [unadjustedCohortData, adjustedCohortData])
 
   useEffect(() => {
     let newSMD;
     // let newAttributeDetails;
 
+    // console.log("new sort...", sort);
+
     if (sort === "Adjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.adjusted < b.adjusted);
+      newSMD = SMD.sort((a, b) => b.adjusted - a.adjusted);
     } else if (sort === "Adjusted Low to High") {
-      newSMD = SMD.sort((a, b) => a.adjusted > b.adjusted);
+      // console.log("here...")
+      newSMD = SMD.sort((a, b) => a.adjusted - b.adjusted);
     } else if (sort === "Unadjusted High to Low") {
-      newSMD = SMD.sort((a, b) => a.unadjusted < b.unadjusted);
+      newSMD = SMD.sort((a, b) => b.unadjusted - a.unadjusted);
     } else if (sort === "Unadjusted Low to High") {
-      newSMD = SMD.sort((a, b) => a.unadjusted > b.unadjusted);
+      newSMD = SMD.sort((a, b) => a.unadjusted - b.unadjusted);
     } else if (sort === "Difference High to Low") {
-      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) > Math.abs(b.unadjusted - b.adjusted));
+      newSMD = SMD.sort((a, b) => Math.abs(b.unadjusted - b.adjusted) - Math.abs(a.unadjusted - a.adjusted));
     } else if (sort === "Difference Low to High") {
-      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) < Math.abs(b.unadjusted - b.adjusted));
+      newSMD = SMD.sort((a, b) => Math.abs(a.unadjusted - a.adjusted) - Math.abs(b.unadjusted - b.adjusted));
     } else if (sort === "A-Z Alphebatically") {
-      newSMD = SMD.sort((a, b) => a.covariate > b.covariate);
+      newSMD = SMD.sort((a, b) => a.covariate > b.covariate ? 1 : -1);
     } else if (sort === "Z-A Alphebatically") {
-      newSMD = SMD.sort((a, b) => a.covariate < b.covariate);
+      newSMD = SMD.sort((a, b) => b.covariate > a.covariate ? 1 : -1);
     }
+
+    // console.log("sorting...", newSMD);
 
     setSMD([...newSMD]);
 
@@ -315,8 +317,11 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
               return <CompareHistogramVis
                       key={value}
                       unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      adjustedAttribute={adjustedCohortData ? adjustedCohortData.confounds.map(d => d[value]) : null}
                       unadjustedTreatment={unadjustedCohortData.treatment}
+                      adjustedTreatment={adjustedCohortData ? adjustedCohortData.treatment : null}
                       unadjustedPropensity={unadjustedCohortData.propensity}
+                      adjustedPropensity={adjustedCohortData ? adjustedCohortData.propensity : null}
                       attribute={value}
                       updateFilter={updateFilter}
                       selectedAttribute={selected.selectedData.map(d => d[value])}
@@ -326,8 +331,11 @@ export const CovariateBalance = ({unadjustedCohortData={}, adjustedCohortData, a
               return <CompareDistributionVis
                       key={value}
                       unadjustedAttribute={unadjustedCohortData.confounds.map(d => d[value])}
+                      adjustedAttribute={adjustedCohortData ? adjustedCohortData.confounds.map(d => d[value]) : null}
                       unadjustedTreatment={unadjustedCohortData.treatment}
+                      adjustedTreatment={adjustedCohortData ? adjustedCohortData.treatment : null}
                       unadjustedPropensity={unadjustedCohortData.propensity}
+                      adjustedPropensity={adjustedCohortData ? adjustedCohortData.propensity : null}
                       attribute={value}
                       updateFilter={updateFilter}
                       selectedAttribute={selected.selectedData.map(d => d[value])}

@@ -1,75 +1,51 @@
 {
   "name": "causalvis",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "nwb build-react-component",
+    "clean": "nwb clean-app",
+    "start": "nwb serve-react-app",
+    "start-api": "cd api && flask run --no-debugger",
+    "test": "nwb test-react",
+    "test:coverage": "nwb test-react --coverage",
+    "test:watch": "nwb test-react --server",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
   "dependencies": {
-    "@emotion/react": "^11.9.0",
+    "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.8.2",
-    "@mui/material": "^5.8.1",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^13.2.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@material-ui/styles": "^4.11.5",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.7",
+    "@mui/styles": "^5.8.7",
+    "axios": "^0.26.1",
+    "cors": "^2.8.5",
     "crossfilter2": "^1.5.4",
-    "d3": "^7.4.4",
+    "d3": "^7.4.2",
     "file-saver": "^2.0.5",
     "material-ui-colors": "^1.0.0",
-    "react": "^18.1.0",
+    "react": "^17.0.2",
     "react-color": "^2.19.3",
-    "react-dom": "^18.1.0",
-    "react-scripts": "5.0.1",
-    "regression": "^2.0.1",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "storybook": "start-storybook --no-manager-cache -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ],
-    "overrides": [
-      {
-        "files": [
-          "**/*.stories.*"
-        ],
-        "rules": {
-          "import/no-anonymous-default-export": "off"
-        }
-      }
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "react-dom": "^17.0.2",
+    "regression": "^2.0.1"
   },
   "devDependencies": {
-    "@storybook/addon-actions": "^6.5.5",
-    "@storybook/addon-essentials": "^6.5.5",
-    "@storybook/addon-interactions": "^6.5.5",
-    "@storybook/addon-links": "^6.5.5",
-    "@storybook/builder-webpack5": "^6.5.5",
-    "@storybook/manager-webpack5": "^6.5.5",
-    "@storybook/node-logger": "^6.5.5",
-    "@storybook/preset-create-react-app": "^4.1.1",
-    "@storybook/react": "^6.5.5",
-    "@storybook/testing-library": "^0.0.11",
-    "babel-plugin-named-exports-order": "^0.0.2",
-    "prop-types": "^15.8.1",
-    "webpack": "^5.72.1"
-  }
+    "@babel/cli": "^7.18.6",
+    "@babel/core": "^7.17.7",
+    "@babel/plugin-transform-react-jsx": "^7.18.6",
+    "@storybook/addon-actions": "^6.4.19",
+    "@storybook/addon-essentials": "^6.4.19",
+    "@storybook/addon-interactions": "^6.4.19",
+    "@storybook/addon-links": "^6.4.19",
+    "@storybook/react": "^6.4.19",
+    "@storybook/testing-library": "^0.0.9",
+    "babel-loader": "^8.2.3",
+    "core-js": "^3.21.1",
+    "nwb": "0.25.x"
+  },
+  "author": "",
+  "license": "MIT",
+  "repository": ""
 }

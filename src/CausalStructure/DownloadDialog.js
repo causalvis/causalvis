@@ -14,7 +14,7 @@ import TextField from '@mui/material/TextField';
 
 import { saveAs } from 'file-saver';
 
-export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], handleClose}) => {
+export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], prognostics=[], handleClose}) => {
   // console.log(colliders);
   const [checked, setChecked] = React.useState({
     nodelinkCheck: true,
@@ -23,9 +23,11 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
     confoundsCheck: false,
     mediatorsCheck: false,
     collidersCheck: false,
+    prognosticsCheck: false
   });
   const [error, setError] = React.useState(false);
   const [downloadJSON, setJSON] = React.useState('');
+  const [filename, setFilename] = React.useState('DAG');
 
   // Update download json based on user selections
   useEffect(() => {
@@ -62,9 +64,13 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
       newDownload.colliders = colliders;
     }
 
+    if (checked.prognosticsCheck) {
+      newDownload.prognostics = prognostics;
+    }
+
     setJSON(newDownload);
 
-  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators])
+  }, [checked, nodelinks, treatment, outcome, confounds, colliders, mediators, prognostics])
 
 
   function handleChange(val) {
@@ -79,15 +85,20 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
   function download() {
     let fileContent = new Blob([JSON.stringify(downloadJSON, null, 4)], {
       type: 'application/json',
-      name: 'DAG.json'
+      name: `${filename}.json`
     });
 
-    saveAs(fileContent, 'DAG.json');
+    saveAs(fileContent, `${filename}.json`);
+  }
+
+  function handleFilenameChange(e) {
+    setFilename(e.target.value);
   }
 
   let dataStyle = {"display": "flex"};
   let checkboxStyle = {"width": "250px"};
-  let textStyle = {"margin": "24px 24px 0px 0px"}
+  let textStyle = {"margin": "24px 24px 0px 0px"};
+  let filenameStyle = {"marginBottom": "24px"};
   let fullWidth = true;
   let maxWidth = "md";
 
@@ -98,10 +109,17 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
         onClose={handleClose}
         fullWidth={fullWidth}
         maxWidth={maxWidth}>
-        <DialogTitle>File Download</DialogTitle>
+        <DialogTitle>Download</DialogTitle>
         <DialogContent>
+          <TextField
+            style={filenameStyle}
+            defaultValue={filename}
+            id="outlined-basic"
+            label="Filename"
+            variant="standard"
+            onChange={(e) => handleFilenameChange(e)} />
           <DialogContentText>
-            Select the data you would like to include. Your file will be saved as <i>DAG.json</i>.
+            Select the data you would like to include. Your file will be saved as <i>{filename}.json</i>.
           </DialogContentText>
           <div style={dataStyle}>
             <FormControl
@@ -118,6 +136,7 @@ export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome=
                 <FormControlLabel control={<Checkbox checked={checked.confoundsCheck} onChange={() => handleChange("confoundsCheck")} />} label="Confounds" />
                 <FormControlLabel control={<Checkbox checked={checked.mediatorsCheck} onChange={() => handleChange("mediatorsCheck")} />} label="Mediators" />
                 <FormControlLabel control={<Checkbox checked={checked.collidersCheck} onChange={() => handleChange("collidersCheck")} />} label="Colliders" />
+                <FormControlLabel control={<Checkbox checked={checked.prognosticsCheck} onChange={() => handleChange("prognosticsCheck")} />} label="Prognostics" />
               </FormGroup>
             </FormControl>
             <TextField
