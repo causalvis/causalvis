@@ -204,14 +204,16 @@ class TreatmentEffectEvaluator(BaseWidget):
 
 @widgets.register
 class VersionHistory(VersionHistoryWidget):
-    def __init__(self, **kwargs):
+    def __init__(self, effect="effect", **kwargs):
         
         self.versions = []
+        self.effect = effect
 
         # print("here", self.data)
         
         super().__init__(
             versions = self.versions,
+            effect = effect,
             **kwargs
         )
 
@@ -242,7 +244,7 @@ class VersionHistory(VersionHistoryWidget):
 
         newVersion = {}
         newVersion["DAG"] = v[0]
-        newVersion["Cohort"] = v[1].to_json(orient="records")
+        newVersion["Cohort"] = v[1].to_dict(orient="records")
         newVersion["ATE"] = v[2]
 
         newVersions = self.versions + [newVersion]

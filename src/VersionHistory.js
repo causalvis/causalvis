@@ -24,6 +24,7 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
     let newAttributeLevels = {};
 
     for (let v of versions) {
+      console.log(v);
       let vDAG = v.DAG;
       let vDAGString = JSON.stringify(vDAG);
 
@@ -53,7 +54,15 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
       }
     }
 
-    let colors = schemeYlGnBu[newDAGs.length + 1].slice(1);
+    let colors;
+
+    if (newDAGs.length > 1) {
+      colors = schemeYlGnBu[newDAGs.length + 1].slice(1);
+    } else if (newDAGs.length === 1) {
+      colors = [schemeYlGnBu[3][1]];
+    } else {
+      colors = ["gray"]
+    }
 
     let newColorScale = scaleOrdinal()
                           .domain(newDAGs)
@@ -94,13 +103,16 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
         colorScale={colorScale}
         _dag={_dag}
         _cohort={_cohort} />
-      <CompareVersions
-        versions={versions}
-        allAttributes={allAttributes}
-        versionAttributes={versionAttributes}
-        attributeLevels={attributeLevels}
-        effect={effect}
-        colorScale={colorScale} />
+      {versions.length > 0
+        ? <CompareVersions
+            versions={versions}
+            allAttributes={allAttributes}
+            versionAttributes={versionAttributes}
+            attributeLevels={attributeLevels}
+            effect={effect}
+            colorScale={colorScale} />
+        : <div />
+      }
     </div>
   )
 }

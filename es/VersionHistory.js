@@ -64,6 +64,7 @@ export var VersionHistory = function VersionHistory(_ref) {
 
     var _loop = function _loop() {
       var v = _step.value;
+      console.log(v);
       var vDAG = v.DAG;
       var vDAGString = JSON.stringify(vDAG);
       var isIncluded = newDAGs.filter(function (nd) {
@@ -111,7 +112,16 @@ export var VersionHistory = function VersionHistory(_ref) {
       _loop();
     }
 
-    var colors = schemeYlGnBu[newDAGs.length + 1].slice(1);
+    var colors;
+
+    if (newDAGs.length > 1) {
+      colors = schemeYlGnBu[newDAGs.length + 1].slice(1);
+    } else if (newDAGs.length === 1) {
+      colors = [schemeYlGnBu[3][1]];
+    } else {
+      colors = ["gray"];
+    }
+
     var newColorScale = scaleOrdinal().domain(newDAGs).range(colors);
     setColorScale(function () {
       return function (x) {
@@ -162,12 +172,12 @@ export var VersionHistory = function VersionHistory(_ref) {
     colorScale: colorScale,
     _dag: _dag,
     _cohort: _cohort
-  }), /*#__PURE__*/React.createElement(CompareVersions, {
+  }), versions.length > 0 ? /*#__PURE__*/React.createElement(CompareVersions, {
     versions: versions,
     allAttributes: allAttributes,
     versionAttributes: versionAttributes,
     attributeLevels: attributeLevels,
     effect: effect,
     colorScale: colorScale
-  }));
+  }) : /*#__PURE__*/React.createElement("div", null));
 };
