@@ -15,6 +15,8 @@ import TextField from '@mui/material/TextField';
 export var CompareVersions = function CompareVersions(_ref) {
   var _ref$versions = _ref.versions,
       versions = _ref$versions === void 0 ? [] : _ref$versions,
+      _ref$hierarchy = _ref.hierarchy,
+      hierarchy = _ref$hierarchy === void 0 ? {} : _ref$hierarchy,
       _ref$allAttributes = _ref.allAttributes,
       allAttributes = _ref$allAttributes === void 0 ? [] : _ref$allAttributes,
       _ref$versionAttribute = _ref.versionAttributes,
@@ -29,9 +31,13 @@ export var CompareVersions = function CompareVersions(_ref) {
       data = _React$useState[0],
       setData = _React$useState[1];
 
-  var _React$useState2 = React.useState(""),
-      stratifyBy = _React$useState2[0],
-      setStratifyBy = _React$useState2[1]; // console.log(allAttributes, versionAttributes);
+  var _React$useState2 = React.useState([]),
+      flattened = _React$useState2[0],
+      setFlattened = _React$useState2[1];
+
+  var _React$useState3 = React.useState(""),
+      stratifyBy = _React$useState3[0],
+      setStratifyBy = _React$useState3[1]; // console.log(allAttributes, versionAttributes);
 
 
   function handleChange(e, val) {
@@ -43,15 +49,33 @@ export var CompareVersions = function CompareVersions(_ref) {
   }
 
   useEffect(function () {
-    // console.log(stratifyBy);
+    var DAGs = Object.keys(hierarchy);
+    var newFlattened = [];
+
+    for (var i = 0; i < DAGs.length; i++) {
+      var DAG = DAGs[i];
+      var DAGChildren = hierarchy[DAG];
+
+      for (var _iterator = _createForOfIteratorHelperLoose(DAGChildren), _step; !(_step = _iterator()).done;) {
+        var child = _step.value;
+        child["DAG"] = JSON.parse(DAG);
+        child["name"] = "DAG " + (i + 1) + ": " + child["name"];
+        newFlattened.push(child);
+      }
+    }
+
+    setFlattened(newFlattened);
+  }, [hierarchy]);
+  useEffect(function () {
     if (stratifyBy == "") {
       var newData = [];
 
-      for (var _iterator = _createForOfIteratorHelperLoose(versions), _step; !(_step = _iterator()).done;) {
-        var v = _step.value;
+      for (var _iterator2 = _createForOfIteratorHelperLoose(flattened), _step2; !(_step2 = _iterator2()).done;) {
+        var v = _step2.value;
         newData.push({
           "ATE": v.ATE,
-          "DAG": JSON.stringify(v.DAG)
+          "DAG": v.DAG,
+          "name": v.name
         });
       }
 
@@ -59,8 +83,8 @@ export var CompareVersions = function CompareVersions(_ref) {
     } else {
       var _newData = [];
 
-      for (var i = 0; i < versions.length; i++) {
-        var _v = versions[i];
+      for (var i = 0; i < flattened.length; i++) {
+        var _v = flattened[i];
         var vAttributes = versionAttributes[i];
 
         if (vAttributes.indexOf(stratifyBy) < 0) {
@@ -68,7 +92,8 @@ export var CompareVersions = function CompareVersions(_ref) {
         } else if (effect === "") {
           _newData.push({
             "ATE": _v.ATE,
-            "DAG": JSON.stringify(_v.DAG)
+            "DAG": _v.DAG,
+            "name": _v.name
           });
         } else if (attributeLevels[stratifyBy].length > 2) {
           (function () {
@@ -88,13 +113,15 @@ export var CompareVersions = function CompareVersions(_ref) {
             _newData.push({
               "ATE": ATE0,
               "group": "<" + stratifyMean.toPrecision(2),
-              "DAG": JSON.stringify(_v.DAG)
+              "DAG": _v.DAG,
+              "name": _v.name
             });
 
             _newData.push({
               "ATE": ATE1,
               "group": ">=" + stratifyMean.toPrecision(2),
-              "DAG": JSON.stringify(_v.DAG)
+              "DAG": _v.DAG,
+              "name": _v.name
             });
           })();
         } else if (attributeLevels[stratifyBy].length == 2) {
@@ -112,31 +139,34 @@ export var CompareVersions = function CompareVersions(_ref) {
           _newData.push({
             "ATE": ATE0,
             "group": "0",
-            "DAG": JSON.stringify(_v.DAG)
+            "DAG": _v.DAG,
+            "name": _v.name
           });
 
           _newData.push({
             "ATE": ATE1,
             "group": "1",
-            "DAG": JSON.stringify(_v.DAG)
+            "DAG": _v.DAG,
+            "name": _v.name
           });
         } else {
           _newData.push({
             "ATE": _v.ATE,
-            "DAG": JSON.stringify(_v.DAG)
+            "DAG": _v.DAG,
+            "name": _v.name
           });
         }
       }
 
       setData(_newData);
     }
-  }, [versions, stratifyBy, attributeLevels]);
+  }, [flattened, stratifyBy, attributeLevels]);
 
   function getATE(cohort) {
     var total = 0;
 
-    for (var _iterator2 = _createForOfIteratorHelperLoose(cohort), _step2; !(_step2 = _iterator2()).done;) {
-      var i = _step2.value;
+    for (var _iterator3 = _createForOfIteratorHelperLoose(cohort), _step3; !(_step3 = _iterator3()).done;) {
+      var i = _step3.value;
       total = total + i[effect];
     }
 

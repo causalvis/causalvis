@@ -7,13 +7,14 @@ import { VersionTree } from "./VersionHistory/VersionTree";
 
 export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => {
 
-  const [hierarchy, setHierarchy] = React.useState({"children": [], "name": "All Versions"});
+  const [hierarchy, setHierarchy] = React.useState({});
   const [layout, setLayout] = React.useState({"height": 120, "width": 1200, "margin": 30, "marginLeft": 10, "marginBottom": 30});
+  const [nested, setNested] = React.useState({"children": [], "name": "All Versions"});
 
-  const [versionAttributes, setVersionAttributes] = React.useState([]);
   const [allAttributes, setAllAttributes] = React.useState(new Set());
   const [attributeLevels, setAttributeLevels] = React.useState({});
   const [colorScale, setColorScale] = React.useState(() => x => "black");
+  const [versionAttributes, setVersionAttributes] = React.useState([]);
 
   useEffect(() => {
     let newDAGs = [];
@@ -24,7 +25,6 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
     let newAttributeLevels = {};
 
     for (let v of versions) {
-      console.log(v);
       let vDAG = v.DAG;
       let vDAGString = JSON.stringify(vDAG);
 
@@ -53,6 +53,8 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
         newHierarchy[vDAGString].push({"name":`Cohort ${versionCount + 1}: ${v.Cohort.length} rows`, "Cohort": v.Cohort, "ATE": v.ATE});
       }
     }
+
+    setHierarchy(newHierarchy);
 
     let colors;
 
@@ -87,7 +89,7 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
       data.children.push({"name":`DAG ${i + 1}`, "DAG": JSON.parse(d), "id": i, "children": newHierarchy[d]})
     }
 
-    setHierarchy(data);
+    setNested(data);
 
     if (versions.length > 5) {
       setLayout({"height": 24 * versions.length, "width": 1200, "margin": 30, "marginLeft": 10, "marginBottom": 30})
@@ -99,13 +101,14 @@ export const VersionHistory = ({versions=[], effect="", ITE, _dag, _cohort}) => 
     <div>
       <VersionTree
         layout={layout}
-        data={hierarchy}
+        data={nested}
         colorScale={colorScale}
         _dag={_dag}
         _cohort={_cohort} />
       {versions.length > 0
         ? <CompareVersions
             versions={versions}
+            hierarchy={hierarchy}
             allAttributes={allAttributes}
             versionAttributes={versionAttributes}
             attributeLevels={attributeLevels}

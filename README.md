@@ -4,11 +4,10 @@ Causalvis is a python library of interactive visualizations for causal inference
 
 ## Getting Started with Causalvis
 
-To run the causalvis library, first clone the repo and install packages:
+To run the causalvis library, first clone the repo locally:
 
 ```bash
 git clone https://github.ibm.com/bumchul-kwon/causalvis.git
-npm install
 ```
 
 ### Installing for Jupyter lab
