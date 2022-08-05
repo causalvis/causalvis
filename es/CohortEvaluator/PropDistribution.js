@@ -77,7 +77,9 @@ export var PropDistribution = function PropDistribution(_ref) {
     }
   }
 
-  useEffect(function () {
+  function changeSelection(selectRange) {
+    // console.log(selectRange);
+    setSelectRange(selectRange);
     var newSelectedItems = {
       "confounds": [],
       "propensity": [],
@@ -90,6 +92,7 @@ export var PropDistribution = function PropDistribution(_ref) {
     };
 
     if (!selectRange) {
+      // console.log("no range");
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, unadjustedCohortData);
     } else if (!adjustedCohortData) {
@@ -130,7 +133,8 @@ export var PropDistribution = function PropDistribution(_ref) {
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, newInverseSelection);
     }
-  }, [selectRange]);
+  }
+
   useEffect(function () {
     if (!adjustedCohortData && unadjustedCohortData.confounds) {
       var newTAttribute = [];
@@ -242,6 +246,6 @@ export var PropDistribution = function PropDistribution(_ref) {
   }, /*#__PURE__*/React.createElement("u", null, "Download."))), /*#__PURE__*/React.createElement(PropDistributionVis, {
     bins: bins,
     n: binSize,
-    setSelectRange: setSelectRange
+    setSelectRange: changeSelection
   }));
 };

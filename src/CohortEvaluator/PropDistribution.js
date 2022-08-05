@@ -50,12 +50,18 @@ export const PropDistribution = ({unadjustedCohortData={},
     }
   }
 
-  useEffect(() => {
+  function changeSelection(selectRange) {
+
+    // console.log(selectRange);
+
+    setSelectRange(selectRange);
 
     let newSelectedItems = {"confounds":[], "propensity":[], "treatment":[]};
     let newInverseSelection = {"confounds":[], "propensity":[], "treatment":[]};
 
     if (!selectRange) {
+
+      // console.log("no range");
 
       setSelectedItems(newSelectedItems);
       updateJupyter(newSelectedItems, unadjustedCohortData);
@@ -102,7 +108,7 @@ export const PropDistribution = ({unadjustedCohortData={},
 
     }
 
-  }, [selectRange])
+  }
 
   useEffect(() => {
 
@@ -184,7 +190,7 @@ export const PropDistribution = ({unadjustedCohortData={},
         handleDownloadClose={handleDownloadClose}
         selectedItems={selectedItems} />
       <p style={selectContainer}>{`${selectedItems.confounds.length}`} selected.&nbsp;<span style={linkStyle} onClick={() => setOpenDownload(true)}><u>Download.</u></span></p>
-      <PropDistributionVis bins={bins} n={binSize} setSelectRange={setSelectRange}/> 
+      <PropDistributionVis bins={bins} n={binSize} setSelectRange={changeSelection}/> 
     </div>
   )
 }
