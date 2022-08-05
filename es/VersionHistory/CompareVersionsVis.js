@@ -36,11 +36,18 @@ export var CompareVersionsVis = function CompareVersionsVis(_ref) {
     var ATEExtent = d3.extent(ATE, function (d) {
       return d.ATE;
     });
-    console.log(ATEExtent);
     var xScale = d3.scaleLinear().domain(d3.extent(ATE, function (d) {
       return d.ATE;
     })).range([layout.marginLeft, layout.width - layout.margin]);
-    var yScale;
+    var yScale; // Create a tooltip
+
+    var tooltip = d3.select("#tooltip").attr("opacity", 0);
+    var tooltip_text = tooltip.select("#tooltip_text").attr("text-anchor", "middle").attr("alignment-baseline", "hanging").attr("x", "11").attr("y", "1").style("font-size", "11px").style("font-family", "sans-serif"); // var tooltip_rect = tooltip.select("#tooltip_rect")
+    //   .attr("fill", "white")
+    //   .attr("width", "22")
+    //   .attr("height", "12")
+    //   .attr("x", "0")
+    //   .attr("y", "0");
 
     if (stratifyBy != "") {
       yScale = d3.scaleOrdinal().domain(d3.extent(ATE, function (d) {
@@ -61,8 +68,18 @@ export var CompareVersionsVis = function CompareVersionsVis(_ref) {
     }).attr("cy", function (d) {
       return stratifyBy ? yScale(d.group) : layout.height / 2;
     }).attr("r", 5).attr("fill", function (d) {
-      return colorScale(d.DAG);
-    }).attr("opacity", "0.48");
+      return colorScale(JSON.stringify(d.DAG));
+    }).attr("opacity", "0.48").attr("cursor", "pointer").on("mouseover", function (e, d) {
+      var dATE = d.ATE;
+      var dgroup = d.group;
+      var dname = d.name;
+      tooltip.attr("opacity", 1).attr("transform", "translate(" + (xScale(d.ATE) - 11) + ", " + (stratifyBy ? yScale(dgroup) - 18 : layout.height / 2 - 18) + ")"); // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
+      // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+
+      tooltip_text.text("" + dname);
+    }).on("mouseout", function () {
+      tooltip.attr("opacity", 0);
+    });
     svgElement.select("#x-axis").attr("transform", "translate(0, " + (layout.height - layout.margin + 10) + ")").call(d3.axisBottom(xScale).tickSize(3).ticks(5));
     svgElement.selectAll("#x-axis").selectAll(".axisText").data(["ATE"]).join("text").attr("class", "axisText").attr("transform", "translate(" + (layout.width - layout.margin) + ", " + 25 + ")").attr("font-family", "sans-serif").attr("fill", "black").text(function (d) {
       return d;
@@ -87,5 +104,11 @@ export var CompareVersionsVis = function CompareVersionsVis(_ref) {
     id: "x-axis"
   }), /*#__PURE__*/React.createElement("g", {
     id: "y-axis"
-  }))));
+  }), /*#__PURE__*/React.createElement("g", {
+    id: "tooltip"
+  }, /*#__PURE__*/React.createElement("rect", {
+    id: "tooltip_rect"
+  }), /*#__PURE__*/React.createElement("text", {
+    id: "tooltip_text"
+  })))));
 };

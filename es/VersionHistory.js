@@ -18,10 +18,7 @@ export var VersionHistory = function VersionHistory(_ref) {
       _dag = _ref._dag,
       _cohort = _ref._cohort;
 
-  var _React$useState = React.useState({
-    "children": [],
-    "name": "All Versions"
-  }),
+  var _React$useState = React.useState({}),
       hierarchy = _React$useState[0],
       setHierarchy = _React$useState[1];
 
@@ -35,9 +32,12 @@ export var VersionHistory = function VersionHistory(_ref) {
       layout = _React$useState2[0],
       setLayout = _React$useState2[1];
 
-  var _React$useState3 = React.useState([]),
-      versionAttributes = _React$useState3[0],
-      setVersionAttributes = _React$useState3[1];
+  var _React$useState3 = React.useState({
+    "children": [],
+    "name": "All Versions"
+  }),
+      nested = _React$useState3[0],
+      setNested = _React$useState3[1];
 
   var _React$useState4 = React.useState(new Set()),
       allAttributes = _React$useState4[0],
@@ -55,6 +55,10 @@ export var VersionHistory = function VersionHistory(_ref) {
       colorScale = _React$useState6[0],
       setColorScale = _React$useState6[1];
 
+  var _React$useState7 = React.useState([]),
+      versionAttributes = _React$useState7[0],
+      setVersionAttributes = _React$useState7[1];
+
   useEffect(function () {
     var newDAGs = [];
     var newHierarchy = {};
@@ -64,7 +68,6 @@ export var VersionHistory = function VersionHistory(_ref) {
 
     var _loop = function _loop() {
       var v = _step.value;
-      console.log(v);
       var vDAG = v.DAG;
       var vDAGString = JSON.stringify(vDAG);
       var isIncluded = newDAGs.filter(function (nd) {
@@ -112,6 +115,7 @@ export var VersionHistory = function VersionHistory(_ref) {
       _loop();
     }
 
+    setHierarchy(newHierarchy);
     var colors;
 
     if (newDAGs.length > 1) {
@@ -154,7 +158,7 @@ export var VersionHistory = function VersionHistory(_ref) {
       });
     }
 
-    setHierarchy(data);
+    setNested(data);
 
     if (versions.length > 5) {
       setLayout({
@@ -168,12 +172,13 @@ export var VersionHistory = function VersionHistory(_ref) {
   }, [versions]);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(VersionTree, {
     layout: layout,
-    data: hierarchy,
+    data: nested,
     colorScale: colorScale,
     _dag: _dag,
     _cohort: _cohort
   }), versions.length > 0 ? /*#__PURE__*/React.createElement(CompareVersions, {
     versions: versions,
+    hierarchy: hierarchy,
     allAttributes: allAttributes,
     versionAttributes: versionAttributes,
     attributeLevels: attributeLevels,

@@ -22,25 +22,36 @@ export var SMDVis = function SMDVis(_ref) {
       return d.covariate;
     })).range([layout.margin, layout.height - layout.margin]); // Create a tooltip
 
-    var tooltip = d3.select("#tooltip").style("position", "absolute").style("visibility", "hidden").style("font-size", "11px").style("font-family", "sans-serif").style("padding", "3px").style("background", "white");
+    var tooltip = d3.select("#tooltip").attr("opacity", 0);
+    var tooltip_text = tooltip.select("#tooltip_text").attr("text-anchor", "middle").attr("alignment-baseline", "hanging").attr("x", "11").attr("y", "1").style("font-size", "11px").style("font-family", "sans-serif");
+    var tooltip_rect = tooltip.select("#tooltip_rect").attr("fill", "white").attr("width", "22").attr("height", "12").attr("x", "0").attr("y", "0");
     var adjustedCircles = svgElement.select("#adjusted").selectAll(".adjustedSMD").data(SMDDataset).join("circle").attr("class", "adjustedSMD").attr("cy", function (d) {
       return yScale(d.covariate) + yScale.bandwidth() / 2;
     }).attr("r", 3).attr("fill", "black").attr("stroke", "black").attr("cx", function (d) {
       return xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft;
     }).attr("cursor", "pointer").on("mouseover", function (e, d) {
-      console.log(e);
-      tooltip.style("visibility", "visible").style("left", e.pageX - 10 + "px").style("top", e.pageY - 25 + "px").text("" + Math.round(d.adjusted * 100) / 100);
+      var adj = d.adjusted;
+      var cov = d.covariate;
+      tooltip.attr("opacity", 1).attr("transform", "translate(" + (xScale(adj) ? xScale(adj) - 11 : layout.marginLeft - 11) + ", " + (yScale(cov) + yScale.bandwidth() / 2 - 15) + ")"); // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
+      // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+
+      tooltip_text.text("" + Math.round(adj * 100) / 100);
     }).on("mouseout", function () {
-      tooltip.style("visibility", "hidden");
+      tooltip.attr("opacity", 0);
     });
     var unadjustedCircles = svgElement.select("#unadjusted").selectAll(".unadjustedSMD").data(SMDDataset).join("circle").attr("class", "unadjustedSMD").attr("cy", function (d) {
       return yScale(d.covariate) + yScale.bandwidth() / 2;
     }).attr("r", 3).attr("fill", "white").attr("stroke", "black").attr("cx", function (d) {
       return xScale(d.unadjusted) ? xScale(d.unadjusted) : layout.marginLeft;
     }).attr("cursor", "pointer").on("mouseover", function (e, d) {
-      tooltip.style("visibility", "visible").style("left", e.pageX - 10 + "px").style("top", e.pageY - 25 + "px").text("" + Math.round(d.unadjusted * 100) / 100);
+      var unadj = d.unadjusted;
+      var cov = d.covariate;
+      tooltip.attr("opacity", 1).attr("transform", "translate(" + (xScale(unadj) ? xScale(unadj) - 11 : layout.marginLeft - 11) + ", " + (yScale(cov) + yScale.bandwidth() / 2 - 15) + ")"); // .attr("x", d => xScale(unadj) ? xScale(unadj) : layout.marginLeft)
+      // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+
+      tooltip_text.text("" + Math.round(unadj * 100) / 100);
     }).on("mouseout", function () {
-      tooltip.style("visibility", "hidden");
+      tooltip.attr("opacity", 0);
     });
     var diffLine = svgElement.select("#diff").selectAll(".diffLine").data(SMDDataset).join("line").attr("class", "diffLine").attr("y1", function (d) {
       return yScale(d.covariate) + yScale.bandwidth() / 2;
@@ -63,7 +74,7 @@ export var SMDVis = function SMDVis(_ref) {
       return xScale(d);
     }).attr("y1", layout.margin - 20).attr("x2", function (d) {
       return xScale(d);
-    }).attr("y2", layout.height - layout.margin + 20).attr("stroke", "black").attr("stroke-dasharray", "5 5 2 5"); // thresholdLine.transition()
+    }).attr("y2", layout.height - layout.margin).attr("stroke", "black").attr("stroke-dasharray", "5 5 2 5"); // thresholdLine.transition()
     //   .duration(1000)
     //   .ease(d3.easeLinear)
     //   .attr("x1", d => xScale(d))
@@ -156,7 +167,11 @@ export var SMDVis = function SMDVis(_ref) {
     id: "legend"
   }), /*#__PURE__*/React.createElement("g", {
     id: "title"
-  }))), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("g", {
     id: "tooltip"
-  }));
+  }, /*#__PURE__*/React.createElement("rect", {
+    id: "tooltip_rect"
+  }), /*#__PURE__*/React.createElement("text", {
+    id: "tooltip_text"
+  })))));
 };
