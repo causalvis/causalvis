@@ -27,13 +27,30 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
 
     let ATEExtent = d3.extent(ATE, d => d.ATE);
 
-    console.log(ATEExtent);
-
     let xScale = d3.scaleLinear()
       .domain(d3.extent(ATE, d => d.ATE))
       .range([layout.marginLeft, layout.width - layout.margin])
 
     let yScale;
+
+    // Create a tooltip
+    var tooltip = d3.select("#tooltip")
+      .attr("opacity", 0)
+
+    var tooltip_text = tooltip.select("#tooltip_text")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "hanging")
+      .attr("x", "11")
+      .attr("y", "1")
+      .style("font-size", "11px")
+      .style("font-family", "sans-serif");
+
+    // var tooltip_rect = tooltip.select("#tooltip_rect")
+    //   .attr("fill", "white")
+    //   .attr("width", "22")
+    //   .attr("height", "12")
+    //   .attr("x", "0")
+    //   .attr("y", "0");
 
     if (stratifyBy != "") {
       yScale = d3.scaleOrdinal()
@@ -63,8 +80,25 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
       .attr("cx", d => xScale(d.ATE))
       .attr("cy", d => stratifyBy ? yScale(d.group) : layout.height / 2)
       .attr("r", 5)
-      .attr("fill", d => colorScale(d.DAG))
+      .attr("fill", d => colorScale(JSON.stringify(d.DAG)))
       .attr("opacity", "0.48")
+      .attr("cursor", "pointer")
+      .on("mouseover", function(e, d) {
+
+        let dATE = d.ATE;
+        let dgroup = d.group;
+        let dname = d.name;
+
+        tooltip.attr("opacity", 1)
+              .attr("transform", `translate(${xScale(d.ATE) - 11}, ${stratifyBy ? yScale(dgroup) - 18 : layout.height / 2 - 18})`)
+              // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
+              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+
+        tooltip_text.text(`${dname}`);
+      })
+      .on("mouseout", function() {
+        tooltip.attr("opacity", 0);
+      });
 
     svgElement.select("#x-axis")
             .attr("transform", `translate(0, ${layout.height - layout.margin + 10})`)
@@ -98,9 +132,12 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
       <svg width={layout.width} height={layout.height} ref={ref} id="svgCompareVersionsVis">
         <g>
           <g id="ate" />
-          <g id="x-axis">
-          </g>
+          <g id="x-axis" />
           <g id="y-axis" />
+          <g id="tooltip">
+            <rect id="tooltip_rect" />
+            <text id="tooltip_text" />
+          </g>
         </g>
       </svg>
     </div>

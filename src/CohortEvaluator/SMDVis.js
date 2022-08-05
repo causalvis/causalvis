@@ -19,7 +19,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
             .domain(SMDDataset.map(d => d.covariate))
             .range([layout.margin, layout.height - layout.margin])
 
-      // Create a tooltip
+    // Create a tooltip
     var tooltip = d3.select("#tooltip")
       .attr("opacity", 0)
 

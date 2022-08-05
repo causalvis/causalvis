@@ -9,6 +9,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
 export const CompareVersions = ({versions=[],
+                                 hierarchy={},
                                  allAttributes=[],
                                  versionAttributes={},
                                  attributeLevels={},
@@ -16,6 +17,7 @@ export const CompareVersions = ({versions=[],
                                  colorScale}) => {
 
   const [data, setData] = React.useState([]);
+  const [flattened, setFlattened] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
 
   // console.log(allAttributes, versionAttributes);
@@ -29,27 +31,47 @@ export const CompareVersions = ({versions=[],
   }
 
   useEffect(() => {
-    // console.log(stratifyBy);
+
+    let DAGs = Object.keys(hierarchy);
+    let newFlattened = [];
+
+    for (let i = 0; i < DAGs.length; i++) {
+      let DAG = DAGs[i];
+      let DAGChildren = hierarchy[DAG];
+
+      for (let child of DAGChildren) {
+        child["DAG"] = JSON.parse(DAG);
+        child["name"] = `DAG ${i + 1}: ${child["name"]}`;
+
+        newFlattened.push(child);
+      }
+    }
+
+    setFlattened(newFlattened);
+
+  }, [hierarchy])
+
+  useEffect(() => {
 
     if (stratifyBy == "") {
       let newData = [];
 
-      for (let v of versions) {
-        newData.push({"ATE":v.ATE, "DAG":JSON.stringify(v.DAG)})
+      for (let v of flattened) {
+        newData.push({"ATE":v.ATE, "DAG":v.DAG, "name": v.name})
       }
 
       setData(newData);
     } else {
       let newData = [];
 
-      for (let i = 0; i < versions.length; i++) {
-        let v = versions[i];
+      for (let i = 0; i < flattened.length; i++) {
+        let v = flattened[i];
         let vAttributes = versionAttributes[i];
 
         if (vAttributes.indexOf(stratifyBy) < 0) {
           continue;
         } else if (effect === "") {
-          newData.push({"ATE":v.ATE, "DAG":JSON.stringify(v.DAG)});
+          newData.push({"ATE":v.ATE, "DAG":v.DAG, "name": v.name});
         } else if (attributeLevels[stratifyBy].length > 2) {
           let stratifyMean = mean(attributeLevels[stratifyBy]);
 
@@ -59,8 +81,8 @@ export const CompareVersions = ({versions=[],
           let ATE0 = getATE(stratify0);
           let ATE1 = getATE(stratify1);
 
-          newData.push({"ATE": ATE0, "group": `<${stratifyMean.toPrecision(2)}`, "DAG":JSON.stringify(v.DAG)});
-          newData.push({"ATE": ATE1, "group": `>=${stratifyMean.toPrecision(2)}`, "DAG":JSON.stringify(v.DAG)});
+          newData.push({"ATE": ATE0, "group": `<${stratifyMean.toPrecision(2)}`, "DAG":v.DAG, "name": v.name});
+          newData.push({"ATE": ATE1, "group": `>=${stratifyMean.toPrecision(2)}`, "DAG":v.DAG, "name": v.name});
         } else if (attributeLevels[stratifyBy].length == 2) {
           let stratify0 = v.Cohort.filter(d => d[stratifyBy] === 0);
           let stratify1 = v.Cohort.filter(d => d[stratifyBy] === 1);
@@ -68,15 +90,15 @@ export const CompareVersions = ({versions=[],
           let ATE0 = getATE(stratify0);
           let ATE1 = getATE(stratify1);
 
-          newData.push({"ATE": ATE0, "group": `0`, "DAG":JSON.stringify(v.DAG)});
-          newData.push({"ATE": ATE1, "group": `1`, "DAG":JSON.stringify(v.DAG)});
+          newData.push({"ATE": ATE0, "group": `0`, "DAG":v.DAG, "name": v.name});
+          newData.push({"ATE": ATE1, "group": `1`, "DAG":v.DAG, "name": v.name});
         } else {
-          newData.push({"ATE":v.ATE, "DAG":JSON.stringify(v.DAG)});
+          newData.push({"ATE":v.ATE, "DAG":v.DAG, "name": v.name});
         }
       }
       setData(newData);
     }
-  }, [versions, stratifyBy, attributeLevels])
+  }, [flattened, stratifyBy, attributeLevels])
 
   function getATE(cohort) {
 
