@@ -21,12 +21,22 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
       // Create a tooltip
     var tooltip = d3.select("#tooltip")
-      .style("position", "absolute")
-      .style("visibility", "hidden")
+      .attr("opacity", 0)
+
+    var tooltip_text = tooltip.select("#tooltip_text")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "hanging")
+      .attr("x", "11")
+      .attr("y", "1")
       .style("font-size", "11px")
-      .style("font-family", "sans-serif")
-      .style("padding", "3px")
-      .style("background", "white");
+      .style("font-family", "sans-serif");
+
+    var tooltip_rect = tooltip.select("#tooltip_rect")
+      .attr("fill", "white")
+      .attr("width", "22")
+      .attr("height", "12")
+      .attr("x", "0")
+      .attr("y", "0");
 
     let adjustedCircles = svgElement.select("#adjusted")
       .selectAll(".adjustedSMD")
@@ -40,13 +50,19 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("cx", d => xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft)
       .attr("cursor", "pointer")
       .on("mouseover", function(e, d) {
-        tooltip.style("visibility", "visible")
-              .style("left", `${e.pageX - 10}px`)
-              .style("top", `${e.pageY - 25}px`)
-              .text(`${Math.round(d.adjusted * 100) / 100}`);
+
+        let adj = d.adjusted;
+        let cov = d.covariate;
+
+        tooltip.attr("opacity", 1)
+              .attr("transform", `translate(${xScale(adj) ? xScale(adj) - 11 : layout.marginLeft - 11}, ${yScale(cov) + yScale.bandwidth() / 2 - 15})`)
+              // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
+              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+
+        tooltip_text.text(`${Math.round(adj * 100) / 100}`);
       })
       .on("mouseout", function() {
-        tooltip.style("visibility", "hidden");
+        tooltip.attr("opacity", 0);
       });
       
 
@@ -62,13 +78,19 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("cx", d => xScale(d.unadjusted) ? xScale(d.unadjusted) : layout.marginLeft)
       .attr("cursor", "pointer")
       .on("mouseover", function(e, d) {
-        tooltip.style("visibility", "visible")
-              .style("left", `${e.pageX - 10}px`)
-              .style("top", `${e.pageY - 25}px`)
-              .text(`${Math.round(d.unadjusted * 100) / 100}`);
+
+        let unadj = d.unadjusted;
+        let cov = d.covariate;
+
+        tooltip.attr("opacity", 1)
+              .attr("transform", `translate(${xScale(unadj) ? xScale(unadj) - 11 : layout.marginLeft - 11}, ${yScale(cov) + yScale.bandwidth() / 2 - 15})`)
+              // .attr("x", d => xScale(unadj) ? xScale(unadj) : layout.marginLeft)
+              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
+        
+        tooltip_text.text(`${Math.round(unadj * 100) / 100}`);
       })
       .on("mouseout", function() {
-        tooltip.style("visibility", "hidden");
+        tooltip.attr("opacity", 0);
       });
 
     let diffLine = svgElement.select("#diff")
@@ -106,7 +128,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("x1", d => xScale(d))
       .attr("y1", layout.margin - 20)
       .attr("x2", d => xScale(d))
-      .attr("y2", layout.height - layout.margin + 20)
+      .attr("y2", layout.height - layout.margin)
       .attr("stroke", "black")
       .attr("stroke-dasharray", "5 5 2 5")
 
@@ -216,9 +238,14 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
           <g id="y-axis" />
           <g id="legend" />
           <g id="title" />
+          <g id="tooltip">
+            <rect id="tooltip_rect" />
+            <text id="tooltip_text" />
+          </g>
         </g>
+        {/*<div id="tooltip" />*/}
       </svg>
-      <div id="tooltip" />
+     
 
     </div>
   )

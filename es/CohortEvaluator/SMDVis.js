@@ -28,6 +28,7 @@ export var SMDVis = function SMDVis(_ref) {
     }).attr("r", 3).attr("fill", "black").attr("stroke", "black").attr("cx", function (d) {
       return xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft;
     }).attr("cursor", "pointer").on("mouseover", function (e, d) {
+      console.log(e);
       tooltip.style("visibility", "visible").style("left", e.pageX - 10 + "px").style("top", e.pageY - 25 + "px").text("" + Math.round(d.adjusted * 100) / 100);
     }).on("mouseout", function () {
       tooltip.style("visibility", "hidden");
