@@ -49,7 +49,8 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     "height": 500,
     "width": 600,
     "margin": 50,
-    "marginLeft": 50
+    "marginLeft": 50,
+    "marginBottom": 35
   }),
       layout = _React$useState5[0],
       setLayout = _React$useState5[1];
@@ -96,18 +97,23 @@ export var TreatmentEffectVisViolin = function TreatmentEffectVisViolin(_ref) {
     });
 
     if (!stratifyBy) {
+      var adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
+      var adjustedExtent = [effectExtent[0], effectExtent[1] + adjustedBandwidth];
       var histogram = d3.histogram().value(function (d) {
         return d[effect];
-      }).domain(effectExtent).thresholds(bins);
+      }).domain(adjustedExtent).thresholds(bins + 1);
 
       var _cohortBins = histogram(cohortData);
 
       setCohortBins(_cohortBins);
     } else if (isBinary) {
-      // If the variable is binary, perform binning for violin plot
+      var _adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
+
+      var _adjustedExtent = [effectExtent[0], effectExtent[1] + _adjustedBandwidth]; // If the variable is binary, perform binning for violin plot
+
       var histogram = d3.histogram().value(function (d) {
         return d[effect];
-      }).domain(effectExtent).thresholds(bins);
+      }).domain(_adjustedExtent).thresholds(bins + 1);
       var stratify0 = cohortData.filter(function (d) {
         return d[stratifyBy] === 0;
       });

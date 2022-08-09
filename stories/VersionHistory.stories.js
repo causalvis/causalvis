@@ -14,9 +14,9 @@ import Cohort3 from '../public/te_test_3.json'
 
 let versions = [{"DAG":DAG1, "Cohort":Cohort1, "ATE": 5},
                 {"DAG":DAG1, "Cohort":Cohort1, "ATE": 7},
-                {"DAG":DAG2, "Cohort":Cohort2, "ATE": 8},
-                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 5},
-                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 1},
+                {"DAG":DAG2, "Cohort":Cohort2, "ATE": 8.3},
+                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 5.5},
+                {"DAG":DAG3, "Cohort":Cohort3, "ATE": 1.2},
                 {"DAG":DAG3, "Cohort":Cohort3, "ATE": 1},]
 
 export default {

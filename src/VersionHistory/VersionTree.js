@@ -37,7 +37,7 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     .attr("height", d => rectHeight(d))
     .attr("fill-opacity", 0.48)
     .attr("fill", d => {
-      console.log(d);
+      // console.log(d);
       if (!d.depth) return "#ccc";
       while (d.depth > 1) d = d.parent;
       return colorScale(JSON.stringify(d.data.DAG));

@@ -17,7 +17,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   const [stratifyBy, setStratifyBy] = React.useState("");
   // const [isBinary, setIsBinary] = React.useState(false);
   const [plotTitle, setPlotTitle] = React.useState("");
-  const [layout, setLayout] = React.useState({"height": 500, "width": 600, "margin": 50, "marginLeft": 50});
+  const [layout, setLayout] = React.useState({"height": 500, "width": 600, "margin": 50, "marginLeft": 50, "marginBottom": 35});
   const [treatmentReg, setTreatmentReg] = React.useState([[0, 0], [0, 0]]);
   const [controlReg, setControlReg] = React.useState([[0, 0], [0, 0]]);
   
@@ -45,22 +45,27 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	  let controlData = cohortData.filter(d => d[treatment] === 0);
 
 	  if (!stratifyBy) {
+	  	let adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
+	  	let adjustedExtent = [effectExtent[0], effectExtent[1] + adjustedBandwidth];
 
 	  	var histogram = d3.histogram()
 	                      .value(d => d[effect])
-	                      .domain(effectExtent)
-	                      .thresholds(bins);
+	                      .domain(adjustedExtent)
+	                      .thresholds(bins + 1);
 
 	    let cohortBins = histogram(cohortData);
 
 	    setCohortBins(cohortBins);
 
 	  } else if (isBinary) {
+	  	let adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
+	  	let adjustedExtent = [effectExtent[0], effectExtent[1] + adjustedBandwidth];
+
   		// If the variable is binary, perform binning for violin plot
 	  	var histogram = d3.histogram()
 	                      .value(d => d[effect])
-	                      .domain(effectExtent)
-	                      .thresholds(bins);
+	                      .domain(adjustedExtent)
+	                      .thresholds(bins + 1);
 
 	    let stratify0 = cohortData.filter(d => d[stratifyBy] === 0);
 	    let stratify1 = cohortData.filter(d => d[stratifyBy] === 1);
@@ -122,6 +127,7 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
   	let jitter = 15;
 
   	if (stratifyBy === '') {
+
   		var xScale = d3.scaleBand()
   				.domain([0, 0])
   				.range([layout.marginLeft, layout.width - layout.margin])

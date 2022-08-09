@@ -40,7 +40,7 @@ export var VersionTree = function VersionTree(_ref) {
   }).attr("height", function (d) {
     return rectHeight(d);
   }).attr("fill-opacity", 0.48).attr("fill", function (d) {
-    console.log(d);
+    // console.log(d);
     if (!d.depth) return "#ccc";
 
     while (d.depth > 1) {
