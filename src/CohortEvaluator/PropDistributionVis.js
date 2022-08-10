@@ -200,7 +200,7 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("text-anchor", "start")
       .attr("fill", d => colorMap[d])
       .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
+      .attr("font-size", "12px")
       .text(d => d)
 
     // svgElement.select("#title")

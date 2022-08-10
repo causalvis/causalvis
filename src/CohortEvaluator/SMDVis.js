@@ -117,7 +117,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("y", layout.margin - 20)
       .text(d => d)
       .attr("font-family", "sans-serif")
-      .attr("font-size", 10)
+      .attr("font-size", "10px")
       .attr("alignment-baseline", "hanging")
 
     let thresholdLine = svgElement.select("#threshold")
@@ -191,7 +191,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .text(d => d)
       .attr("alignment-baseline", "middle")
       .attr("font-family", "sans-serif")
-      .attr("font-size", 12)
+      .attr("font-size", "12px")
 
     xAxis.transition()
         .duration(transitionDuration)

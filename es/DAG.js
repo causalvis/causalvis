@@ -45,6 +45,8 @@ export var DAG = function DAG(_ref) {
   var _ref$attributes = _ref.attributes,
       attributes = _ref$attributes === void 0 ? [] : _ref$attributes,
       graph = _ref.graph,
+      _ref$_svg = _ref._svg,
+      _svg = _ref$_svg === void 0 ? "svgDAG" : _ref$_svg,
       _dag = _ref._dag,
       _colliders = _ref._colliders,
       _mediators = _ref._mediators,
@@ -661,7 +663,7 @@ export var DAG = function DAG(_ref) {
 
 
   function downloadSVG() {
-    var svgElement = select("#svgDAG");
+    var svgElement = select("#" + _svg);
     var svgString = getSVGString(svgElement.node());
     svgString2Image(svgString, 2 * layout.width, 2 * layout.height, 'png', save); // passes Blob and filesize String to the callback
 
@@ -1086,6 +1088,7 @@ export var DAG = function DAG(_ref) {
     changeTreatment: changeTreatment,
     changeOutcome: changeOutcome,
     updateLinks: updateLinks,
-    deleteLinks: deleteLinks
+    deleteLinks: deleteLinks,
+    _svg: _svg
   }))));
 };

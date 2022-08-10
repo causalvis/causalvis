@@ -40,7 +40,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { saveAs } from 'file-saver';
 
-export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _confounds, _prognostics}) => {
+export const DAG = ({attributes = [], graph, _svg="svgDAG", _dag, _colliders, _mediators, _confounds, _prognostics}) => {
 
   // Tracks nodes and links in DAG
   const [nodelinks, setnodelinks] = React.useState({"nodes": [], "links":[]});
@@ -532,7 +532,7 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
 
   // Download DAG as PNG image
   function downloadSVG() {
-    let svgElement = select("#svgDAG")
+    let svgElement = select(`#${_svg}`);
     var svgString = getSVGString(svgElement.node());
     svgString2Image( svgString, 2*layout.width, 2*layout.height, 'png', save ); // passes Blob and filesize String to the callback
 
@@ -901,6 +901,7 @@ export const DAG = ({attributes = [], graph, _dag, _colliders, _mediators, _conf
             changeOutcome={changeOutcome}
             updateLinks={updateLinks}
             deleteLinks={deleteLinks}
+            _svg={_svg}
           />
         </Paper>
       </div>

@@ -156,6 +156,7 @@ var DAGView = widgets.DOMWidgetView.extend({
         var props = this.model.get("props");
 
         props = {...props,
+                "_svg": `svgDAG${this.model.model_id}`,
                 "_dag": `_hiddenDAG${this.model.model_id}`,
                 "_colliders": `_hiddenColliders${this.model.model_id}`,
                 "_mediators": `_hiddenMediators${this.model.model_id}`,

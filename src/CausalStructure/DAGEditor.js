@@ -41,7 +41,8 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
                            changeTreatment,
                            changeOutcome,
                            updateLinks,
-                           deleteLinks}) => {
+                           deleteLinks,
+                           _svg}) => {
 
   // Controls node options menu
   const [open, setOpen] = React.useState(false);
@@ -447,7 +448,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .attr("text-anchor", "middle")
     .attr("alignment-baseline", "middle")
     .attr("font-family", "sans-serif")
-    .attr("font-size", 12)
+    .attr("font-size", "12px")
 
   // Each line represents a link between attributes
   var link = svgElement
@@ -595,7 +596,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     .attr("text-anchor", "start")
     .attr("fill", d => colorMap[d])
     .attr("font-family", "sans-serif")
-    .attr("font-size", 12)
+    .attr("font-size", "12px")
     .text(d => d)
 
   const menuStyle = {};
@@ -623,7 +624,7 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           <FullscreenExitOutlinedIcon />
         </a>
       </IconButton>
-      <svg width={layout.width} height={layout.height} ref={ref} id="svgDAG">
+      <svg width={layout.width} height={layout.height} ref={ref} id={_svg}>
         <g>
           <g id="links" />
           <g id="nodes" />

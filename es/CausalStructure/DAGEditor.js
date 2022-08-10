@@ -59,7 +59,8 @@ export var DAGEditor = function DAGEditor(_ref) {
       changeTreatment = _ref.changeTreatment,
       changeOutcome = _ref.changeOutcome,
       updateLinks = _ref.updateLinks,
-      deleteLinks = _ref.deleteLinks;
+      deleteLinks = _ref.deleteLinks,
+      _svg = _ref._svg;
 
   // Controls node options menu
   var _React$useState = React.useState(false),
@@ -442,7 +443,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     return d.y;
   }).attr("fill", function (d) {
     return nodeColor(d);
-  }).attr("text-anchor", "middle").attr("alignment-baseline", "middle").attr("font-family", "sans-serif").attr("font-size", 12); // Each line represents a link between attributes
+  }).attr("text-anchor", "middle").attr("alignment-baseline", "middle").attr("font-family", "sans-serif").attr("font-size", "12px"); // Each line represents a link between attributes
 
   var link = svgElement.select("#links").selectAll(".link").data(nodelinks.links).join("line").attr("class", "link").attr("x1", function (d) {
     return d.source.x;
@@ -546,7 +547,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     return layout.height - layout.margin * 2 + 18 * i + 9;
   }).attr("alignment-baseline", "middle").attr("text-anchor", "start").attr("fill", function (d) {
     return colorMap[d];
-  }).attr("font-family", "sans-serif").attr("font-size", 12).text(function (d) {
+  }).attr("font-family", "sans-serif").attr("font-size", "12px").text(function (d) {
     return d;
   });
   var menuStyle = {};
@@ -583,7 +584,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     width: layout.width,
     height: layout.height,
     ref: ref,
-    id: "svgDAG"
+    id: _svg
   }, /*#__PURE__*/React.createElement("g", null, /*#__PURE__*/React.createElement("g", {
     id: "links"
   }), /*#__PURE__*/React.createElement("g", {
