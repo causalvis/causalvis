@@ -81,7 +81,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       changeTreatment(contextItem);
       changeOutcome("");
       handleClose();
-      // alert("Attribute is already set as outcome");
     } else {
       changeTreatment(contextItem);
       handleClose();
@@ -96,7 +95,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       changeOutcome(contextItem);
       changeTreatment("");
       handleClose();
-      // alert("Attribute is already set as treatment");
     } else {
       changeOutcome(contextItem);
       handleClose();
@@ -109,18 +107,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       deleteAttribute(contextItem);
       handleClose();
     }
-
-    // else {
-
-    //   for (let n of selected) {
-    //     console.log(n);
-    //     deleteAttribute(n);
-    //   }
-
-    //   handleClose();
-    //   setSelected([]);
-    // }
-    
   }
 
   // Add node to selections
@@ -189,24 +175,9 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
 
   let currentPath = [];
 
-  // nodelinks.links.forEach(d => {
-  //   const linkSource = d.source;
-  //   const linkTarget = d.target;
-  //   d.source = nodelinks.nodes[linkSource];
-  //   d.target = nodelinks.nodes[linkTarget];
-  // });
-
   let svg = d3.select(ref.current)
 
   let svgElement = svg.select("g");
-
-  // svg.on("click", function(e) {
-  //   console.log(mode);
-
-  //   if (mode === "node") {
-  //     console.log("here", e.x, e.y);
-  //   }
-  // })
 
   function zoomed({transform}) {
     svgElement.attr("transform", transform);
@@ -307,10 +278,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       .attr("stroke-width", 1);
 
   function onDrag(el, e, d) {
-
-    // console.log(d);
-
-    // console.log(e.x, e.y, e);
 
     // Change position of node
     d3.select(el).attr("cx", e.x).attr("cy", e.y);
@@ -428,10 +395,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       return colorMap.prognostics
     }
 
-    // else if (d.$custom) {
-    //   // return "#9e9e9e"
-    //   return "black"
-    // }
     return "black"
   }
 
@@ -483,7 +446,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
     if (selected.indexOf(d.name) >= 0) {
       return 3
     } else if (isSearched(d)) {
-      // console.log('here');
       return 3
     } else {
       return 1
@@ -522,7 +484,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
           // Update the new position of the node
           if (mode === "default") {
             updateNodePos(d.id, e.x, e.y);
-            // console.log("here")
           }
 
         })
@@ -548,11 +509,6 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
             currentPath = [];
           }
         }
-
-        // if (mode === "default") {
-        //   handleSelected(d.name);
-        // }
-        
       })
       .on("mouseover", function (e, d) {
         if (mode === "path") {
@@ -561,16 +517,12 @@ export const DAGEditor = ({layout = {"height": 500, "width": 1000, "margin": 60}
       })
       .on("mouseout", function (e, d) {
 
-        // console.log(d.tags.indexOf(search.slice(4)))
-
         if (mode === "path" && currentPath.map(cp => cp.name).indexOf(d.name) < 0 && d.name !== search) {
           d3.select(this).attr("stroke-width", 1);
         } else if (mode === "default" && !isSearched(d)) {
-          // console.log('mouseout');
           d3.select(this).attr("stroke-width", 1);
         }
       })
-      // .on("contextmenu", (e, d) => handleContextMenu(e, d));
 
   const covariateTypes = ["treatment", "outcome", "confounds", "colliders", "mediators", "prognostics"];
 

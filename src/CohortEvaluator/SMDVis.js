@@ -56,8 +56,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
         tooltip.attr("opacity", 1)
               .attr("transform", `translate(${xScale(adj) ? xScale(adj) - 11 : layout.marginLeft - 11}, ${yScale(cov) + yScale.bandwidth() / 2 - 15})`)
-              // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
-              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
 
         tooltip_text.text(`${Math.round(adj * 100) / 100}`);
       })
@@ -84,8 +82,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
 
         tooltip.attr("opacity", 1)
               .attr("transform", `translate(${xScale(unadj) ? xScale(unadj) - 11 : layout.marginLeft - 11}, ${yScale(cov) + yScale.bandwidth() / 2 - 15})`)
-              // .attr("x", d => xScale(unadj) ? xScale(unadj) : layout.marginLeft)
-              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
         
         tooltip_text.text(`${Math.round(unadj * 100) / 100}`);
       })
@@ -102,9 +98,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("y2", d => yScale(d.covariate) + yScale.bandwidth() / 2)
       .attr("stroke", "black")
       .attr("stroke-dasharray", "2")
-      // .transition()
-      // .duration(transitionDuration)
-      // .ease(d3.easeLinear)
       .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
       .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
 
@@ -132,17 +125,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
       .attr("stroke", "black")
       .attr("stroke-dasharray", "5 5 2 5")
 
-    // thresholdLine.transition()
-    //   .duration(1000)
-    //   .ease(d3.easeLinear)
-    //   .attr("x1", d => xScale(d))
-    //   .attr("x2", d => xScale(d))
-
-    // thresholdText.transition()
-    //   .duration(1000)
-    //   .ease(d3.easeLinear)
-    //   .attr("x", d => xScale(d) + 5)
-
     let xAxis = svgElement.select('#x-axis')
             .attr('transform', `translate(0, ${layout.height - layout.margin})`)
             .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
@@ -150,25 +132,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
     let yAxis = svgElement.select('#y-axis')
             .attr('transform', `translate(${layout.marginLeft}, 0)`)
             .call(d3.axisLeft(yScale).tickSize(3).ticks(5))
-
-    // adjustedCircles.transition()
-    //   .duration(transitionDuration)
-    //   .ease(d3.easeLinear)
-    //   .attr("cx", d => xScale(d.adjusted) ? xScale(d.adjusted) : layout.marginLeft)
-
-    // unadjustedCircles.transition()
-    //   .duration(transitionDuration)
-    //   .ease(d3.easeLinear)
-    //   .attr("cx", d => xScale(d.adjusted) ? xScale(d.unadjusted) : layout.marginLeft)
-
-    // diffLine.transition()
-    //   .duration(transitionDuration)
-    //   .ease(d3.easeLinear)
-    //   .attr("x1", d => d3.min([xScale(d.unadjusted), xScale(d.adjusted)]))
-    //   .attr("x2", d => d3.max([xScale(d.unadjusted), xScale(d.adjusted)]))
-
-    // svgElement.select("#legend")
-    //   .attr("transform", "translate(25px)")
 
     svgElement.select("#legend")
       .selectAll(".legend")
@@ -197,19 +160,6 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
         .duration(transitionDuration)
         .ease(d3.easeLinear)
         .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
-
-    // Add plot title
-    // svgElement.select("#title")
-    //   .selectAll(".title")
-    //   .data(["Standardized Mean Difference"])
-    //   .join("text")
-    //   .attr("class", "title")
-    //   .attr("x", (layout.width - layout.marginLeft - layout.margin) / 2 + layout.marginLeft)
-    //   .attr("y", layout.margin / 2)
-    //   .attr("text-anchor", "middle")
-    //   .attr("font-family", "sans-serif")
-    //   .attr("font-size", 12)
-    //   .text(d => d)
 
     d3.selectAll("#x-axis>.tick>text")
       .each(function(d, i){
@@ -243,10 +193,7 @@ export const SMDVis = ({layout = {"height": 500, "width": 600, "margin": 50, "ma
             <text id="tooltip_text" />
           </g>
         </g>
-        {/*<div id="tooltip" />*/}
       </svg>
-     
-
     </div>
   )
 }

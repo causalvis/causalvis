@@ -5,8 +5,6 @@ import * as d3 from 'd3';
 export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatment", outcome="outcome", effect="effect", effectExtent=[0, 0], isBinary}) => {
 	const ref = useRef('svgTreatmentEffect');
 
-  // let svg = d3.select(`#svgTreatmentEffect${index}`);
-
   let svgElement = d3.select(ref.current);
 
   // Track color map
@@ -15,7 +13,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   const [cohortData, setCohortData] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
-  // const [isBinary, setIsBinary] = React.useState(false);
   const [plotTitle, setPlotTitle] = React.useState("");
   const [layout, setLayout] = React.useState({"height": 500, "width": 600, "margin": 50, "marginLeft": 50, "marginBottom": 35});
   const [treatmentReg, setTreatmentReg] = React.useState([[0, 0], [0, 0]]);
@@ -33,11 +30,9 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   	let cohortData = allData["data"];
   	let stratifyBy = allData["stratifyBy"];
-  	// let isBinary = (new Set(cohortData.map(d => d[stratifyBy]))).size <= 2;
 
   	setCohortData(cohortData);
   	setStratifyBy(stratifyBy);
-  	// setIsBinary(isBinary);
   	setPlotTitle(allData["title"]);
   	setLayout(allData["layout"]);
 
@@ -46,12 +41,12 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
 	  if (!stratifyBy) {
 	  	let adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
-	  	let adjustedExtent = [effectExtent[0], effectExtent[1] + adjustedBandwidth];
+	  	let adjustedExtent = [effectExtent[0] - adjustedBandwidth, effectExtent[1] + adjustedBandwidth];
 
 	  	var histogram = d3.histogram()
 	                      .value(d => d[effect])
 	                      .domain(adjustedExtent)
-	                      .thresholds(bins + 1);
+	                      .thresholds(bins + 2);
 
 	    let cohortBins = histogram(cohortData);
 
@@ -59,44 +54,20 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
 	  } else if (isBinary) {
 	  	let adjustedBandwidth = (effectExtent[1] - effectExtent[0]) / bins;
-	  	let adjustedExtent = [effectExtent[0], effectExtent[1] + adjustedBandwidth];
+	  	let adjustedExtent = [effectExtent[0] - adjustedBandwidth, effectExtent[1] + adjustedBandwidth];
 
   		// If the variable is binary, perform binning for violin plot
 	  	var histogram = d3.histogram()
 	                      .value(d => d[effect])
 	                      .domain(adjustedExtent)
-	                      .thresholds(bins + 1);
+	                      .thresholds(bins + 2);
 
 	    let stratify0 = cohortData.filter(d => d[stratifyBy] === 0);
 	    let stratify1 = cohortData.filter(d => d[stratifyBy] === 1);
 
 	    setStratifiedBins([histogram(stratify0), histogram(stratify1)]);
-
-  		// let treatmentStratify0 = treatmentData.filter(d => d[stratifyBy] === 0);
-  		// let treatmentStratify1 = treatmentData.filter(d => d[stratifyBy] === 1);
-  		// let controlStratify0 = controlData.filter(d => d[stratifyBy] === 0);
-  		// let controlStratify1 = controlData.filter(d => d[stratifyBy] === 1);
-
-  		// let newTreatmentBins = [histogram(treatmentStratify0), histogram(treatmentStratify1)];
-  		// let newControlBins = [histogram(controlStratify0), histogram(controlStratify1)];
-
-  		// setTreatmentBins(newTreatmentBins);
-  		// setControlBins(newControlBins);
   	} else {
-  		// If variable is continous, calculate the regression line for treatment and control groups separately
-	  	// let treatmentLine = regression.linear(treatmentData.map(d => [d[stratifyBy], d[effect]]));
-	  	// let controlLine = regression.linear(controlData.map(d => [d[stratifyBy], d[effect]]));
 
-	  	// let extent = d3.extent(cohortData, d => d[stratifyBy]);
-
-	  	// let treatmentStart = treatmentLine.predict(extent[0]);
-	  	// let treatmentEnd = treatmentLine.predict(extent[1]);
-
-	  	// let controlStart = controlLine.predict(extent[0]);
-	  	// let controlEnd = controlLine.predict(extent[1]);
-
-	  	// setTreatmentReg([treatmentStart, treatmentEnd]);
-	  	// setControlReg([controlStart, controlEnd]);
   	}
 
   }, [allData])
@@ -407,40 +378,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
     	}
 
-    // 	let controlScales = [];
-
-  		// for (let cb of controlBins) {
-  		// 	let totalLength = cb.reduce((count, current) => count + current.length, 0);
-
-  		// 	let maxNum = d3.max(cb.map(d => d.length / totalLength));
-  		// 	let newScale = d3.scaleLinear()
-				// 				  				.range([0, computedBandwidth / 2])
-				// 				    			.domain([-maxNum, maxNum])
-				// controlScales.push({"scale": newScale, "len":totalLength});
-  		// }
-
-    // 	for (let i = 0; i < controlBins.length; i++) {
-    // 		let binData = controlBins[i];
-    // 		let binScale = controlScales[i].scale;
-    // 		let binSize = controlScales[i].len;
-
-    // 		svgElement.select("#violin")
-    // 			.selectAll(`.controlArea${i}`)
-			 //    .data([binData])
-			 //    .join("path")
-			 //    .attr("class", `controlArea${i}`)
-			 //    .attr("transform", `translate(${xScale(i) + computedBandwidth / 2}, 0)`)
-			 //    .datum(function(d){ return(d)})
-			 //    .style("stroke", "none")
-		  //       .style("fill", colorMap[0])
-		  //       .attr("d", d3.area()
-		  //           .x0(function(d){ return(binScale(-d.length / binSize)) } )
-		  //           .x1(function(d){ return(binScale(d.length / binSize)) } )
-		  //           .y(function(d){ return(yScale(d.x0)) } )
-		  //           .curve(d3.curveCatmullRom)
-		  //       )
-    // 	}
-
   		let xAxis = svgElement.select('#x-axis')
 	            .attr('transform', `translate(0, ${layout.height - layout.marginBottom / 2})`)
 	            .call(d3.axisBottom(xScale).tickSize(3).ticks(5))
@@ -466,7 +403,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 	      .attr("r", 3)
 	      .attr("opacity", 0.2)
 	      .attr("fill", "#698fb8")
-	      // .attr("stroke", d => colorMap[d[treatment]])
 	      .attr("cursor", "pointer")
 
 	    // let regressionLines = svgElement.select("#regression")
@@ -543,7 +479,6 @@ export const TreatmentEffectVisViolin = ({allData={}, index=0, treatment="treatm
 
   return (
     <div style={subplotStyle}>
-    	{/*<p style={subplotTitle}>{plotTitle}</p>*/}
       <svg width={layout.width} height={layout.height} ref={ref} id={`svgTreatmentEffect${index}`}>
         <g>
         	<g id="zero" />

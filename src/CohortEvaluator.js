@@ -10,7 +10,6 @@ Props:
   - adjustedCohort: Array, data set after adjustment
   - treatment: String, name of treatment variable
   - propensity: String, name of propensity variable, should be 1-D Array of propensities for each treatment level
-  - weights: Array, weight of each item in the data set, order of items should be identical to unadjusted data set
 */
 export const CohortEvaluator = ({unadjustedCohort=[],
                                  adjustedCohort=[],

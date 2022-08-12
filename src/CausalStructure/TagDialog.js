@@ -9,10 +9,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-// import FormControl from '@mui/material/FormControl';
-// import FormLabel from '@mui/material/FormLabel';
-// import FormGroup from '@mui/material/FormGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
@@ -22,8 +18,6 @@ export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, ha
   const [value, setValue] = React.useState("");
   const [colorOpen, setColorOpen] = React.useState(false);
   const [color, setColor] = React.useState("#000000");
-
-  // console.log(tagColors);
 
   // Handle when users select a tag from existing tags;
   function handleChange(e, val) {
@@ -66,7 +60,6 @@ export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, ha
 
   // Delete tag for selected attribute
   const handleDelete = (value) => {
-    // console.log("deleting...", value);
     deleteTag(value);
   }
 
@@ -129,12 +122,6 @@ export const TagDialog = ({tagNode="", tagColors={}, attrTags=[], open=false, ha
                 />}
             />
 
-            {/*<TextField
-              style={textStyle}
-              id="outlined-basic"
-              label="Tag Name"
-              variant="outlined"
-              onChange={(e) => handleChange(e)} />*/}
             <div style={ swatchStyle } onClick={ handleClick }>
               <div style={ colorStyle } />
               { colorOpen ? <div style={ popoverStyle }>

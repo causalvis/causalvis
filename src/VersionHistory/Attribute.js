@@ -3,12 +3,6 @@ import React, {useState} from 'react';
 import Button from '@mui/material/Button';
 
 export const Attribute = ({value="", color="black", changeStratify}) => {
-  // console.log("here", color);
-
-  // function handleClick() {
-  //   console.log("clicked")
-  //   changeStratify(value)
-  // }
 
   const colorMap = {"grey": {"rgb": "rgb(158, 158, 158)", "rgba": "rgba(158, 158, 158, 0.05)"},
                     "treatment": {"rgb": "rgb(78, 121, 167)", "rgba": "rgba(78, 121, 167, 0.05)"},
@@ -21,7 +15,6 @@ export const Attribute = ({value="", color="black", changeStratify}) => {
                        "borderColor":colorMap[color].rgb,
                        "&:hover": { "borderColor":colorMap[color].rgb, "backgroundColor": colorMap[color].rgba }};
 
-  // const buttonStyle = {"width":"100%", "marginBottom":"5px"};
   const menuStyle = {}
 
   return (

@@ -13,23 +13,6 @@ import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 export const CovariatesManager = ({attributes=[], changeStratify, stratify=[]}) => {
 
-  // console.log(grey, blue, orange);
-
-  
-
-  // Get color of attribute
-  // function getColor(value) {
-  //   if (treatment === value) {
-  //     return "treatment"
-  //   } else if (outcome === value) {
-  //     return "outcome"
-  //   } else if (added.indexOf(value) >= 0) {
-  //     return "inherit"
-  //   } else {
-  //     return "grey"
-  //   }
-  // }
-
   const buttonStyle = {"width":"100%", "marginBottom":"5px"};
   let attrStyle = {"display": "flex",
                    "flexDirection": "column",

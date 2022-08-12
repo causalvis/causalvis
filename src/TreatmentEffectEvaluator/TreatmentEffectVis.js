@@ -13,7 +13,6 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
   // Track color map
   const [colorMap, setColorMap] = React.useState({1: "#4e79a7",
                                                   0: "#f28e2b"});
-  // const transitionDuration = 750;
 
   const [cohortData, setCohortData] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
@@ -356,7 +355,6 @@ export const TreatmentEffectVis = ({allData={}, index=0, treatment="treatment", 
 
   return (
     <div style={subplotStyle}>
-    	{/*<p style={subplotTitle}>{plotTitle}</p>*/}
       <svg width={layout.width} height={layout.height} id={`svgTreatmentEffect${index}`}>
         <g>
         	<g id="x-axis" />

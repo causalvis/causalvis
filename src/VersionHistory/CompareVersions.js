@@ -20,8 +20,6 @@ export const CompareVersions = ({versions=[],
   const [flattened, setFlattened] = React.useState([]);
   const [stratifyBy, setStratifyBy] = React.useState("");
 
-  // console.log(allAttributes, versionAttributes);
-
   function handleChange(e, val) {
     if (!val) {
       setStratifyBy("");
@@ -135,7 +133,6 @@ export const CompareVersions = ({versions=[],
             label="Group by"
           />}
       />
-      {/* <AttributesManager style={attributesStyle} attributes={Array.from(allAttributes)} setStratifyBy={setStratifyBy} /> */}
       <CompareVersionsVis data={data} stratifyBy={stratifyBy} colorScale={colorScale} />
     </div>
   )

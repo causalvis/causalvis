@@ -15,7 +15,6 @@ import TextField from '@mui/material/TextField';
 import { saveAs } from 'file-saver';
 
 export const DownloadDialog = ({open=false, nodelinks={}, treatment="", outcome="", confounds=[], colliders=[], mediators=[], prognostics=[], handleClose}) => {
-  // console.log(colliders);
   const [checked, setChecked] = React.useState({
     nodelinkCheck: true,
     treatmentCheck: false,

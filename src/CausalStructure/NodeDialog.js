@@ -11,7 +11,6 @@ export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addCustom
   const [value, setValue] = React.useState("");
 
   function handleChange(e) {
-    // console.log(e.target.value);
     setValue(e.target.value);
   };
 
@@ -33,7 +32,6 @@ export const NodeDialog = ({open=false, handleNodeClose, addAttribute, addCustom
       <Dialog
         open={open}
         onClose={handleNodeClose}>
-        {/*<DialogTitle>Add Custom Node</DialogTitle>*/}
         <DialogContent>
           <DialogContentText>
           Add Custom Node

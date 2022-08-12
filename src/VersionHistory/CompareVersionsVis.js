@@ -45,13 +45,6 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
       .style("font-size", "11px")
       .style("font-family", "sans-serif");
 
-    // var tooltip_rect = tooltip.select("#tooltip_rect")
-    //   .attr("fill", "white")
-    //   .attr("width", "22")
-    //   .attr("height", "12")
-    //   .attr("x", "0")
-    //   .attr("y", "0");
-
     if (stratifyBy != "") {
       yScale = d3.scaleOrdinal()
         .domain(d3.extent(ATE, d => d.group))
@@ -91,8 +84,6 @@ export const CompareVersionsVis = ({layout={"height": 120, "width": 1200, "margi
 
         tooltip.attr("opacity", 1)
               .attr("transform", `translate(${xScale(d.ATE) - 11}, ${stratifyBy ? yScale(dgroup) - 18 : layout.height / 2 - 18})`)
-              // .attr("x", d => xScale(adj) ? xScale(adj) : layout.marginLeft)
-              // .attr("y", d => yScale(cov) + yScale.bandwidth() / 2 - 10)
 
         tooltip_text.text(`${dname}`);
       })

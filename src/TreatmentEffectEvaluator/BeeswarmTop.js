@@ -19,9 +19,6 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
   const [colorMap, setColorMap] = React.useState({1: "#698fb8",
                                                   0: "#f0a856"});
 
-
-  // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
-
   // Jitter the coordinates of each point slightly along the x-axis
   const jitter = 20;
 
@@ -56,7 +53,6 @@ export const BeeswarmTop = ({layout={"height": 70, "width": 600, "margin": 15, "
     .attr("r", 3)
     .attr("fill", "#698fb8")
     .attr("opacity", 0.2)
-    // .attr("stroke", d => colorMap[1])
 
   // Visualize current threshold
   let thresholdStroke = svgElement.select("#threshold")

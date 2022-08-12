@@ -19,8 +19,6 @@ export const BeeswarmLeft = ({layout={"height": 600, "width": 80, "margin": 30, 
   const [colorMap, setColorMap] = React.useState({1: "#698fb8",
                                                   0: "#f0a856"});
 
-  // const isBinary = (new Set(data.map(d => d[stratify]))).size === 2;
-
   // Jitter the coordinates of each point slightly along the x-axis
   const jitter = 20;
 

@@ -26,8 +26,6 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
   let focus = root;
   let selected = focus.data.name;
 
-  // let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
-
   const rect = svgElement.select("#rect")
     .selectAll("rect")
     .data(root.descendants())
@@ -37,25 +35,12 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
     .attr("height", d => rectHeight(d))
     .attr("fill-opacity", 0.48)
     .attr("fill", d => {
-      // console.log(d);
       if (!d.depth) return "#ccc";
       while (d.depth > 1) d = d.parent;
       return colorScale(JSON.stringify(d.data.DAG));
     })
     .style("cursor", "pointer")
     .on("click", clicked);
-
-  // const rect = cell.append("rect")
-  //     .attr("width", d => d.y1 - d.y0 - 1)
-  //     .attr("height", d => rectHeight(d))
-  //     .attr("fill-opacity", 0.6)
-  //     .attr("fill", d => {
-  //       if (!d.depth) return "#ccc";
-  //       while (d.depth > 1) d = d.parent;
-  //       return colorScale(d.data.name);
-  //     })
-  //     .style("cursor", "pointer")
-  //     .on("click", clicked);
 
   const text = svgElement.select("#text")
       .selectAll("text")
@@ -130,14 +115,6 @@ export const VersionTree = ({layout={"height": 120, "width": 1200, "margin": 30,
   }
 
   function clicked(event, p) {    
-    // let hidden = document.getElementById("_hidden");
-
-    // if (hidden) {
-    //   hidden.value = p.data.name;
-    //   var event = document.createEvent('HTMLEvents');
-    //   event.initEvent('input', false, true);
-    //   hidden.dispatchEvent(event);
-    // }
 
     focus = focus === p ? p = p.parent : p;
 

@@ -59,19 +59,15 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
 
       if (brushSelection) {
         brushExtent = [xScale.invert(brushSelection[0]), xScale.invert(brushSelection[1])];
-        // console.log(brushExtent)
         setSelectRange(brushExtent);
       } else {
         brushExtent = null;
         setSelectRange(null);
       }
-      
-      // updateFilter(refIndex, brushExtent);
     }
 
     var brush = d3.brushX()
                 .extent([[layout.marginLeft, layout.margin], [layout.width-layout.margin, layout.height-layout.margin, layout.margin]])
-                // .on("brush", (e) => onBrush(e))
                 .on("end", (e) => brushEnd(e))
 
     svgElement.call(brush)
@@ -89,11 +85,9 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          // setSelected({"selectedData":d, "treatment":false});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
@@ -124,11 +118,9 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("cursor", "pointer")
       .on("click", function (e, d) {
         if (d3.select(this).attr("opacity") === "1") {
-          // setSelected({"selectedData":[], "treatment":false});
           controlBars.attr("opacity", null);
           treatmentBars.attr("opacity", null);
         } else {
-          // setSelected({"selectedData":d, "treatment":true});
           controlBars.attr("opacity", 0.5);
           treatmentBars.attr("opacity", 0.5);
           d3.select(this).attr("opacity", 1);
@@ -167,17 +159,6 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
           .attr("stroke", "black")
           .attr("stroke-dasharray", "5 5 2 5")
 
-    // controlBars.transition()
-    //   .duration(transitionDuration)
-    //   .ease(d3.easeLinear)
-    //   .attr("y", d => yScaleControl(d.length / n))
-    //   .attr("height", d => yScaleControl(0) - yScaleControl(d.length / n))
-
-    // treatmentBars.transition()
-    //   .duration(1000)
-    //   .ease(d3.easeLinear)
-    //   .attr("height", d =>  yScaleTreatment(d.length / n) - yScaleTreatment(0))
-
     svgElement.select("#legend")
       .selectAll(".legend")
       .data(["control", "treatment"])
@@ -202,18 +183,6 @@ export const PropDistributionVis = ({layout = {"height": 500, "width": 500, "mar
       .attr("font-family", "sans-serif")
       .attr("font-size", "12px")
       .text(d => d)
-
-    // svgElement.select("#title")
-    //   .selectAll(".title")
-    //   .data(["Propensity Score Distribution Plot"])
-    //   .join("text")
-    //   .attr("class", "title")
-    //   .attr("x", layout.width / 2)
-    //   .attr("y", layout.margin / 2)
-    //   .attr("text-anchor", "middle")
-    //   .attr("font-family", "sans-serif")
-    //   .attr("font-size", 12)
-    //   .text(d => d)
 
     xAxis.transition()
         .duration(1000)

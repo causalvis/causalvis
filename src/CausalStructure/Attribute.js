@@ -14,7 +14,6 @@ export const Attribute = ({value=[], color="black", isAdded=false, treatment, ou
                     "outcome": {"rgb": "rgb(242, 142, 44)", "rgba": "rgba(242, 142, 44, 0.05)"},
                     "black": {"rgb": "rgb(0, 0, 0)", "rgba": "rgba(0, 0, 0, 0.05)"}};
 
-  // const [anchorEl, setAnchorEl] = React.useState(null);
   const [open, setOpen] = React.useState(false);
   const [anchorPos, setAnchorPos] = React.useState(null);
 
@@ -28,7 +27,6 @@ export const Attribute = ({value=[], color="black", isAdded=false, treatment, ou
     e.preventDefault();
     if (isAdded) {
       setOpen(!open);
-      // setAnchorEl(e.target);
       setAnchorPos({"left": e.clientX + 2, "top": e.clientY - 6})
     }
   }
@@ -43,7 +41,6 @@ export const Attribute = ({value=[], color="black", isAdded=false, treatment, ou
       changeTreatment(value);
       changeOutcome("");
       handleClose();
-      // alert("Attribute is already set as outcome");
     } else {
       changeTreatment(value);
       handleClose();
@@ -60,7 +57,6 @@ export const Attribute = ({value=[], color="black", isAdded=false, treatment, ou
       changeOutcome(value);
       changeTreatment("");
       handleClose();
-      // alert("Attribute is already set as treatment");
     } else {
       changeOutcome(value);
       handleClose();

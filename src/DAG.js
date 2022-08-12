@@ -26,17 +26,12 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-// import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import ControlPointDuplicateOutlinedIcon from '@mui/icons-material/ControlPointDuplicateOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-// import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
-// import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
-// import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-// import MovingOutlinedIcon from '@mui/icons-material/MovingOutlined';
 
 import { saveAs } from 'file-saver';
 
@@ -76,8 +71,6 @@ export const DAG = ({attributes = [], graph, _svg="svgDAG", _dag, _colliders, _m
   // Tracks treatment and outcome attributes
   const [treatment, setTreatment] = React.useState("");
   const [outcome, setOutcome] = React.useState("");
-  // const [attr, setAttr] = React.useState(attributes);
-  // const [index, setIndex] = React.useState(0);
 
   // Tracks all descendants for a node
   const [allDescendants, setAllDescendants] = React.useState({});
@@ -855,21 +848,6 @@ export const DAG = ({attributes = [], graph, _svg="svgDAG", _dag, _colliders, _m
               />}
           />
 
-          {/*<FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">*/}
-            {/*<InputLabel htmlFor="search">Search</InputLabel>*/}
-            {/*<OutlinedInput
-              variant="outlined"
-              sx={{"height": "48px",
-                  "border-radius": "24px",
-                  "& .MuiOutlinedInput-input": { height: "12px" }
-              }}
-              endAdornment={
-                <InputAdornment position="end">
-                  <SearchIcon />
-                </InputAdornment>
-              }
-            />*/}
-          {/*</FormControl>*/}
           <div style={downloadStyle}>
             <IconButton id="downloadSVG" onClick={() => downloadSVG()}>
               <a style={aStyle} title="save image">
