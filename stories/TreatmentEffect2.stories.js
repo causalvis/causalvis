@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TreatmentEffectEvaluator } from '../src/TreatmentEffectEvaluator.js'
+import { TreatmentEffectExplorer } from '../src/TreatmentEffectExplorer.js'
 import data from '../public/te_test.json'
 // import CohortConfounds from '../public/cohort2_confounds.json'
 // import CohortTreatments from '../public/cohort2_treatment.json'
@@ -34,13 +34,13 @@ import data from '../public/te_test.json'
 // console.log(data2.length, CohortTreatments.length, CohortPredictions.length);
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: 'Treatment Effect/Treatment Effect Evaluator 2',
+  title: 'Treatment Effect/Treatment Effect Explorer 2',
 };
 
 export const ToStorybook = () => (
-  <TreatmentEffectEvaluator data={data} />
+  <TreatmentEffectExplorer data={data} />
 )
 
 ToStorybook.story = {
-  name: 'Treatment Effect Evaluator 2',
+  name: 'Treatment Effect Explorer 2',
 };

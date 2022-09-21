@@ -28,18 +28,13 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'; // import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import AddPhotoAlternateOutlinedIcon from '@mui/icons-material/AddPhotoAlternateOutlined';
 import ControlPointDuplicateOutlinedIcon from '@mui/icons-material/ControlPointDuplicateOutlined';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'; // import FullscreenExitOutlinedIcon from '@mui/icons-material/FullscreenExitOutlined';
-// import FitScreenOutlinedIcon from '@mui/icons-material/FitScreenOutlined';
-// import SyncAltIcon from '@mui/icons-material/SyncAlt';
-
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
-import SearchIcon from '@mui/icons-material/Search'; // import MovingOutlinedIcon from '@mui/icons-material/MovingOutlined';
-
+import SearchIcon from '@mui/icons-material/Search';
 import { saveAs } from 'file-saver';
 export var DAG = function DAG(_ref) {
   var _ref$attributes = _ref.attributes,
@@ -128,9 +123,7 @@ export var DAG = function DAG(_ref) {
 
   var _React$useState16 = React.useState(""),
       outcome = _React$useState16[0],
-      setOutcome = _React$useState16[1]; // const [attr, setAttr] = React.useState(attributes);
-  // const [index, setIndex] = React.useState(0);
-  // Tracks all descendants for a node
+      setOutcome = _React$useState16[1]; // Tracks all descendants for a node
 
 
   var _React$useState17 = React.useState({}),

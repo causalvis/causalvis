@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { grey, blue, orange } from '@mui/material/colors';
 import { Attribute } from './Attribute';
-import Button from '@mui/material/Button'; // import CardHeader from '@mui/material/CardHeader';
-
+import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -23,29 +22,6 @@ export var AttributesManager = function AttributesManager(_ref) {
       handleAddTag = _ref.handleAddTag,
       handleNodeOpen = _ref.handleNodeOpen;
 
-  // console.log(grey, blue, orange);
-  // const theme = createTheme({
-  //   palette: {
-  //     grey: {
-  //       light: grey[300],
-  //       main: grey[500],
-  //       dark: grey[700],
-  //       contrastText: '#fff',
-  //     },
-  //     treatment: {
-  //       light: blue[500],
-  //       main: "#4e79a7",
-  //       dark: blue[900],
-  //       contrastText: '#fff',
-  //     },
-  //     outcome: {
-  //       light: orange[500],
-  //       main: "#f28e2c",
-  //       dark: orange[900],
-  //       contrastText: '#fff',
-  //     }
-  //   },
-  // });
   // Get color of attribute
   function getColor(value) {
     if (treatment === value) {

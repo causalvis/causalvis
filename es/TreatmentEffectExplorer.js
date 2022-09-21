@@ -19,7 +19,7 @@ Props:
   - outcome: String, name of outcome variable
 */
 
-export var TreatmentEffectEvaluator = function TreatmentEffectEvaluator(_ref) {
+export var TreatmentEffectExplorer = function TreatmentEffectExplorer(_ref) {
   var _ref$data = _ref.data,
       data = _ref$data === void 0 ? [] : _ref$data,
       _ref$treatment = _ref.treatment,

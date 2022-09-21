@@ -35,7 +35,7 @@ export var Attribute = function Attribute(_ref) {
       "rgb": "rgb(0, 0, 0)",
       "rgba": "rgba(0, 0, 0, 0.05)"
     }
-  }; // const [anchorEl, setAnchorEl] = React.useState(null);
+  };
 
   var _React$useState = React.useState(false),
       open = _React$useState[0],
@@ -55,8 +55,7 @@ export var Attribute = function Attribute(_ref) {
     e.preventDefault();
 
     if (isAdded) {
-      setOpen(!open); // setAnchorEl(e.target);
-
+      setOpen(!open);
       setAnchorPos({
         "left": e.clientX + 2,
         "top": e.clientY - 6
@@ -73,7 +72,7 @@ export var Attribute = function Attribute(_ref) {
     } else if (outcome === value) {
       changeTreatment(value);
       changeOutcome("");
-      handleClose(); // alert("Attribute is already set as outcome");
+      handleClose();
     } else {
       changeTreatment(value);
       handleClose();
@@ -89,7 +88,7 @@ export var Attribute = function Attribute(_ref) {
     } else if (treatment === value) {
       changeOutcome(value);
       changeTreatment("");
-      handleClose(); // alert("Attribute is already set as treatment");
+      handleClose();
     } else {
       changeOutcome(value);
       handleClose();

@@ -18,7 +18,6 @@ export var NodeDialog = function NodeDialog(_ref) {
       setValue = _React$useState[1];
 
   function handleChange(e) {
-    // console.log(e.target.value);
     setValue(e.target.value);
   }
 

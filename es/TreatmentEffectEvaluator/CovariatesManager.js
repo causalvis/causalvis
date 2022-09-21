@@ -12,19 +12,6 @@ export var CovariatesManager = function CovariatesManager(_ref) {
       changeStratify = _ref.changeStratify,
       _ref$stratify = _ref.stratify,
       stratify = _ref$stratify === void 0 ? [] : _ref$stratify;
-  // console.log(grey, blue, orange);
-  // Get color of attribute
-  // function getColor(value) {
-  //   if (treatment === value) {
-  //     return "treatment"
-  //   } else if (outcome === value) {
-  //     return "outcome"
-  //   } else if (added.indexOf(value) >= 0) {
-  //     return "inherit"
-  //   } else {
-  //     return "grey"
-  //   }
-  // }
   var buttonStyle = {
     "width": "100%",
     "marginBottom": "5px"

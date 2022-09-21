@@ -6,11 +6,6 @@ export var Attribute = function Attribute(_ref) {
       _ref$color = _ref.color,
       color = _ref$color === void 0 ? "black" : _ref$color,
       changeStratify = _ref.changeStratify;
-  // console.log("here", color);
-  // function handleClick() {
-  //   console.log("clicked")
-  //   changeStratify(value)
-  // }
   var colorMap = {
     "grey": {
       "rgb": "rgb(158, 158, 158)",
@@ -38,8 +33,7 @@ export var Attribute = function Attribute(_ref) {
       "borderColor": colorMap[color].rgb,
       "backgroundColor": colorMap[color].rgba
     }
-  }; // const buttonStyle = {"width":"100%", "marginBottom":"5px"};
-
+  };
   var menuStyle = {};
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Button, {
     sx: buttonStyle,

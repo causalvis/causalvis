@@ -9,11 +9,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle'; // import FormControl from '@mui/material/FormControl';
-// import FormLabel from '@mui/material/FormLabel';
-// import FormGroup from '@mui/material/FormGroup';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-
+import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField'; // import { saveAs } from 'file-saver';
 
@@ -40,8 +36,7 @@ export var TagDialog = function TagDialog(_ref) {
 
   var _React$useState3 = React.useState("#000000"),
       color = _React$useState3[0],
-      setColor = _React$useState3[1]; // console.log(tagColors);
-  // Handle when users select a tag from existing tags;
+      setColor = _React$useState3[1]; // Handle when users select a tag from existing tags;
 
 
   function handleChange(e, val) {
@@ -83,7 +78,6 @@ export var TagDialog = function TagDialog(_ref) {
 
 
   var handleDelete = function handleDelete(value) {
-    // console.log("deleting...", value);
     deleteTag(value);
   };
 

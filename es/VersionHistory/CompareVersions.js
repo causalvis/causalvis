@@ -37,8 +37,7 @@ export var CompareVersions = function CompareVersions(_ref) {
 
   var _React$useState3 = React.useState(""),
       stratifyBy = _React$useState3[0],
-      setStratifyBy = _React$useState3[1]; // console.log(allAttributes, versionAttributes);
-
+      setStratifyBy = _React$useState3[1];
 
   function handleChange(e, val) {
     if (!val) {

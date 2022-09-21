@@ -15,7 +15,7 @@ Props:
   - treatment: String, name of treatment variable
   - outcome: String, name of outcome variable
 */
-export const TreatmentEffectEvaluator = ({data=[], treatment="treatment", outcome="outcome", effect="effect"}) => {
+export const TreatmentEffectExplorer = ({data=[], treatment="treatment", outcome="outcome", effect="effect"}) => {
 
   const [attributes, setAttributes] = React.useState([]);
   const [attributeLevels, setAttributeLevels] = React.useState({});

@@ -31,8 +31,7 @@ export var VersionTree = function VersionTree(_ref) {
 
   var root = partition(data);
   var focus = root;
-  var selected = focus.data.name; // let colorScale = d3.scaleOrdinal(d3.quantize(d3.interpolateViridis, data.children.length + 1));
-
+  var selected = focus.data.name;
   var rect = svgElement.select("#rect").selectAll("rect").data(root.descendants()).join("rect").attr("transform", function (d) {
     return "translate(" + d.y0 + "," + d.x0 + ")";
   }).attr("width", function (d) {
@@ -40,7 +39,6 @@ export var VersionTree = function VersionTree(_ref) {
   }).attr("height", function (d) {
     return rectHeight(d);
   }).attr("fill-opacity", 0.48).attr("fill", function (d) {
-    // console.log(d);
     if (!d.depth) return "#ccc";
 
     while (d.depth > 1) {
@@ -48,18 +46,7 @@ export var VersionTree = function VersionTree(_ref) {
     }
 
     return colorScale(JSON.stringify(d.data.DAG));
-  }).style("cursor", "pointer").on("click", clicked); // const rect = cell.append("rect")
-  //     .attr("width", d => d.y1 - d.y0 - 1)
-  //     .attr("height", d => rectHeight(d))
-  //     .attr("fill-opacity", 0.6)
-  //     .attr("fill", d => {
-  //       if (!d.depth) return "#ccc";
-  //       while (d.depth > 1) d = d.parent;
-  //       return colorScale(d.data.name);
-  //     })
-  //     .style("cursor", "pointer")
-  //     .on("click", clicked);
-
+  }).style("cursor", "pointer").on("click", clicked);
   var text = svgElement.select("#text").selectAll("text").data(root.descendants()).join("text").attr("transform", function (d) {
     return "translate(" + d.y0 + "," + d.x0 + ")";
   }).style("user-select", "none").attr("pointer-events", "none").attr("x", 5).attr("y", 12).attr("fill-opacity", function (d) {
@@ -118,13 +105,6 @@ export var VersionTree = function VersionTree(_ref) {
   }
 
   function clicked(event, p) {
-    // let hidden = document.getElementById("_hidden");
-    // if (hidden) {
-    //   hidden.value = p.data.name;
-    //   var event = document.createEvent('HTMLEvents');
-    //   event.initEvent('input', false, true);
-    //   hidden.dispatchEvent(event);
-    // }
     focus = focus === p ? p = p.parent : p;
     selected = focus.data.name;
     setVariables(focus);

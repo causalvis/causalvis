@@ -115,7 +115,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     } else if (outcome === contextItem) {
       changeTreatment(contextItem);
       changeOutcome("");
-      handleClose(); // alert("Attribute is already set as outcome");
+      handleClose();
     } else {
       changeTreatment(contextItem);
       handleClose();
@@ -129,7 +129,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     } else if (treatment === contextItem) {
       changeOutcome(contextItem);
       changeTreatment("");
-      handleClose(); // alert("Attribute is already set as treatment");
+      handleClose();
     } else {
       changeOutcome(contextItem);
       handleClose();
@@ -141,15 +141,7 @@ export var DAGEditor = function DAGEditor(_ref) {
     if (selected.length === 0) {
       deleteAttribute(contextItem);
       handleClose();
-    } // else {
-    //   for (let n of selected) {
-    //     console.log(n);
-    //     deleteAttribute(n);
-    //   }
-    //   handleClose();
-    //   setSelected([]);
-    // }
-
+    }
   } // Add node to selections
 
 
@@ -231,20 +223,9 @@ export var DAGEditor = function DAGEditor(_ref) {
     }
   }, [mediators, colliders, confounds]);
   var ref = useRef('svgDAG');
-  var currentPath = []; // nodelinks.links.forEach(d => {
-  //   const linkSource = d.source;
-  //   const linkTarget = d.target;
-  //   d.source = nodelinks.nodes[linkSource];
-  //   d.target = nodelinks.nodes[linkTarget];
-  // });
-
+  var currentPath = [];
   var svg = d3.select(ref.current);
-  var svgElement = svg.select("g"); // svg.on("click", function(e) {
-  //   console.log(mode);
-  //   if (mode === "node") {
-  //     console.log("here", e.x, e.y);
-  //   }
-  // })
+  var svgElement = svg.select("g");
 
   function zoomed(_ref2) {
     var transform = _ref2.transform;
@@ -318,8 +299,6 @@ export var DAGEditor = function DAGEditor(_ref) {
   }).attr("stroke", "black").attr("stroke-width", 1);
 
   function onDrag(el, e, d) {
-    // console.log(d);
-    // console.log(e.x, e.y, e);
     // Change position of node
     d3.select(el).attr("cx", e.x).attr("cy", e.y); // Change position of text
 
@@ -426,11 +405,7 @@ export var DAGEditor = function DAGEditor(_ref) {
       return colorMap.confounds;
     } else if (prognostics.indexOf(d.name) >= 0) {
       return colorMap.prognostics;
-    } // else if (d.$custom) {
-    //   // return "#9e9e9e"
-    //   return "black"
-    // }
-
+    }
 
     return "black";
   }
@@ -471,7 +446,6 @@ export var DAGEditor = function DAGEditor(_ref) {
     if (selected.indexOf(d.name) >= 0) {
       return 3;
     } else if (isSearched(d)) {
-      // console.log('here');
       return 3;
     } else {
       return 1;
@@ -497,7 +471,7 @@ export var DAGEditor = function DAGEditor(_ref) {
   }).on("end", function (e, d) {
     // Update the new position of the node
     if (mode === "default") {
-      updateNodePos(d.id, e.x, e.y); // console.log("here")
+      updateNodePos(d.id, e.x, e.y);
     }
   })).on("click", function (e, d) {
     e.stopPropagation();
@@ -517,26 +491,20 @@ export var DAGEditor = function DAGEditor(_ref) {
         updateLinks(currentPath);
         currentPath = [];
       }
-    } // if (mode === "default") {
-    //   handleSelected(d.name);
-    // }
-
+    }
   }).on("mouseover", function (e, d) {
     if (mode === "path") {
       d3.select(this).attr("stroke-width", 3);
     }
   }).on("mouseout", function (e, d) {
-    // console.log(d.tags.indexOf(search.slice(4)))
     if (mode === "path" && currentPath.map(function (cp) {
       return cp.name;
     }).indexOf(d.name) < 0 && d.name !== search) {
       d3.select(this).attr("stroke-width", 1);
     } else if (mode === "default" && !isSearched(d)) {
-      // console.log('mouseout');
       d3.select(this).attr("stroke-width", 1);
     }
-  }); // .on("contextmenu", (e, d) => handleContextMenu(e, d));
-
+  });
   var covariateTypes = ["treatment", "outcome", "confounds", "colliders", "mediators", "prognostics"];
   var legend = svg.select("#legend").selectAll(".legendRect").data(covariateTypes).join("rect").attr("class", "legendRect").attr("x", layout.width - layout.margin * 2).attr("y", function (d, i) {
     return layout.height - layout.margin * 2 + 18 * i;

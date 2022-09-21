@@ -76,8 +76,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
 
   var _React$useState8 = React.useState(false),
       iconShow = _React$useState8[0],
-      setIconShow = _React$useState8[1]; // const [selectedBins, setSelectedBins] = React.useState([]);
-
+      setIconShow = _React$useState8[1];
 
   var bins = 30; // Track color map
 
@@ -160,8 +159,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
       });
       control = control.map(function (c, i) {
         return [c, controlIPW[i]];
-      }); // console.log("setting...", treatment, control)
-
+      });
       setAdjustedTreatmentData([].concat(treatment));
       setAdjustedControlData([].concat(control));
     }
@@ -239,11 +237,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
 
 
   function getLine(thresholds, d, startPoint, endPoint, xScale, yScale, weights) {
-    var std = getStandardDeviation(d); // let IQRDivided = getIQR(d) / 1.34;
-    // let b = 0.9 * d3.min([std, IQRDivided]) * d.length ** (-1/5);
-    // let b = std * 1.06 * d.length ** (-1/5)
-    // console.log(std, b);
-
+    var std = getStandardDeviation(d);
     var b = (thresholds[1] - thresholds[0]) * 3.5;
     var density = kdeWeighted(epanechnikov(b), thresholds, d, weights);
     density = [startPoint].concat(density).concat([endPoint]);
@@ -289,8 +283,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
       }) / totalWeight);
     }).x(function (d) {
       return xScale(d.x0);
-    }).curve(d3.curveCatmullRom); // console.log(binned)
-
+    }).curve(d3.curveCatmullRom);
     return {
       "unadjusted": unadjustedArea(binned),
       "adjusted": adjustedArea(binned)
@@ -298,7 +291,6 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
   }
 
   function getAreaWithAdjusted(binsUnadjusted, binsAdjusted, binRange, xScale) {
-    // console.log(binsUnadjusted, binsAdjusted)
     var totalLengthUnadjusted = binsUnadjusted.reduce(function (count, current) {
       return count + current.length;
     }, 0);
@@ -326,8 +318,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
       return adjustedBinScale(d.length / totalLengthAdjusted);
     }).x(function (d) {
       return xScale(d.x0);
-    }).curve(d3.curveCatmullRom); // console.log(typeof unadjustedArea(bins))
-
+    }).curve(d3.curveCatmullRom);
     return {
       "unadjusted": unadjustedArea(binsUnadjusted),
       "adjusted": adjustedArea(binsAdjusted)
@@ -409,9 +400,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
     });
     var thresholds = newXScale.ticks(bins / 2);
     var startPoint = [d3.min(unadjustedAttribute), 0];
-    var endPoint = [d3.max(unadjustedAttribute), 0]; // let unadjustedCArea = getArea(CBins, [layout.height / 2, layout.margin], newXScale);
-    // let unadjustedTArea = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale);
-    // Get KDE of unadjusted data
+    var endPoint = [d3.max(unadjustedAttribute), 0]; // Get KDE of unadjusted data
 
     var unadjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, newXScale, newYScaleControl);
     var unadjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, newXScale, newYScaleTreatment); // Get mean of unadjusted data
@@ -429,8 +418,7 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
     var adjustedCArea;
     var adjustedTArea;
     var adjustedCMean;
-    var adjustedTMean; // console.log("IPW", adjustedTreatmentData, adjustedControlData, !adjustedTreatmentData || !adjustedControlData)
-    // If adjusted data set not provided, calculate adjustment using IPW and get weighted KDE
+    var adjustedTMean; // If adjusted data set not provided, calculate adjustment using IPW and get weighted KDE
 
     if (adjustedTreatmentData.length === 0 || adjustedControlData.length === 0) {
       var allPropensity = unadjustedPropensity.map(function (p, i) {
@@ -451,20 +439,16 @@ export var CompareDistributionVis = function CompareDistributionVis(_ref) {
       adjustedCLine = getLine(thresholds, unadjustedControlData, startPoint, endPoint, newXScale, newYScaleControl, controlIPW);
       adjustedTLine = getLine(thresholds, unadjustedTreatmentData, startPoint, endPoint, newXScale, newYScaleTreatment, treatmentIPW);
       var CAreas = getArea(CBins, [layout.height / 2, layout.margin], newXScale);
-      var TAreas = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale); // console.log(CAreas, TAreas);
-
+      var TAreas = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale);
       unadjustedCArea = CAreas.unadjusted;
       adjustedCArea = CAreas.adjusted;
       unadjustedTArea = TAreas.unadjusted;
-      adjustedTArea = TAreas.adjusted; // [unadjustedCArea, adjustedCArea] = getArea(CBins, [layout.height / 2, layout.margin], newXScale)[0];
-      // [unadjustedTArea, adjustedTArea] = getArea(TBins, [layout.height / 2, layout.height - layout.margin], newXScale)[0];
-
+      adjustedTArea = TAreas.adjusted;
       adjustedCMean = getWeightedMean(unadjustedControlData, controlIPW);
       adjustedTMean = getWeightedMean(unadjustedTreatmentData, treatmentIPW);
     } else {
-      // console.log("here...")
       var TBinsAdjusted = histogram(adjustedTreatmentData);
-      var CBinsAdjusted = histogram(adjustedControlData); // console.log(CBinsAdjusted, TBinsAdjusted)
+      var CBinsAdjusted = histogram(adjustedControlData);
 
       var _CAreas = getAreaWithAdjusted(CBins, CBinsAdjusted, [layout.height / 2, layout.margin], newXScale);
 

@@ -186,7 +186,7 @@ class CohortEvaluator(CohortBaseWidget):
         )
 
 @widgets.register
-class TreatmentEffectEvaluator(BaseWidget):
+class TreatmentEffectExplorer(BaseWidget):
     def __init__(self, data=[], treatment="treatment", outcome="outcome", **kwargs):
         
         self.data = data

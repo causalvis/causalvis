@@ -19,8 +19,7 @@ export var TreatmentEffectVis = function TreatmentEffectVis(_ref) {
     0: "#f28e2b"
   }),
       colorMap = _React$useState[0],
-      setColorMap = _React$useState[1]; // const transitionDuration = 750;
-
+      setColorMap = _React$useState[1];
 
   var _React$useState2 = React.useState([]),
       cohortData = _React$useState2[0],

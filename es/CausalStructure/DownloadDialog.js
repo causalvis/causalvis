@@ -39,7 +39,6 @@ export var DownloadDialog = function DownloadDialog(_ref) {
       prognostics = _ref$prognostics === void 0 ? [] : _ref$prognostics,
       handleClose = _ref.handleClose;
 
-  // console.log(colliders);
   var _React$useState = React.useState({
     nodelinkCheck: true,
     treatmentCheck: false,
