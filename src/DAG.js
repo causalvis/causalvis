@@ -612,6 +612,8 @@ export const DAG = ({attributes = [], graph, _svg="svgDAG", _dag, _colliders, _m
 
     for (let n of nodelinks.nodes) {
 
+      if (n.id === treatmentID) {continue;}
+
       let isMediator = mediators.indexOf(n.id) >= 0;
       let isConfound = confounds.indexOf(n.id) >= 0;
 

@@ -760,6 +760,11 @@ export var DAG = function DAG(_ref) {
 
     for (var _iterator11 = _createForOfIteratorHelperLoose(nodelinks.nodes), _step11; !(_step11 = _iterator11()).done;) {
       var n = _step11.value;
+
+      if (n.id === treatmentID) {
+        continue;
+      }
+
       var isMediator = mediators.indexOf(n.id) >= 0;
       var isConfound = confounds.indexOf(n.id) >= 0;
       var childrenHasOutcome = n.children.has(outcomeID);
