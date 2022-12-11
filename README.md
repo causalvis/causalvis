@@ -53,10 +53,10 @@ src/ *- all javascript frontend code for Causalvis react components*
 
 /causalvis *- ipywidget code for the Causalvis pacakge, files not described below are boilerplate code for general ipywidgets*
 
-- causalvis/ *custom files for Causalvis listed below*
+- causalvis/ *- custom files for Causalvis listed below*
 	- widget.js: Python backend for Causalvis, executes data pre-processing where necessary, and manages sending and receiving data from front-end visualization
 
-- lib/ *custom files for Causalvis listed below*
+- lib/ *- custom files for Causalvis listed below*
 	- react.js: import compiled react components from /lib and render in Jupyter, manage sending and receiving data from Jupyter
 
 /stories *- manages storybook for quick testing of components in dev mode, no Jupyter installation necessary*
