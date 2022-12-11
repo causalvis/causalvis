@@ -6,7 +6,7 @@ Causalvis is a python library of interactive visualizations for causal inference
 
 ## Contents
 
-The contents of this repository include all code needed to install and run the Causalvis library locally. We also include notebooks that demonstrate the use of each of the Causalvis visualization modules. Notebooks that were used in our evaluation have been indicated.
+The contents of this repository include all code needed to install and run the Causalvis library locally. We also include notebooks that demonstrate the use of each of the Causalvis visualization modules. Notebooks that were used in the evaluation study have been indicated.
 
 src/ *- all javascript frontend code for Causalvis react components*
 	- DAG.js: main script for the DAG module
