@@ -63,6 +63,16 @@ src/ *- all javascript frontend code for Causalvis react components*
 
 /public *- sample data files needed to run storybook*
 
+/notebook *- sample notebooks demonstrating Causalvis, including material used during the evaluation study*
+
+- Examples/
+	- 1 Module_DAG.ipynb: notebook demonstrating the DAG module, used during the evaluation study
+	- 2 Module_CohortEvaluator.ipynb: notebook demonstrating the CohortEvaluator module, used during the evaluation study
+	- 3 Module_TreatmentEffectExplorer.ipynb: notebook demonstrating the TreatmentEffectExplorer module, used during the evaluation study
+	- 4 Module_VersionHistory.ipynb: notebook demonstrating the VersionHistory module, used during the evaluation study
+	- Example_Student Performance.ipynb: notebook demonstrating the use of all Causalvis modules
+	- All other files: additional notebooks used for dev testing
+
 ## Getting Started with Causalvis
 
 To run the causalvis library, first clone the repo locally:
