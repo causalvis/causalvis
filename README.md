@@ -78,7 +78,7 @@ src/ *- all javascript frontend code for Causalvis react components*
 To run the causalvis library, first clone the repo locally:
 
 ```bash
-git clone https://github.ibm.com/bumchul-kwon/causalvis.git
+git clone https://github.com/causalvis/causalvis.git
 ```
 
 ### Installing for Jupyter lab
