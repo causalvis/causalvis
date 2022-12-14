@@ -70,7 +70,10 @@ src/ *- all javascript frontend code for Causalvis react components*
 	- 2 Module_CohortEvaluator.ipynb: notebook demonstrating the CohortEvaluator module, used during the evaluation study
 	- 3 Module_TreatmentEffectExplorer.ipynb: notebook demonstrating the TreatmentEffectExplorer module, used during the evaluation study
 	- 4 Module_VersionHistory.ipynb: notebook demonstrating the VersionHistory module, used during the evaluation study
-	- Example_Student Performance.ipynb: notebook demonstrating the use of all Causalvis modules
+	- Example_Student Performance.ipynb: notebook demonstrating the use of all Causalvis modules on a student grades dataset
+	- Example_Student Performance_no_Causalvis.ipynb: causal inference performed on the same student grades dataset as above, without Causalvis
+	- Causal_Inference_Causalvis.png: .png version of the Example_Student Performance.ipynb notebook
+	- Causal_Inference_no_Causalvis.png: .png version of the Example_Student Performance_no_Causalvis.ipynb
 	- All other files: additional notebooks used for dev testing
 
 ## Getting Started with Causalvis
