@@ -1,6 +1,8 @@
 # Causalvis: Visualizations for Causal Inference
 
-This repository contains supplemental materials for the ACM CHI 2023 paper, Visual Reasoning Strategies for Effect Size Causalvis: Visualizations for Causal Inference.
+This repository contains supplemental materials for the ACM CHI 2023 paper submission: 
+
+`Causalvis: Visualizations for Causal Inference`
 
 Causalvis is a python library of interactive visualizations for causal inference, designed to work with the [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/getting_started/overview.html) computational environment.
 
