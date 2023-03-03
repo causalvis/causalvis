@@ -1,10 +1,23 @@
 # Causalvis: Visualizations for Causal Inference
 
-This repository contains supplemental materials for the ACM CHI 2023 paper submission: 
+This repository contains supplemental materials for the ACM CHI 2023 paper titled: 
 
 `Causalvis: Visualizations for Causal Inference`
 
 Causalvis is a python library of interactive visualizations for causal inference, designed to work with the [JupyterLab](https://jupyterlab.readthedocs.io/en/stable/getting_started/overview.html) computational environment.
+
+## Citation
+
+```
+@inproceedings{Guo_Causalvis_2023,
+	address = {Hamburg, Germany},
+	title = {{Causalvis}: Visualizations for Causal Inference},
+	booktitle = {Proceedings of the 2023 CHI Conference on Human Factors in Computing Systems},
+	publisher = {Association for Computing Machinery},
+	author = {Guo, Grace and Karavani, Ehud and Endert, Alex and Kwon, Bum Chul},
+	year = {2023}
+}
+```
 
 ## Contents
 
