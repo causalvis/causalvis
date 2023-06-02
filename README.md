@@ -33,6 +33,8 @@ The quickest way to ensure that causalvis is installed correctly is to start wit
 
 ```
  conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3
+
+ conda activate newenv
 ```
 
 Ensure that the [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) package manager has been installed on your machine.
