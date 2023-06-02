@@ -4,10 +4,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 const e = React.createElement;
 
-var dag = require('../../../lib/DAG.js');
-var cohort = require('../../../lib/CohortEvaluator.js');
-var teffect = require('../../../lib/TreatmentEffectExplorer.js');
-var versions = require('../../../lib/VersionHistory.js');
+var dag = require('./lib/DAG.js');
+var cohort = require('./lib/CohortEvaluator.js');
+var teffect = require('./lib/TreatmentEffectExplorer.js');
+var versions = require('./lib/VersionHistory.js');
 
 var lib = {...dag, ...cohort, ...teffect, ...versions};
 
