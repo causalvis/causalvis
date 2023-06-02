@@ -1,3 +1,4 @@
 // Export widget models and views, and the npm package version number.
-module.exports = require('./react.js');
-module.exports['version'] = require('../package.json').version;
+
+export {ReactModel, ReactView, DAGModel, DAGView, CohortModel, CohortView, VersionHistoryModel, VersionHistoryView} from './react';
+export {version} from '../package.json';

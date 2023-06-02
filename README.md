@@ -19,78 +19,6 @@ Causalvis is a python library of interactive visualizations for causal inference
 }
 ```
 
-## Contents
-
-The contents of this repository include all code needed to install and run the Causalvis library locally. We also include notebooks that demonstrate the use of each of the Causalvis visualization modules. Notebooks that were used in the evaluation study have been indicated.
-
-src/ *- all javascript frontend code for Causalvis react components*
-	- DAG.js: main script for the DAG module
-	- CohortEvaluator.js: main script for the CohortEvaluator module
-	- TreatmentEffectExplorer.js: main script for the TreatmentEffectExplorer module
-	- VersionHistory.js: main script for the VersionHistory module
-
-- CausalStructure/ *- individual components of the DAG module*
-	- Attribute.js: single attribute button in the attributes menu on left
-	- AttributesManager.js: attributes menu on left
-	- DAGEditor.js: svg for visualizing and editing the DAG
-	- DownloadDialog.js: dialog box for selecting download options
-	- TagDialog.js: dialog box for adding and editing tags for each attribute
-
-- CohortEvaluator/ *- individual components of the CohortEvaluator module*
-	- CompareDistributionVis.js: distribution of single continuous covariate for treatment and control groups, including visualization of changes before and after adjustment as well as SMD for all groups
-	- CompareHistogramContinuousVis.js: histogram distribution of single continuous covariate for treatment and control groups, including visualization of changes before and after adjustment as well as SMD for all groups (note that this component was eventually excluded from the final Causalvis package)
-	- CompareHistogramVis.js: histogram distribution of single binary covariate for treatment and control groups, including visualization of changes before and after adjustment as well as SMD for all groups
-	- CovariateBalance.js: container component that organizes the aSMD and detailed covariate views, as well as sorting the order of the covariates in both views
-	- CovariateSelector.js: keeps track of the visible covariates in the detailed covariates view
-	- DownloadSelectedDialog.js: dialog for viewing and downloading selected (brushed) items in the propensity score plot
-	- PropDistribution.js: container component that pre-processes the data for the propensity score plot based on whether IPW or matching is used for cohort construction
-	- PropDistributionVis.js: svg for visualizing the propensity score plot
-	- SMDMenu.js: the aSMD plot sort menu
-	- SMDVis.js: svg for visualizing the aSMD plot
-
-- TreatmentEffectExplorer/ *- individual components of the TreatmentEffectExplorer module*
-	- BeeswarmLeft.js: vertically oriented beeswarm plot
-	- BeeswarmTop.js: horizontally oriented beeswarm plot
-	- Covariate.js: single covariate button in the covariates menu on left
-	- CovariatesManager.js: covariates menu on left
-	- LegendVis.js: legends for the visualizations shown separately
-	- TreatmentEffectVis.js: boxplot visualization of individual treatment effects for each subgroup (note that this component was eventually excluded from the final Causalvis package)
-	- TreatmentEffectVis_withViolin.js: boxplot and violin plot visualizations of individual treatment effects for each subgroup
-
-- VersionHistory/ *- individual components of the VersionHistory module*
-	- Attribute.js: single attribute button in the attributes dropdown menu
-	- AttributesManager.js: attributes dropdown menu
-	- CompareVersions.js: container component that keeps track of different cohort versions and covariates used in each
-	- CompareVersionsVis.js: svg for visualizing the ATE across versions
-	- VersionTree.js: svg for visualizing the icicle plot of different DAG and cohort versions
-
-/lib *- components compiled from /src*
-
-/causalvis *- ipywidget code for the Causalvis pacakge, files not described below are boilerplate code for general ipywidgets*
-
-- causalvis/ *- custom files for Causalvis listed below*
-	- widget.js: Python backend for Causalvis, executes data pre-processing where necessary, and manages sending and receiving data from front-end visualization
-
-- lib/ *- custom files for Causalvis listed below*
-	- react.js: imports compiled react components from /lib and render in Jupyter, manages sending and receiving data from Jupyter
-
-/stories *- manages storybook for quick testing of components in dev mode, no Jupyter installation necessary*
-
-/public *- sample data files needed to run storybook*
-
-/notebook *- sample notebooks demonstrating Causalvis, including material used during the evaluation study*
-
-- Examples/
-	- 1 Module_DAG.ipynb: notebook demonstrating the DAG module, used during the evaluation study
-	- 2 Module_CohortEvaluator.ipynb: notebook demonstrating the CohortEvaluator module, used during the evaluation study
-	- 3 Module_TreatmentEffectExplorer.ipynb: notebook demonstrating the TreatmentEffectExplorer module, used during the evaluation study
-	- 4 Module_VersionHistory.ipynb: notebook demonstrating the VersionHistory module, used during the evaluation study
-	- Example_Student Performance.ipynb: notebook demonstrating the use of all Causalvis modules on a student grades dataset
-	- Example_Student Performance_no_Causalvis.ipynb: causal inference performed on the same student grades dataset as above, without Causalvis
-	- Causal_Inference_Causalvis.png: .png version of the Example_Student Performance.ipynb notebook
-	- Causal_Inference_no_Causalvis.png: .png version of the Example_Student Performance_no_Causalvis.ipynb
-	- All other files: additional notebooks used for dev testing
-
 ## Getting Started with Causalvis
 
 To run the causalvis library, first clone the repo locally:
@@ -99,33 +27,61 @@ To run the causalvis library, first clone the repo locally:
 git clone https://github.com/causalvis/causalvis.git
 ```
 
-### Installing for Jupyter lab
+### Installing for Jupyter Lab
 
-If this is the first time you are installing causalvis, in the main project folder, run:
+The quickest way to ensure that causalvis is installed correctly is to start with a clean conda environment with the exact versions of the following packages:
 
-```bash
+```
+ conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3
+```
+
+Ensure that the [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) package manager has been installed on your machine.
+Check for this by running `yarn -v`.
+
+Here, you can automate the rest of the installation by running:
+
+``` bash
 sh ./setup.sh
 ```
 
-For subsequent builds, run:
-```bash
-sh ./update.sh
+If you would like to complete the installation manually, or if `./setup.sh` does not work for any reason, the breakdown of steps are as follows.
+
+Install the relevant npm packages and build:
+
+``` bash
+npm install
+
+npm run build
 ```
 
-If the causalvis widget has been successfully installed, you should see it in the list:
-```bash
+Navigate to the causalvis subfolder (the root causalvis folder has a subfolder by the same name). Then run:
+
+``` bash
+pip install -e .
+
+jupyter labextension develop causalvis --overwrite
+```
+
+The package should show up when you run:
+
+``` bash
 jupyter labextension list
 ```
 
-### Running the widget
+### Running Causalvis
 
-Open JupyterLab:
+In the root project folder, open JupyterLab:
 
 ```bash
 jupyter lab
 ```
 
-Create a new notebook in python 3, then import the widget and pass it the relevant props.
+The `notebook` folder has a number of examples that demonstrate the various Causalvis modules.
+We recommend starting with `Example_All.ipynb`, which has all necessary data sets included and does not require any external packages.
+Other demo notebooks will require that certain packages are installed such as [causallib](https://github.com/BiomedSciAI/causallib), [causalnex](https://causalnex.readthedocs.io/en/latest/), [pandas](https://pandas.pydata.org/docs/getting_started/install.html), [scikit-learn](https://scikit-learn.org/stable/install.html), and others.
+Note that if you created a new conda environment as recommended above, it is recommended that you install these packages using `conda`, `conda-forge`, or `pip`.	
+
+To use the causalvis modules in your own projects, you can create a new notebook in python3 and instantiate the widget with the relevant props.
 
 ```py
 from causalvis import DAG
@@ -134,13 +90,17 @@ DAG(attributes=["A", "B"])
 
 ### Troubleshooting
 
-If you encounter errors when importing causalvis in Jupyter lab, first ensure that the package is successfully installed and appears in the Jupyter labextension list.
+If you encounter errors when importing causalvis in JupyterLab, first ensure that the package is successfully installed and appears in the Jupyter labextension list.
 
 ```bash
 jupyter labextension list
 ```
 
-If this has been verified, check that the python version used by Jupyter lab is identical to the version in which causalvis is installed. In cases where there are multiple virtual environments in the same machine, the causalvis package may be installed in a different location.
+If this has been verified, check that the python version used by JupyterLab is identical to the version in which causalvis is installed. In cases where there are multiple virtual environments in the same machine, the causalvis package may be installed in a different location.
+
+## Documentation
+
+We are working on releasing a comprehensive wiki for causalvis. The link will be updated here as soon as it is ready - check back soon!
 
 ## Developing for Causalvis
 
@@ -149,11 +109,13 @@ If this has been verified, check that the python version used by Jupyter lab is 
 To run the causalvis library, first clone the repo and install packages:
 
 ```bash
-git clone https://github.ibm.com/bumchul-kwon/causalvis.git
+git clone https://github.com/causalvis/causalvis.git
 npm install
 ```
 
 ### Run Modules
+
+To streamline development, we first test components in [storybook](https://storybook.js.org/docs/react/get-started/install) without installing into JupyterLab.
 
 Start the app with:
 
@@ -166,3 +128,36 @@ This should open a new browser window. Each module is listed separately in the l
 ### Data Sets
 
 All data sets are located under `./public`
+
+### Integrating Changes into JupyterLab
+
+Once any changes or new components are ready to be integrated into JupyterLab, we can run the widget installation instructions.
+For the most part, these are similar to the installation instructions above. We recommend creating a clean conda environment and checking that `yarn` has been installed.
+
+If this is the first installation of the widget, run:
+
+```
+sh ./setup.sh
+```
+
+For subsequent updates, it is sufficient to run:
+
+```
+sh ./update.sh
+```
+
+If you would like to complete the update manually, or if `./update.sh` does not work for any reason, the breakdown of steps are as follows.
+
+First update the front-end build:
+
+```
+npm run build
+```
+
+Then navigate to the `causalvis/js` subfolder and run:
+
+```
+yarn run build
+```
+
+After each update (for both `./update.sh` and manual approaches), make sure to exit and restart JupyterLab completely for changes to take effect. It is not sufficient to restart the kernel.

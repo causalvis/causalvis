@@ -1,10 +1,8 @@
-causalvis
-===============================
+# causalvis
 
-Visualization for causal inference
+A Custom Jupyter Widget Library
 
-Installation
-------------
+## Installation
 
 To install use pip:
 

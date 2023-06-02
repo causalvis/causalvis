@@ -1,4 +1,4 @@
-Visualization for causal inference
+A Custom Jupyter Widget Library
 
 Package Install
 ---------------

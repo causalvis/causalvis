@@ -7,15 +7,11 @@ npm install
 npm run build
 
 # cd into widget folder
-cd causalvis/js
+cd causalvis
 
-# Install widget packages and build for Jupyter lab
-npm install
-npm run build:labextension
-
-# Exit to enclosing folder and install
-cd ..
 pip install -e .
+
+jupyter labextension develop iceplain --overwrite
 
 # Exit to main folder
 cd ..

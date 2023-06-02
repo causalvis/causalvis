@@ -1,8 +1,9 @@
 {
   "name": "causalvis",
   "version": "0.1.0",
-  "description": "Visualization for causal inference",
+  "description": "A Custom Jupyter Widget Library",
   "author": "",
+  "license": "BSD-3-Clause",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
@@ -21,8 +22,8 @@
   ],
   "scripts": {
     "clean": "rimraf dist/ && rimraf ../causalvis/labextension/ && rimraf ../causalvis/nbextension",
-    "prepublish": "webpack",
-    "build": "webpack",
+    "prepublish": "yarn run clean && yarn run build:prod",
+    "build": "webpack --mode=development && yarn run build:labextension:dev",
     "build:prod": "webpack --mode=production && yarn run build:labextension",
     "build:labextension": "jupyter labextension build .",
     "build:labextension:dev": "jupyter labextension build --development True .",
@@ -31,13 +32,11 @@
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
-    "rimraf": "^2.6.1",
-    "webpack": "^5"
+    "webpack": "^5",
+    "rimraf": "^2.6.1"
   },
   "dependencies": {
-    "@jupyter-widgets/base": "^1.1 || ^2 || ^3 || ^4",
-    "lodash": "^4.17.4",
-    "yarn": "^1.22.19"
+    "@jupyter-widgets/base": "^1.1 || ^2 || ^3 || ^4 || ^6"
   },
   "jupyterlab": {
     "extension": "lib/labplugin",

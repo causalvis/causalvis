@@ -1,5 +1,4 @@
-var widgets = require('@jupyter-widgets/base');
-var _ = require('lodash');
+import { DOMWidgetModel, DOMWidgetView } from '@jupyter-widgets/base';
 
 var React = require('react');
 var ReactDOM = require('react-dom');
@@ -27,8 +26,10 @@ var lib = {...dag, ...cohort, ...teffect, ...versions};
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
-var ReactModel = widgets.DOMWidgetModel.extend({
-    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+export class ReactModel extends DOMWidgetModel {
+    defaults() {
+      return {
+        ...super.defaults(),
         _model_name : 'HelloModel',
         _view_name : 'HelloView',
         _model_module : 'causalvis',
@@ -37,14 +38,14 @@ var ReactModel = widgets.DOMWidgetModel.extend({
         _view_module_version : '0.1.0',
         value : {},
         props : {}
-    })
-});
+      };
+    }
+}
 
 
 // Custom View. Renders the widget model.
-var ReactView = widgets.DOMWidgetView.extend({
-    // Defines how the widget gets rendered into the DOM
-    render: function() {
+export class ReactView extends DOMWidgetView {
+    render() {
         this.value_changed();
 
         // Observe changes in the value traitlet in Python, and define
@@ -59,41 +60,42 @@ var ReactView = widgets.DOMWidgetView.extend({
         // this.input.oninput = this.input_changed.bind(this);
 
         // this.el.appendChild(this.input);
-    },
+    }
 
-    value_changed: function() {
+    value_changed() {
         var props = this.model.get("props");
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
-    },
+    }
 
-    input_changed: function() {
+    input_changed() {
         this.model.set('value', this.input.value);
         this.model.save_changes();
-    },
-});
+    }
+
+}
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
-var DAGModel = widgets.DOMWidgetModel.extend({
-    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+export class DAGModel extends DOMWidgetModel {
+    defaults() {
+      return {
+        ...super.defaults(),
         _model_name : 'HelloModel',
         _view_name : 'HelloView',
         _model_module : 'causalvis',
         _view_module : 'causalvis',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        value : {},
-        props : {}
-    })
-});
-
+        value : 'Hello World!'
+      };
+    }
+}
 
 // Custom View. Renders the widget model.
-var DAGView = widgets.DOMWidgetView.extend({
-    // Defines how the widget gets rendered into the DOM
-    render: function() {
+export class DAGView extends DOMWidgetView {
+    render() {
         // Render component
         this.value_changed();
 
@@ -150,9 +152,9 @@ var DAGView = widgets.DOMWidgetView.extend({
         this.inputPrognostics.oninput = this.prognostics_changed.bind(this);
 
         this.el.appendChild(this.inputPrognostics);
-    },
+    }
 
-    value_changed: function() {
+    value_changed() {
         var props = this.model.get("props");
 
         props = {...props,
@@ -167,55 +169,56 @@ var DAGView = widgets.DOMWidgetView.extend({
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
-    },
+    }
 
-    dag_changed: function() {
+    dag_changed() {
         // console.log("widget", this.inputDAG.value)
         this.model.set('DAG', JSON.parse(this.inputDAG.value));
         this.model.save_changes();
-    },
+    }
 
-    colliders_changed: function() {
+    colliders_changed() {
         this.model.set('colliders', JSON.parse(this.inputColliders.value));
         this.model.save_changes();
-    },
+    }
 
-    mediators_changed: function() {
+    mediators_changed() {
         this.model.set('mediators', JSON.parse(this.inputMediators.value));
         this.model.save_changes();
-    },
+    }
 
-    confounds_changed: function() {
+    confounds_changed() {
         this.model.set('confounds', JSON.parse(this.inputConfounds.value));
         this.model.save_changes();
-    },
+    }
 
-    prognostics_changed: function() {
+    prognostics_changed() {
         this.model.set('prognostics', JSON.parse(this.inputPrognostics.value));
         this.model.save_changes();
-    },
-});
+    }
+}
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
-var CohortModel = widgets.DOMWidgetModel.extend({
-    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+export class CohortModel extends DOMWidgetModel {
+    defaults() {
+      return {
+        ...super.defaults(),
         _model_name : 'HelloModel',
         _view_name : 'HelloView',
         _model_module : 'causalvis',
         _view_module : 'causalvis',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        value : {},
-        props : {}
-    })
-});
-
+        value : 'Hello World!'
+      };
+    }
+}
 
 // Custom View. Renders the widget model.
-var CohortView = widgets.DOMWidgetView.extend({
+export class CohortView extends DOMWidgetView {
     // Defines how the widget gets rendered into the DOM
-    render: function() {
+    render() {
         // Render component
         this.value_changed();
 
@@ -242,9 +245,9 @@ var CohortView = widgets.DOMWidgetView.extend({
         this.inputInverseSelection.oninput = this.iselection_changed.bind(this);
 
         this.el.appendChild(this.inputInverseSelection);
-    },
+    }
 
-    value_changed: function() {
+    value_changed() {
         var props = this.model.get("props");
 
         props = {...props,
@@ -253,39 +256,40 @@ var CohortView = widgets.DOMWidgetView.extend({
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
-    },
+    }
 
-    selection_changed: function() {
+    selection_changed() {
         this.model.set('selection', JSON.parse(this.inputSelection.value));
         this.model.save_changes();
-    },
+    }
 
-    iselection_changed: function() {
+    iselection_changed() {
         this.model.set('iselection', JSON.parse(this.inputInverseSelection.value));
         this.model.save_changes();
-    },
-});
+    }
+}
 
 // When serialiazing the entire widget state for embedding, only values that
 // differ from the defaults will be specified.
-var VersionHistoryModel = widgets.DOMWidgetModel.extend({
-    defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
+export class VersionHistoryModel extends DOMWidgetModel {
+    defaults() {
+      return {
+        ...super.defaults(),
         _model_name : 'HelloModel',
         _view_name : 'HelloView',
         _model_module : 'causalvis',
         _view_module : 'causalvis',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
-        value : {},
-        props : {}
-    })
-});
-
+        value : 'Hello World!'
+      };
+    }
+}
 
 // Custom View. Renders the widget model.
-var VersionHistoryView = widgets.DOMWidgetView.extend({
+export class VersionHistoryView extends DOMWidgetView {
     // Defines how the widget gets rendered into the DOM
-    render: function() {
+    render() {
         // Render component
         this.value_changed();
 
@@ -312,9 +316,9 @@ var VersionHistoryView = widgets.DOMWidgetView.extend({
         this.inputVersionCohort.oninput = this.versionCohort_changed.bind(this);
 
         this.el.appendChild(this.inputVersionCohort);
-    },
+    }
 
-    value_changed: function() {
+    value_changed() {
         var props = this.model.get("props");
 
         props = {...props,
@@ -323,28 +327,17 @@ var VersionHistoryView = widgets.DOMWidgetView.extend({
 
         var component = React.createElement(lib[this.model.attributes.component], props);
         ReactDOM.render(component, this.el);  
-    },
+    }
 
-    versionDAG_changed: function() {
+    versionDAG_changed() {
         // console.log(this.inputVersionDAG.value);
         this.model.set('DAG', JSON.parse(this.inputVersionDAG.value));
         this.model.save_changes();
-    },
+    }
 
-    versionCohort_changed: function() {
+    versionCohort_changed() {
         // console.log(this.inputVersionCohort.value);
         this.model.set('cohort', JSON.parse(this.inputVersionCohort.value));
         this.model.save_changes();
-    },
-});
-
-module.exports = {
-    ReactModel: ReactModel,
-    ReactView: ReactView,
-    DAGModel: DAGModel,
-    DAGView: DAGView,
-    CohortModel: CohortModel,
-    CohortView: CohortView,
-    VersionHistoryModel: VersionHistoryModel,
-    VersionHistoryView: VersionHistoryView
-};
+    }
+}
