@@ -21,47 +21,24 @@ Causalvis is a python library of interactive visualizations for causal inference
 
 ## Getting Started with Causalvis
 
-To run the causalvis library, first clone the repo locally:
-
-```bash
-git clone https://github.com/causalvis/causalvis.git
-```
-
-### Installing for Jupyter Lab
-
 The quickest way to ensure that causalvis is installed correctly is to start with a clean conda environment with the exact versions of the following packages:
 
 ```
- conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3
+ conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scipy pandas
 
  conda activate newenv
 ```
 
-Ensure that the [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) package manager has been installed on your machine.
-Check for this by running `yarn -v`.
+Install pip for this new environment:
 
-Here, you can automate the rest of the installation by running:
-
-``` bash
-sh ./setup.sh
+```bash
+conda install pip
 ```
 
-If you would like to complete the installation manually, or if `./setup.sh` does not work for any reason, the breakdown of steps are as follows.
+Then install causalvis:
 
-Install the relevant npm packages and build:
-
-``` bash
-npm install
-
-npm run build
-```
-
-Navigate to the causalvis subfolder (the root causalvis folder has a subfolder by the same name). Then run:
-
-``` bash
-pip install -e .
-
-jupyter labextension develop causalvis --overwrite
+```bash
+pip install causalvis
 ```
 
 The package should show up when you run:
@@ -133,13 +110,43 @@ All data sets are located under `./public`
 
 ### Integrating Changes into JupyterLab
 
-Once any changes or new components are ready to be integrated into JupyterLab, we can run the widget installation instructions.
-For the most part, these are similar to the installation instructions above. We recommend creating a clean conda environment and checking that `yarn` has been installed.
-
-If this is the first installation of the widget, run:
-
 ```
+ conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3
+
+ conda activate newenv
+```
+
+Ensure that the [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) package manager has been installed on your machine.
+Check for this by running `yarn -v`.
+
+If this is your first time installing causalvis, you can automate the rest of the installation by running:
+
+``` bash
 sh ./setup.sh
+```
+
+If you would like to complete the initial installation manually, or if `./setup.sh` does not work for any reason, the breakdown of steps are as follows.
+
+Install the relevant npm packages and build:
+
+``` bash
+npm install
+
+npm run build
+```
+
+Navigate to the causalvis subfolder (the root causalvis folder has a subfolder by the same name). Then run:
+
+``` bash
+pip install -e .
+
+jupyter labextension develop causalvis --overwrite
+```
+
+The package should show up when you run:
+
+``` bash
+jupyter labextension list
 ```
 
 For subsequent updates, it is sufficient to run:

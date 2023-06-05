@@ -32,11 +32,27 @@
   },
   "devDependencies": {
     "@jupyterlab/builder": "^3.0.0",
-    "webpack": "^5",
-    "rimraf": "^2.6.1"
+    "rimraf": "^2.6.1",
+    "webpack": "^5"
   },
   "dependencies": {
-    "@jupyter-widgets/base": "^1.1 || ^2 || ^3 || ^4 || ^6"
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.8.1",
+    "@jupyter-widgets/base": "^1.1 || ^2 || ^3 || ^4 || ^6",
+    "@material-ui/styles": "^4.11.5",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.7",
+    "@mui/styles": "^5.8.7",
+    "axios": "^0.26.1",
+    "cors": "^2.8.5",
+    "crossfilter2": "^1.5.4",
+    "d3": "^7.4.2",
+    "file-saver": "^2.0.5",
+    "material-ui-colors": "^1.0.0",
+    "react": "^17.0.2",
+    "react-color": "^2.19.3",
+    "react-dom": "^17.0.2",
+    "regression": "^2.0.1"
   },
   "jupyterlab": {
     "extension": "lib/labplugin",
