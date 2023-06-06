@@ -11,7 +11,7 @@ cd causalvis
 
 pip install -e .
 
-jupyter labextension develop iceplain --overwrite
+jupyter labextension develop causalvis --overwrite
 
 # Exit to main folder
 cd ..
