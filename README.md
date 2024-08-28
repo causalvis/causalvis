@@ -24,9 +24,9 @@ Causalvis is a python library of interactive visualizations for causal inference
 The quickest way to ensure that causalvis is installed correctly is to start with a clean conda environment with the exact versions of the following packages:
 
 ```
- conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scipy pandas scikit-learn
+ conda create -n causalvis python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scipy pandas scikit-learn
 
- conda activate newenv
+ conda activate causalvis
 ```
 
 Install pip for this new environment:
