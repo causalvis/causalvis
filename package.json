@@ -5,15 +5,16 @@
   "scripts": {
     "build": "nwb build-react-component",
     "clean": "nwb clean-app",
-    "start": "nwb serve-react-app",
+    "start": "nwb serve-react-demo",
     "start-api": "cd api && flask run --no-debugger",
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider && storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.25.4",
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
     "@material-ui/styles": "^4.11.5",
@@ -29,21 +30,27 @@
     "react": "^17.0.2",
     "react-color": "^2.19.3",
     "react-dom": "^17.0.2",
-    "regression": "^2.0.1"
+    "regression": "^2.0.1",
+    "webpack": "^5.94.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
     "@babel/core": "^7.17.7",
     "@babel/plugin-transform-react-jsx": "^7.18.6",
-    "@storybook/addon-actions": "^6.4.19",
-    "@storybook/addon-essentials": "^6.4.19",
-    "@storybook/addon-interactions": "^6.4.19",
-    "@storybook/addon-links": "^6.4.19",
-    "@storybook/react": "^6.4.19",
-    "@storybook/testing-library": "^0.0.9",
+    "@chromatic-com/storybook": "^1",
+    "@storybook/addon-actions": "^8.2.9",
+    "@storybook/addon-essentials": "^8.2.9",
+    "@storybook/addon-interactions": "^8.2.9",
+    "@storybook/addon-links": "^8.2.9",
+    "@storybook/addon-webpack5-compiler-babel": "^3.0.3",
+    "@storybook/react": "^8.2.9",
+    "@storybook/react-webpack5": "^8.2.9",
+    "@storybook/test": "^8.2.9",
     "babel-loader": "^8.2.3",
     "core-js": "^3.21.1",
-    "nwb": "0.25.x"
+    "html-webpack-plugin": "^5.6.0",
+    "nwb": "0.25.x",
+    "storybook": "^8.2.9"
   },
   "author": "",
   "license": "MIT",

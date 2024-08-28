@@ -24,7 +24,7 @@ Causalvis is a python library of interactive visualizations for causal inference
 The quickest way to ensure that causalvis is installed correctly is to start with a clean conda environment with the exact versions of the following packages:
 
 ```
- conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scipy pandas
+ conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scipy pandas scikit-learn
 
  conda activate newenv
 ```
@@ -56,9 +56,9 @@ jupyter lab
 ```
 
 The `notebook` folder has a number of examples that demonstrate the various Causalvis modules.
-We recommend starting with `Example_All.ipynb`, which has all necessary data sets included and does not require any external packages.
-Other demo notebooks will require that certain packages are installed such as [causallib](https://github.com/BiomedSciAI/causallib), [causalnex](https://causalnex.readthedocs.io/en/latest/), [pandas](https://pandas.pydata.org/docs/getting_started/install.html), [scikit-learn](https://scikit-learn.org/stable/install.html), and others.
-Note that if you created a new conda environment as recommended above, it is recommended that you install these packages using `conda`, `conda-forge`, or `pip`.	
+The files labeled 1-4 demonstrate the four visualization modules of Causalvis, and walk through how causal inference might be performed on a student math performance dataset.
+Some notebooks may require that additional packages are installed such as [causallib](https://github.com/BiomedSciAI/causallib), [causalnex](https://causalnex.readthedocs.io/en/latest/), and others.
+Note that if you created a new conda environment as in the instructions above, it is recommended that you install these packages using `conda`, `conda-forge`, or `pip`.	
 
 To use the causalvis modules in your own projects, you can create a new notebook in python3 and instantiate the widget with the relevant props.
 
@@ -111,9 +111,9 @@ All data sets are located under `./public`
 ### Integrating Changes into JupyterLab
 
 ```
- conda create -n newenv python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3
+ conda create -n causalvis-dev python=3.8 jupyterlab=3.4 ipywidgets=7.6 ipykernel=5.3 scikit-learn
 
- conda activate newenv
+ conda activate causalvis-dev
 ```
 
 Ensure that the [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable) package manager has been installed on your machine.
