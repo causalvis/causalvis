@@ -2,7 +2,7 @@
   "name": "causalvis",
   "homepage": "https://causalvis.github.io/causalvis",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "build": "nwb build-react-app",
     "clean": "nwb clean-app",
